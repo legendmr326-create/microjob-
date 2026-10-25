@@ -201,7 +201,9 @@
                                 <label class="block text-xs font-semibold text-gray-300 mb-1">পরিমাণ (BDT ৳)</label>
                                 <input type="number" id="depositAmount" placeholder="সর্বনিম্ন ৳১০০" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                             </div>
+                            <!-- Live Deposit 5% Calculation Info Box -->
                             <div id="depositCalcBox" class="text-xs text-emerald-400 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 hidden space-y-1"></div>
+                            
                             <input type="text" id="depositSender" placeholder="প্রেরকের নম্বর" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                             <input type="text" id="depositTrx" placeholder="Transaction ID (TrxID)" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white uppercase focus:outline-none focus:border-emerald-500">
                         </div>
@@ -224,7 +226,9 @@
                                 <label class="block text-xs font-semibold text-gray-300 mb-1">পরিমাণ (Min: ৳100)</label>
                                 <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                             </div>
+                            <!-- Live Withdraw 5% Calculation Info Box -->
                             <div id="withdrawCalcBox" class="text-xs text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/20 hidden space-y-1"></div>
+
                             <input type="text" id="withdrawReceiver" placeholder="রিসিভার নম্বর" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
                         <button onclick="submitWithdraw()" class="w-full bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl shadow-lg">Request Withdrawal (5% Fee)</button>
@@ -292,7 +296,7 @@
             </div>
         </div>
 
-        <!-- POST JOB MODAL WITH 3% FEE CALCULATION -->
+        <!-- POST JOB MODAL -->
         <div id="postJobModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden px-4">
             <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-3.5 border border-indigo-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center">
@@ -300,26 +304,12 @@
                     <button onclick="closePostJobModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Job Title</label>
-                        <input type="text" id="newJobTitle" placeholder="Job Title" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Proof Requirement</label>
-                        <textarea id="newJobProofReq" rows="3" placeholder="Details..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Reward per Worker (BDT)</label>
-                        <input type="number" id="newJobReward" placeholder="5.00" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Total Slots</label>
-                        <input type="number" id="newJobSlots" placeholder="50" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <!-- Job Post 3% Fee Calculation Box -->
-                    <div id="jobCalcBox" class="text-xs text-indigo-400 bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20 hidden space-y-1"></div>
+                    <input type="text" id="newJobTitle" placeholder="Job Title" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white">
+                    <textarea id="newJobProofReq" rows="3" placeholder="Proof Requirement..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white"></textarea>
+                    <input type="number" id="newJobReward" placeholder="Reward per Worker (BDT)" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white">
+                    <input type="number" id="newJobSlots" placeholder="Total Slots" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white">
                 </div>
-                <button onclick="submitNewJob()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition text-sm shadow-lg">Publish Job (3% Fee)</button>
+                <button onclick="submitNewJob()" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm">Publish Job</button>
             </div>
         </div>
 
@@ -343,7 +333,7 @@
             setupLiveCalculations();
         });
 
-        // Live 5% and 3% Calculations
+        // Live 5% Calculation for Deposit and Withdraw
         function setupLiveCalculations() {
             const depInput = document.getElementById('depositAmount');
             const depBox = document.getElementById('depositCalcBox');
@@ -375,30 +365,6 @@
                         witBox.classList.add('hidden');
                     }
                 });
-            }
-
-            // Job Post Live 3% Fee Calculation
-            const jobReward = document.getElementById('newJobReward');
-            const jobSlots = document.getElementById('newJobSlots');
-            const jobBox = document.getElementById('jobCalcBox');
-
-            function updateJobCalc() {
-                const reward = parseFloat(jobReward.value) || 0;
-                const slots = parseInt(jobSlots.value) || 0;
-                if (reward > 0 && slots > 0) {
-                    const subtotal = reward * slots;
-                    const fee = subtotal * 0.03; // 3% fee
-                    const totalCost = subtotal + fee;
-                    jobBox.classList.remove('hidden');
-                    jobBox.innerHTML = `<div>জব বাজেট (সাবটোটাল): ৳${subtotal.toFixed(2)}</div><div>৩% প্ল্যাটফর্ম ফি: ৳${fee.toFixed(2)}</div><div class="font-bold">মোট খরচ কাটা হবে: ৳${totalCost.toFixed(2)}</div>`;
-                } else {
-                    jobBox.classList.add('hidden');
-                }
-            }
-
-            if (jobReward && jobSlots) {
-                jobReward.addEventListener('input', updateJobCalc);
-                jobSlots.addEventListener('input', updateJobCalc);
             }
         }
 
@@ -611,18 +577,10 @@
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const slots = parseInt(document.getElementById('newJobSlots').value);
             const proofReq = document.getElementById('newJobProofReq').value;
-            if(!title || isNaN(reward) || isNaN(slots)) { alert('ফিল্ডগুলো সঠিকভাবে পূরণ করুন!'); return; }
+            if(!title || isNaN(reward)) { alert('ফিল্ডগুলো পূরণ করুন!'); return; }
 
-            const subtotal = reward * slots;
-            const fee = subtotal * 0.03;
-            const totalCost = subtotal + fee;
-
-            const { error } = await supabaseClient.from('micro_jobs').insert([{ 
-                title: title, reward: reward, slots: slots, proof_requirement: proofReq, client_email: currentUser.email 
-            }]);
-
-            if(error) { alert('ত্রুটি: ' + error.message); return; }
-            alert(`জব পোস্ট সফল হয়েছে! মোট খরচ (৩% ফিসহ): ৳${totalCost.toFixed(2)}`);
+            await supabaseClient.from('micro_jobs').insert([{ title: title, reward: reward, slots: slots, proof_requirement: proofReq, client_email: currentUser.email }]);
+            alert('জব পোস্ট সফল হয়েছে!');
             closePostJobModal();
             fetchJobsFromDatabase();
         }
