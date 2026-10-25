@@ -166,6 +166,35 @@
                                 <i class="fa-solid fa-wallet text-xs"></i> Cashout
                             </button>
                         </div>
+                        <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-cardBorder/60">
+                            <div>
+                                <span class="text-[11px] text-gray-400">Pending Review</span>
+                                <p class="text-sm font-bold text-amber-400">৳ 0.00</p>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-gray-400">Total Lifetime Earned</span>
+                                <p class="text-sm font-bold text-emerald-400">৳ 0.00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Task Statistics -->
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2.5">Task Statistics</h2>
+                        <div class="grid grid-cols-3 gap-2.5">
+                            <div class="glass-card rounded-xl p-3 text-center border-l-2 border-l-amber-400">
+                                <p class="text-xs text-gray-400 mb-1">Pending</p>
+                                <p class="text-lg font-bold text-amber-400">0</p>
+                            </div>
+                            <div class="glass-card rounded-xl p-3 text-center border-l-2 border-l-emerald-400">
+                                <p class="text-xs text-gray-400 mb-1">Approved</p>
+                                <p class="text-lg font-bold text-emerald-400">0</p>
+                            </div>
+                            <div class="glass-card rounded-xl p-3 text-center border-l-2 border-l-rose-500">
+                                <p class="text-xs text-gray-400 mb-1">Rejected</p>
+                                <p class="text-lg font-bold text-rose-500">0</p>
+                            </div>
+                        </div>
                     </div>
 
                     <button onclick="switchTab('jobs')" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/15 flex items-center justify-center gap-2 transition">
@@ -272,7 +301,7 @@
                     </div>
                 </div>
 
-                <!-- WITHDRAW FORM -->
+                <!-- WITHDRAW FORM WITH 5% COMMISSION -->
                 <div id="withdrawSection" class="space-y-4 hidden">
                     <div class="glass-card rounded-2xl p-4 space-y-3">
                         <label class="block text-xs font-bold text-gray-300 uppercase">১. ক্যাশআউট মেথড সিলেক্ট করুন</label>
@@ -291,8 +320,9 @@
                             </button>
                         </div>
 
-                        <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 leading-relaxed">
-                            <i class="fa-solid fa-circle-info mr-1"></i> সর্বনিম্ন উইথড্র ৳১০০ টাকা।
+                        <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-xs text-amber-300 space-y-1">
+                            <p><i class="fa-solid fa-circle-info mr-1"></i> সর্বনিম্ন উইথড্র ৳১০০ টাকা।</p>
+                            <p><i class="fa-solid fa-percent mr-1"></i> উইথড্র করার সময় ৫% এডমিন চার্জ কাটা হবে।</p>
                         </div>
 
                         <div class="space-y-3 pt-1">
@@ -307,7 +337,7 @@
                         </div>
 
                         <button onclick="submitWithdraw()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg transition">
-                            Request Withdrawal
+                            Request Withdrawal (5% Fee)
                         </button>
                     </div>
                 </div>
@@ -360,7 +390,7 @@
             </div>
         </div>
 
-        <!-- CLIENT POST NEW JOB MODAL (WITH 3% ADMIN COMMISSION) -->
+        <!-- CLIENT POST NEW JOB MODAL (WITH 3% COMMISSION & MULTIPLE SCREENSHOTS) -->
         <div id="postJobModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden px-4">
             <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-3.5 border border-indigo-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center">
@@ -385,8 +415,19 @@
                         <input type="number" id="newJobSlots" placeholder="যেমন: 50" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Required Proof / কী প্রমাণ দিতে হবে?</label>
-                        <textarea id="newJobProofReq" rows="2" placeholder="যেমন: স্ক্রিনশট এবং আপনার ইউজারনেম দিন" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Required Screenshots Count / কয়টি স্ক্রিনশট দিতে হবে? (১-৬)</label>
+                        <select id="newJobScreenshotCount" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <option value="1">১ টি স্ক্রিনশট</option>
+                            <option value="2">২ টি স্ক্রিনশট</option>
+                            <option value="3">৩ টি স্ক্রিনশট</option>
+                            <option value="4">৪ টি স্ক্রিনশট</option>
+                            <option value="5">৫ টি স্ক্রিনশট</option>
+                            <option value="6">৬ টি স্ক্রিনশট</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Job Guidelines / কাজের নিয়মাবলী ও প্রুফ বিবরণ</label>
+                        <textarea id="newJobProofReq" rows="2" placeholder="যেমন: ভিডিও পুরো দেখে সাবস্ক্রাইব করুন..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
                     </div>
                     <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-2.5 text-[11px] text-indigo-300 leading-relaxed">
                         <i class="fa-solid fa-circle-info mr-1"></i> জব পোস্ট করার জন্য মোট খরচের উপর **৩% এডমিন কমিশন (Admin Fee)** কাটা হবে।
@@ -400,7 +441,7 @@
 
         <!-- WORKER SUBMIT PROOF MODAL -->
         <div id="submitProofModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden px-4">
-            <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-4 border border-emerald-500/30">
+            <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-4 border border-emerald-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-bold text-white"><i class="fa-solid fa-upload text-emerald-400 mr-1.5"></i> Submit Task Proof</h3>
                     <button onclick="closeSubmitProofModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -408,12 +449,11 @@
                 <p id="proofReqInstruction" class="text-xs text-gray-400"></p>
                 <div class="space-y-3">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Written Proof / লিখিত প্রুফ</label>
-                        <textarea id="workerWrittenProof" rows="3" placeholder="কাজের প্রমাণ এখানে লিখুন..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Written Proof / লিখিত প্রমাণ</label>
+                        <textarea id="workerWrittenProof" rows="2" placeholder="আপনার ইউজারনেম বা প্রুফ এখানে লিখুন..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Screenshot / ইমেজ লিংক</label>
-                        <input type="text" id="workerScreenProof" placeholder="স্ক্রিনশট বা প্রুফ ইমেজ লিংক দিন" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <div id="dynamicScreenshotInputs" class="space-y-2">
+                        <!-- Dynamic Screenshot Inputs -->
                     </div>
                 </div>
                 <button onclick="confirmSubmitProof()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl transition text-sm">
@@ -445,6 +485,7 @@
         let currentRole = 'worker';
         let selectedDepositGateway = 'bkash';
         let selectedJobForProof = null;
+        let requiredScreenshotCount = 1;
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAuthStatus();
@@ -650,7 +691,7 @@
             navigator.clipboard.writeText(num).then(() => alert('নম্বর কপি করা হয়েছে: ' + num));
         }
 
-        // Job Posting with 3% Admin Commission Calculation
+        // Job Posting with 3% Admin Commission
         function openPostJobModal() {
             document.getElementById('postJobModal').classList.remove('hidden');
         }
@@ -665,13 +706,13 @@
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const slots = parseInt(document.getElementById('newJobSlots').value);
             const proofReq = document.getElementById('newJobProofReq').value;
+            const screenshotCount = parseInt(document.getElementById('newJobScreenshotCount').value);
 
             if(!title || isNaN(reward) || isNaN(slots) || !proofReq) {
                 alert('দয়া করে সঠিক তথ্য দিয়ে সব ঘর পূরণ করুন!');
                 return;
             }
 
-            // Calculations including 3% Admin Commission
             const totalRewardCost = reward * slots;
             const adminCommission = totalRewardCost * 0.03; // 3% Admin Fee
             const grandTotalCost = totalRewardCost + adminCommission;
@@ -685,6 +726,7 @@
                         reward: `৳ ${reward.toFixed(2)}`, 
                         slots: `0/${slots}`, 
                         proof_requirement: proofReq,
+                        screenshot_count: screenshotCount,
                         client_email: currentUser?.email || 'Client',
                         admin_commission: adminCommission.toFixed(2)
                     }]);
@@ -728,7 +770,8 @@
                                     <img src="${job.thumbnail}" class="w-10 h-10 rounded-xl object-cover border border-cardBorder">
                                     <div>
                                         <h4 class="text-xs font-bold text-gray-100">${job.title}</h4>
-                                        <span class="text-[10px] text-gray-400">Slots: ${job.slots} | Req: ${job.proof_requirement}</span>
+                                        <span class="text-[10px] text-gray-400">Slots: ${job.slots} | Screenshots Req: ${job.screenshot_count || 1}</span>
+                                        <p class="text-[10px] text-emerald-400 mt-0.5">নিয়ম: ${job.proof_requirement}</p>
                                     </div>
                                 </div>
                                 <span class="text-sm font-extrabold text-emerald-400">${job.reward}</span>
@@ -743,12 +786,13 @@
                                     <img src="${job.thumbnail}" class="w-10 h-10 rounded-xl object-cover border border-cardBorder">
                                     <div>
                                         <h4 class="text-xs font-bold text-gray-100">${job.title}</h4>
-                                        <span class="text-[10px] text-gray-400">Slots: ${job.slots}</span>
+                                        <span class="text-[10px] text-gray-400">Slots: ${job.slots} | প্রুফ প্রয়োজন: ${job.screenshot_count || 1}টি স্ক্রিনশট</span>
+                                        <p class="text-[10px] text-gray-300 mt-1"><b>কাজের বিবরণ:</b> ${job.proof_requirement}</p>
                                     </div>
                                 </div>
                                 <span class="text-sm font-extrabold text-emerald-400">${job.reward}</span>
                             </div>
-                            <button onclick="openSubmitProofModal(${job.id}, '${job.proof_requirement}')" class="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold py-2 rounded-xl text-xs transition">
+                            <button onclick="openSubmitProofModal(${job.id}, '${job.proof_requirement}', ${job.screenshot_count || 1})" class="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold py-2 rounded-xl text-xs transition">
                                 Submit Work Proof / কাজ জমা দিন
                             </button>
                         </div>
@@ -759,9 +803,22 @@
             }
         }
 
-        function openSubmitProofModal(jobId, requirement) {
+        function openSubmitProofModal(jobId, requirement, screenCount) {
             selectedJobForProof = jobId;
-            document.getElementById('proofReqInstruction').innerText = `প্রয়োজনীয় প্রুফ: ${requirement}`;
+            requiredScreenshotCount = screenCount;
+            document.getElementById('proofReqInstruction').innerText = `নির্দেশনা: ${requirement} (মোট ${screenCount}টি স্ক্রিনশট লিংক দিন)`;
+            
+            const container = document.getElementById('dynamicScreenshotInputs');
+            container.innerHTML = '';
+            for(let i = 1; i <= screenCount; i++) {
+                container.innerHTML += `
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Screenshot Link ${i} / স্ক্রিনশট লিংক ${i}</label>
+                        <input type="text" id="workerScreenProof_${i}" placeholder="স্ক্রিনশট ${i} এর ইমেজ লিংক দিন" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                `;
+            }
+
             document.getElementById('submitProofModal').classList.remove('hidden');
         }
 
@@ -771,10 +828,19 @@
 
         async function confirmSubmitProof() {
             const written = document.getElementById('workerWrittenProof').value;
-            const screen = document.getElementById('workerScreenProof').value;
-
             if(!written) {
-                alert('দয়া করে লিখিত প্রুফ দিন!');
+                alert('দয়া করে লিখিত প্রমাণ দিন!');
+                return;
+            }
+
+            let screenLinks = [];
+            for(let i = 1; i <= requiredScreenshotCount; i++) {
+                const linkVal = document.getElementById(`workerScreenProof_${i}`).value;
+                if(linkVal) screenLinks.push(linkVal);
+            }
+
+            if(screenLinks.length === 0) {
+                alert('কমপক্ষে একটি স্ক্রিনশট লিংক প্রদান করুন!');
                 return;
             }
 
@@ -785,7 +851,7 @@
                         job_id: selectedJobForProof,
                         worker_email: currentUser?.email || 'Worker',
                         written_proof: written,
-                        screenshot_proof: screen || 'N/A',
+                        screenshot_proof: screenLinks.join(', '),
                         status: 'Pending Review'
                     }]);
 
@@ -796,7 +862,6 @@
 
                 alert('আপনার কাজের প্রুফ সফলভাবে ক্লায়েন্টের কাছে সাবমিট করা হয়েছে!');
                 document.getElementById('workerWrittenProof').value = '';
-                document.getElementById('workerScreenProof').value = '';
                 closeSubmitProofModal();
             } catch(err) {
                 alert('ডাটাবেজে সংযোগে ত্রুটি ঘটেছে।');
@@ -811,12 +876,25 @@
             alert(`আপনার ৳${amt} টাকা ডিপোজিট সাবমিট হয়েছে! TrxID: ${trx}`);
         }
 
+        // Withdrawal with 5% Admin Commission Calculation
         function submitWithdraw() {
-            const amt = document.getElementById('withdrawAmount').value;
+            const amt = parseFloat(document.getElementById('withdrawAmount').value);
             const receiver = document.getElementById('withdrawReceiver').value;
-            if(!amt || !receiver) { alert('উইথড্র পরিমাণ ও নম্বর লিখুন!'); return; }
-            if(Number(amt) < 100) { alert('সর্বনিম্ন উইথড্র পরিমাণ ৳১০০ টাকা হতে হবে!'); return; }
-            alert(`আপনার ৳${amt} টাকা উইথড্র রিকুয়েস্ট সফল হয়েছে!`);
+
+            if(isNaN(amt) || !receiver) {
+                alert('উইথড্র পরিমাণ ও নম্বর লিখুন!');
+                return;
+            }
+
+            if(amt < 100) {
+                alert('সর্বনিম্ন উইথড্র পরিমাণ ৳১০০ টাকা হতে হবে!');
+                return;
+            }
+
+            const adminFee = amt * 0.05; // 5% Withdrawal Fee
+            const finalReceivable = amt - adminFee;
+
+            alert(`আপনার ৳${amt} টাকার উইথড্র রিকুয়েস্ট সফল হয়েছে!\nএডমিন ফি (৫%): ৳${adminFee.toFixed(2)}\nআপনি পাবেন: ৳${finalReceivable.toFixed(2)}`);
         }
 
         function openModal(id) {
