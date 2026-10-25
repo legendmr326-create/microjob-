@@ -7,41 +7,47 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between pb-16">
 
-    <!-- Auth Section (Hidden if logged in) -->
+    <!-- Auth Container (Login / Register) -->
     <div id="authContainer" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 w-full max-w-md">
-            <h2 id="authTitle" class="text-xl font-bold mb-4 text-center text-indigo-400">Login to TaskFlex</h2>
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 w-full max-w-md shadow-2xl">
+            <h2 id="authTitle" class="text-xl font-bold mb-4 text-center text-indigo-400">TaskFlex - লগইন করুন</h2>
             <div class="space-y-3">
-                <input type="email" id="authEmail" placeholder="Email Address" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                <input type="password" id="authPassword" placeholder="Password" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                <button onclick="handleAuth()" id="authBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-semibold text-sm">Login</button>
-                <p class="text-center text-xs text-slate-400 mt-3 cursor-pointer" onclick="toggleAuthMode()">
-                    <span id="authToggleText">Don't have an account? Register</span>
+                <input type="email" id="authEmail" placeholder="ইমেইল এড্রেস" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                <input type="password" id="authPassword" placeholder="পাসওয়ার্ড" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                <button onclick="handleAuth()" id="authBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-semibold text-sm transition">লগইন</button>
+                <p class="text-center text-xs text-slate-400 mt-3 cursor-pointer hover:text-indigo-400" onclick="toggleAuthMode()">
+                    <span id="authToggleText">একাউন্ট নেই? রেজিস্ট্রেশন করুন</span>
                 </p>
             </div>
         </div>
     </div>
 
-    <!-- Main App Header -->
-    <header class="bg-slate-900 p-4 flex justify-between items-center border-b border-slate-800">
+    <!-- Main Header -->
+    <header class="bg-slate-900 p-4 flex justify-between items-center border-b border-slate-800 sticky top-0 z-40">
         <div class="flex items-center space-x-2">
-            <span class="font-bold text-lg text-indigo-400">TaskFlex</span>
+            <span class="font-bold text-lg text-indigo-400">⚡ Microjob TaskFlex</span>
         </div>
-        <div class="flex items-center space-x-3">
-            <button id="modeToggleBtn" onclick="toggleMode()" class="bg-indigo-600 px-3 py-1.5 text-xs rounded-xl font-medium">Worker Mode</button>
-            <button onclick="logoutUser()" class="text-xs bg-rose-600/20 text-rose-400 px-2.5 py-1.5 rounded-xl font-medium">Logout</button>
+        <div class="flex items-center space-x-2">
+            <button id="modeToggleBtn" onclick="toggleMode()" class="bg-indigo-600 px-3 py-1.5 text-xs rounded-xl font-medium shadow">Worker Mode</button>
+            <button onclick="logoutUser()" class="text-xs bg-rose-600/20 text-rose-400 px-2.5 py-1.5 rounded-xl font-medium hover:bg-rose-600/30">লগআউট</button>
         </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="p-4 flex-grow mb-16" id="mainContent">
+    <main class="p-4 flex-grow space-y-4 max-w-lg mx-auto w-full">
+        
         <!-- Worker View -->
-        <div id="workerView">
-            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 mb-4">
-                <p class="text-xs text-slate-400">Available Balance</p>
-                <h2 class="text-2xl font-bold text-emerald-400 mt-1" id="userBalance">৳ 0.00</h2>
+        <div id="workerView" class="space-y-4">
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-xs text-slate-400">Available Balance</p>
+                        <h2 class="text-2xl font-bold text-emerald-400 mt-1" id="userBalance">৳ 0.00</h2>
+                    </div>
+                    <button onclick="openCashoutModal()" class="bg-emerald-600 hover:bg-emerald-700 px-4 py-2 rounded-xl text-xs font-semibold shadow">Cashout</button>
+                </div>
                 <div class="mt-4 grid grid-cols-2 gap-2">
                     <div class="bg-slate-800/50 p-2.5 rounded-xl border border-slate-800">
                         <p class="text-[10px] text-slate-400">Pending Review</p>
@@ -55,7 +61,7 @@
             </div>
 
             <!-- Task Statistics -->
-            <div class="grid grid-cols-3 gap-2 text-center mb-4">
+            <div class="grid grid-cols-3 gap-2 text-center">
                 <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
                     <p class="text-[10px] text-slate-400">Pending</p>
                     <p class="text-lg font-bold mt-1" id="statPending">0</p>
@@ -72,7 +78,7 @@
 
             <!-- Jobs List -->
             <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                <h3 class="font-semibold text-sm mb-3">Available Microjobs</h3>
+                <h3 class="font-semibold text-sm mb-3 text-indigo-400">Available Microjobs</h3>
                 <div id="jobListContainer" class="space-y-2">
                     <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center text-sm">
                         <span>YouTube Video Watch & Like</span>
@@ -88,34 +94,37 @@
                 <h3 class="font-semibold text-sm mb-3 text-indigo-400">Deposit Funds (5% Fee)</h3>
                 <div class="space-y-3">
                     <select id="depositMethod" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
-                        <option value="bKash">bKash</option>
-                        <option value="Nagad">Nagad</option>
+                        <option value="bKash">bKash (Personal: 01748021976)</option>
+                        <option value="Nagad">Nagad (Personal: 01748021976)</option>
                         <option value="Rocket">Rocket</option>
                     </select>
                     <input type="number" id="depositAmount" placeholder="Amount (BDT)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
                     <input type="text" id="depositTrxId" placeholder="Transaction ID (TrxID)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
-                    <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded-xl font-semibold text-sm">Submit Deposit</button>
+                    <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded-xl font-semibold text-sm transition">ডিপোজিট সাবমিট করুন</button>
                 </div>
             </div>
 
             <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                <h3 class="font-semibold text-sm mb-3 text-indigo-400">Post New Job (3% Fee)</h3>
+                <h3 class="font-semibold text-sm mb-3 text-indigo-400">Post New Job (3% Job Fee)</h3>
                 <div class="space-y-3">
-                    <input type="text" id="jobTitle" placeholder="Job Title" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
+                    <input type="text" id="jobTitle" placeholder="Job Title (e.g. Subscribe Channel)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
                     <input type="number" id="jobReward" placeholder="Reward per worker (BDT)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
-                    <button onclick="submitJobPost()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-xl font-semibold text-sm">Publish Job</button>
+                    <button onclick="submitJobPost()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-xl font-semibold text-sm transition">জব পাবলিশ করুন</button>
                 </div>
             </div>
         </div>
+
     </main>
 
-    <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-3 text-xs">
-        <button class="text-indigo-400 font-medium">Home</button>
-        <button class="text-slate-400 font-medium">History</button>
-        <button class="text-slate-400 font-medium">Profile</button>
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-3 text-xs z-40">
+        <button onclick="switchTab('home')" class="text-indigo-400 font-medium">Home</button>
+        <button onclick="switchTab('jobs')" class="text-slate-400 font-medium">Jobs</button>
+        <button onclick="switchTab('wallet')" class="text-slate-400 font-medium">Wallet</button>
+        <button onclick="switchTab('account')" class="text-slate-400 font-medium">Account</button>
     </nav>
 
+    <!-- Script Logic -->
     <script>
         const SUPABASE_URL = 'https://ydskgvciiwlxbonvradu.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO';
@@ -126,24 +135,27 @@
 
         function toggleAuthMode() {
             isRegisterMode = !isRegisterMode;
-            document.getElementById('authTitle').innerText = isRegisterMode ? "Register to TaskFlex" : "Login to TaskFlex";
-            document.getElementById('authBtn').innerText = isRegisterMode ? "Register" : "Login";
-            document.getElementById('authToggleText').innerText = isRegisterMode ? "Already have an account? Login" : "Don't have an account? Register";
+            document.getElementById('authTitle').innerText = isRegisterMode ? "TaskFlex - রেজিস্ট্রেশন" : "TaskFlex - লগইন করুন";
+            document.getElementById('authBtn').innerText = isRegisterMode ? "রেজিস্ট্রেশন" : "লগইন";
+            document.getElementById('authToggleText').innerText = isRegisterMode ? "একাউন্ট আছে? লগইন করুন" : "একাউন্ট নেই? রেজিস্ট্রেশন করুন";
         }
 
         async function handleAuth() {
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPassword').value;
-            if(!email || !password) return alert("Please fill all fields");
+            if(!email || !password) return alert("দয়া করে সব ফিল্ড পূরণ করুন");
 
             if(isRegisterMode) {
                 const { data, error } = await supabaseClient.auth.signUp({ email, password });
                 if(error) alert(error.message);
-                else { alert("Registration successful! You can login now."); toggleAuthMode(); }
+                else { alert("রেজিস্ট্রেশন সফল হয়েছে! এখন লগইন করুন।"); toggleAuthMode(); }
             } else {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if(error) alert(error.message);
-                else { document.getElementById('authContainer').style.display = 'none'; loadUserData(); }
+                else { 
+                    document.getElementById('authContainer').style.display = 'none'; 
+                    loadUserData(); 
+                }
             }
         }
 
@@ -161,12 +173,12 @@
             const clientView = document.getElementById('clientView');
             if(isClientMode) {
                 btn.innerText = "Client Mode";
-                btn.className = "bg-purple-600 px-3 py-1.5 text-xs rounded-xl font-medium";
+                btn.className = "bg-purple-600 px-3 py-1.5 text-xs rounded-xl font-medium shadow";
                 workerView.classList.add('hidden');
                 clientView.classList.remove('hidden');
             } else {
                 btn.innerText = "Worker Mode";
-                btn.className = "bg-indigo-600 px-3 py-1.5 text-xs rounded-xl font-medium";
+                btn.className = "bg-indigo-600 px-3 py-1.5 text-xs rounded-xl font-medium shadow";
                 clientView.classList.add('hidden');
                 workerView.classList.remove('hidden');
             }
@@ -176,23 +188,31 @@
             const method = document.getElementById('depositMethod').value;
             const amount = parseFloat(document.getElementById('depositAmount').value);
             const trxId = document.getElementById('depositTrxId').value;
-            if(!amount || !trxId) return alert("Please enter amount and TrxID");
+            if(!amount || !trxId) return alert("পরিমাণ এবং ট্রানজ্যাকশন আইডি (TrxID) দিন");
 
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { error } = await supabaseClient.from('deposits').insert([{ user_email: user.email, method, amount, trx_id: trxId, status: 'Pending' }]);
             if(error) alert(error.message);
-            else { alert("Deposit request submitted successfully!"); }
+            else { alert("ডিপোজিট রিকোয়েস্ট সফলভাবে জমা হয়েছে!"); }
         }
 
         async function submitJobPost() {
             const title = document.getElementById('jobTitle').value;
             const reward = parseFloat(document.getElementById('jobReward').value);
-            if(!title || !reward) return alert("Please fill all fields");
+            if(!title || !reward) return alert("সব ফিল্ড পূরণ করুন");
 
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { error } = await supabaseClient.from('jobs').insert([{ client_email: user.email, title, reward, status: 'Active' }]);
             if(error) alert(error.message);
-            else { alert("Job posted successfully (3% platform fee applied)"); }
+            else { alert("জব সফলভাবে পোস্ট করা হয়েছে (৩% ফি প্রযোজ্য)"); }
+        }
+
+        function openCashoutModal() {
+            alert("ক্যাশআউট প্যানেল: ন্যূনতম ক্যাশআউট ১০০ টাকা।");
+        }
+
+        function switchTab(tab) {
+            alert(tab.toUpperCase() + " সেকশন সিলেক্ট করা হয়েছে।");
         }
 
         async function logoutUser() {
