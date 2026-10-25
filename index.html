@@ -390,7 +390,7 @@
             </div>
         </div>
 
-        <!-- CLIENT POST NEW JOB MODAL (WITH 3% COMMISSION & MULTIPLE SCREENSHOTS) -->
+        <!-- CLIENT POST NEW JOB MODAL (WITH FILE THUMBNAIL UPLOAD & 3% COMMISSION) -->
         <div id="postJobModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden px-4">
             <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-3.5 border border-indigo-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center">
@@ -403,8 +403,8 @@
                         <input type="text" id="newJobTitle" placeholder="যেমন: YouTube Video Watch & Like" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Thumbnail / Image URL (থাম্বনেইল লিংক)</label>
-                        <input type="text" id="newJobThumb" placeholder="https://image-url.com" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Thumbnail Image / থাম্বনেইল ছবি আপলোড করুন</label>
+                        <input type="file" id="newJobThumbFile" accept="image/*" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-400 hover:file:bg-indigo-500/30">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 mb-1">Reward per Worker / প্রতি কর্মীর পেমেন্ট (BDT ৳)</label>
@@ -439,7 +439,7 @@
             </div>
         </div>
 
-        <!-- WORKER SUBMIT PROOF MODAL -->
+        <!-- WORKER SUBMIT PROOF MODAL (WITH SCREENSHOT FILE UPLOADS) -->
         <div id="submitProofModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden px-4">
             <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-4 border border-emerald-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center">
@@ -453,7 +453,7 @@
                         <textarea id="workerWrittenProof" rows="2" placeholder="আপনার ইউজারনেম বা প্রুফ এখানে লিখুন..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
                     </div>
                     <div id="dynamicScreenshotInputs" class="space-y-2">
-                        <!-- Dynamic Screenshot Inputs -->
+                        <!-- Dynamic Screenshot File Inputs -->
                     </div>
                 </div>
                 <button onclick="confirmSubmitProof()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl transition text-sm">
@@ -691,7 +691,7 @@
             navigator.clipboard.writeText(num).then(() => alert('নম্বর কপি করা হয়েছে: ' + num));
         }
 
-        // Job Posting with 3% Admin Commission
+        // Job Posting with Thumbnail File Upload & 3% Admin Commission
         function openPostJobModal() {
             document.getElementById('postJobModal').classList.remove('hidden');
         }
@@ -702,7 +702,7 @@
 
         async function submitNewJob() {
             const title = document.getElementById('newJobTitle').value;
-            const thumb = document.getElementById('newJobThumb').value;
+            const thumbFile = document.getElementById('newJobThumbFile').files[0];
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const slots = parseInt(document.getElementById('newJobSlots').value);
             const proofReq = document.getElementById('newJobProofReq').value;
@@ -713,16 +713,32 @@
                 return;
             }
 
-            const totalRewardCost = reward * slots;
-            const adminCommission = totalRewardCost * 0.03; // 3% Admin Fee
-            const grandTotalCost = totalRewardCost + adminCommission;
+            // Helper function to read file as Data URL
+            const readFileAsDataURL = (file) => {
+                return new Promise((resolve, reject) => {
+                    if (!file) {
+                        resolve('https://via.placeholder.com/150');
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            };
 
             try {
+                const thumbDataUrl = await readFileAsDataURL(thumbFile);
+
+                const totalRewardCost = reward * slots;
+                const adminCommission = totalRewardCost * 0.03; // 3% Admin Fee
+                const grandTotalCost = totalRewardCost + adminCommission;
+
                 const { error } = await supabaseClient
                     .from('micro_jobs')
                     .insert([{ 
                         title: title, 
-                        thumbnail: thumb || 'https://via.placeholder.com/150',
+                        thumbnail: thumbDataUrl,
                         reward: `৳ ${reward.toFixed(2)}`, 
                         slots: `0/${slots}`, 
                         proof_requirement: proofReq,
@@ -738,7 +754,7 @@
 
                 alert(`সফলভাবে জব পোস্ট করা হয়েছে!\nমোট খরচ: ৳${grandTotalCost.toFixed(2)} (এর মধ্যে ৩% এডমিন কমিশন: ৳${adminCommission.toFixed(2)})`);
                 document.getElementById('newJobTitle').value = '';
-                document.getElementById('newJobThumb').value = '';
+                document.getElementById('newJobThumbFile').value = '';
                 document.getElementById('newJobReward').value = '';
                 document.getElementById('newJobSlots').value = '';
                 document.getElementById('newJobProofReq').value = '';
@@ -806,15 +822,15 @@
         function openSubmitProofModal(jobId, requirement, screenCount) {
             selectedJobForProof = jobId;
             requiredScreenshotCount = screenCount;
-            document.getElementById('proofReqInstruction').innerText = `নির্দেশনা: ${requirement} (মোট ${screenCount}টি স্ক্রিনশট লিংক দিন)`;
+            document.getElementById('proofReqInstruction').innerText = `নির্দেশনা: ${requirement} (মোট ${screenCount}টি স্ক্রিনশট ফাইল আপলোড করুন)`;
             
             const container = document.getElementById('dynamicScreenshotInputs');
             container.innerHTML = '';
             for(let i = 1; i <= screenCount; i++) {
                 container.innerHTML += `
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Screenshot Link ${i} / স্ক্রিনশট লিংক ${i}</label>
-                        <input type="text" id="workerScreenProof_${i}" placeholder="স্ক্রিনশট ${i} এর ইমেজ লিংক দিন" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Screenshot File ${i} / স্ক্রিনশট ছবি ${i} আপলোড</label>
+                        <input type="file" id="workerScreenFile_${i}" accept="image/*" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-emerald-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/35 screenshot-file-input">
                     </div>
                 `;
             }
@@ -833,25 +849,38 @@
                 return;
             }
 
-            let screenLinks = [];
-            for(let i = 1; i <= requiredScreenshotCount; i++) {
-                const linkVal = document.getElementById(`workerScreenProof_${i}`).value;
-                if(linkVal) screenLinks.push(linkVal);
-            }
-
-            if(screenLinks.length === 0) {
-                alert('কমপক্ষে একটি স্ক্রিনশট লিংক প্রদান করুন!');
-                return;
-            }
+            const readFileAsDataURL = (file) => {
+                return new Promise((resolve, reject) => {
+                    if (!file) resolve(null);
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            };
 
             try {
+                let screenBase64List = [];
+                for(let i = 1; i <= requiredScreenshotCount; i++) {
+                    const fileInput = document.getElementById(`workerScreenFile_${i}`);
+                    if(fileInput && fileInput.files[0]) {
+                        const base64 = await readFileAsDataURL(fileInput.files[0]);
+                        if(base64) screenBase64List.push(base64);
+                    }
+                }
+
+                if(screenBase64List.length === 0) {
+                    alert('কমপক্ষে একটি স্ক্রিনশট ছবি আপলোড করুন!');
+                    return;
+                }
+
                 const { error } = await supabaseClient
                     .from('job_submissions')
                     .insert([{
                         job_id: selectedJobForProof,
                         worker_email: currentUser?.email || 'Worker',
                         written_proof: written,
-                        screenshot_proof: screenLinks.join(', '),
+                        screenshot_proof: JSON.stringify(screenBase64List),
                         status: 'Pending Review'
                     }]);
 
@@ -876,7 +905,6 @@
             alert(`আপনার ৳${amt} টাকা ডিপোজিট সাবমিট হয়েছে! TrxID: ${trx}`);
         }
 
-        // Withdrawal with 5% Admin Commission Calculation
         function submitWithdraw() {
             const amt = parseFloat(document.getElementById('withdrawAmount').value);
             const receiver = document.getElementById('withdrawReceiver').value;
