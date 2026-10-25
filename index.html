@@ -48,7 +48,7 @@
 
     <div class="w-full max-w-md bg-bgDark min-h-screen flex flex-col relative pb-20 shadow-2xl border-x border-cardBorder">
 
-        <!-- AUTH OVERLAY (LOGIN / REGISTER) -->
+        <!-- AUTH OVERLAY (INSTANT LOGIN) -->
         <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col justify-center px-6 py-8 overflow-y-auto custom-scrollbar">
             <div class="text-center mb-6">
                 <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-500 p-0.5 shadow-xl mb-3">
@@ -384,7 +384,7 @@
                         </div>
                     </div>
 
-                    <!-- Main Account Options (Deposit & Withdraw History placed right above Support) -->
+                    <!-- Main Account Options -->
                     <div class="glass-card rounded-2xl divide-y divide-cardBorder overflow-hidden">
                         <div onclick="alert('Settings option clicked')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
                             <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-gear text-emerald-400 text-sm"></i> Settings</span>
@@ -454,85 +454,43 @@
                     <button onclick="closePostJobModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <div class="space-y-3">
-                    <!-- 1. Job Title -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 mb-1">Job Title / কাজের নাম</label>
                         <input type="text" id="newJobTitle" placeholder="যেমন: Account Create & Verify" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
-
-                    <!-- 2. Thumbnail Image -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Thumbnail Image / থাম্বনেইল ছবি আপলোড করুন</label>
-                        <input type="file" id="newJobThumbFile" accept="image/*" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-500/20 file:text-indigo-400 hover:file:bg-indigo-500/30">
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Thumbnail Image</label>
+                        <input type="file" id="newJobThumbFile" accept="image/*" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-indigo-500">
                     </div>
-
-                    <!-- 3. Job Proof & Description -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 mb-1">কাজের প্রুফ এবং বিবরণ</label>
-                        <textarea id="newJobProofReq" rows="3" placeholder="কাজের বিবরণ কী কাজ করবে তার নির্দেশনা দিন" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 custom-scrollbar"></textarea>
+                        <textarea id="newJobProofReq" rows="3" placeholder="কাজের বিবরণ দিন..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
                     </div>
-
-                    <!-- 4. Reward per Worker -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Reward per Worker / প্রতি কর্মীর পেমেন্ট (BDT ৳)</label>
-                        <input type="number" id="newJobReward" placeholder="যেমন: 5.00" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Reward per Worker (BDT ৳)</label>
+                        <input type="number" id="newJobReward" placeholder="5.00" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
-
-                    <!-- 5. Total Slots -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Total Slots / মোট কর্মী</label>
-                        <input type="number" id="newJobSlots" placeholder="যেমন: 50" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <label class="block text-xs font-semibold text-gray-300 mb-1">Total Slots</label>
+                        <input type="number" id="newJobSlots" placeholder="50" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
                     </div>
-                    
-                    <!-- Side by Side Selectors (Screenshot & Text Proof Count) -->
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[11px] font-semibold text-gray-300 mb-1">স্ক্রিনশট সংখ্যা (১-৬)</label>
+                            <label class="block text-[11px] font-semibold text-gray-300 mb-1">স্ক্রিনশট সংখ্যা</label>
                             <select id="newJobScreenshotCount" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                <option value="1">১ টি</option>
-                                <option value="2">২ টি</option>
-                                <option value="3">৩ টি</option>
-                                <option value="4">৪ টি</option>
-                                <option value="5">৫ টি</option>
-                                <option value="6">৬ টি</option>
+                                <option value="1">১ টি</option><option value="2">২ টি</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-semibold text-gray-300 mb-1">টেক্সট প্রুফ (১-৬)</label>
+                            <label class="block text-[11px] font-semibold text-gray-300 mb-1">টেক্সট প্রুফ</label>
                             <select id="newJobTextProofCount" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                                <option value="1">১ টি</option>
-                                <option value="2">২ টি</option>
-                                <option value="3">৩ টি</option>
-                                <option value="4">৪ টি</option>
-                                <option value="5">৫ টি</option>
-                                <option value="6">৬ টি</option>
+                                <option value="1">১ টি</option><option value="2">২ টি</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-2.5 text-[11px] text-indigo-300 leading-relaxed">
-                        <i class="fa-solid fa-circle-info mr-1"></i> জব পোস্ট করার জন্য মোট খরচের উপর ৩% এডমিন কমিশন (Admin Fee) কাটা হবে।
                     </div>
                 </div>
                 <button onclick="submitNewJob()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition text-sm shadow-lg">
                     Publish Job (with 3% Admin Fee)
-                </button>
-            </div>
-        </div>
-
-        <!-- WORKER SUBMIT PROOF MODAL -->
-        <div id="submitProofModal" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center hidden px-4">
-            <div class="w-full max-w-sm glass-card rounded-2xl p-5 space-y-4 border border-emerald-500/30 max-h-[90vh] overflow-y-auto custom-scrollbar">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-base font-bold text-white"><i class="fa-solid fa-upload text-emerald-400 mr-1.5"></i> Submit Task Proof</h3>
-                    <button onclick="closeSubmitProofModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-                </div>
-                <p id="proofReqInstruction" class="text-xs text-gray-400"></p>
-                <div class="space-y-3" id="dynamicProofInputsContainer">
-                    <!-- Dynamic Text & Screenshot Inputs Generated Here -->
-                </div>
-                <button onclick="confirmSubmitProof()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-xl transition text-sm">
-                    Submit Proof to Client
                 </button>
             </div>
         </div>
@@ -544,25 +502,16 @@
     <script>
         const SUPABASE_URL = "https://ydskgvciiwlxbonvradu.supabase.co";
         const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO";
-
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
         const CONFIG = {
-            PAYMENT_NUMBERS: {
-                bkash: "01748021976",   
-                nagad: "01748021976",   
-                upay: "01748021976",    
-                rocket: "01748021976"   
-            }
+            PAYMENT_NUMBERS: { bkash: "01748021976", nagad: "01748021976", upay: "01748021976", rocket: "01748021976" }
         };
 
         let currentUser = null;
         let currentRole = 'worker';
         let selectedDepositGateway = 'bkash';
         let selectedWithdrawGateway = 'bkash';
-        let selectedJobForProof = null;
-        let requiredScreenshotCount = 1;
-        let requiredTextProofCount = 1;
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAuthStatus();
@@ -573,7 +522,6 @@
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
-
             if (input.type === "password") {
                 input.type = "text";
                 icon.classList.remove('fa-eye-slash');
@@ -606,77 +554,36 @@
             }
         }
 
-        async function handleRegister() {
+        function handleRegister() {
             const email = document.getElementById('regEmail').value;
             const phone = document.getElementById('regPhone').value;
             const pass = document.getElementById('regPass').value;
             const confirmPass = document.getElementById('regConfirmPass').value;
 
-            if(!email || !phone || !pass || !confirmPass) {
-                alert('সকল তথ্য সঠিকভাবে দিন!');
-                return;
-            }
+            if(!email || !phone || !pass || !confirmPass) { alert('সকল তথ্য সঠিকভাবে দিন!'); return; }
+            if(pass !== confirmPass) { alert('দুটি পাসওয়ার্ড মিলছে না!'); return; }
 
-            if(pass !== confirmPass) {
-                alert('দুটি পাসওয়ার্ড মিলছে না!');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabaseClient.auth.signUp({
-                    email: email,
-                    password: pass,
-                    options: { data: { phone: phone } }
-                });
-
-                if (error) {
-                    alert('রজিস্ট্রেশন ব্যর্থ হয়েছে: ' + error.message);
-                    return;
-                }
-
-                currentUser = { name: email.split('@')[0], email: email, phone: phone };
-                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-                
-                alert('একাউন্ট তৈরি সফল হয়েছে!');
-                document.getElementById('authOverlay').classList.add('hidden');
-                updateUserDataUI();
-            } catch (err) {
-                alert('সিস্টেমে সংযোগ করতে সমস্যা হচ্ছে।');
-            }
+            currentUser = { name: email.split('@')[0], email: email, phone: phone };
+            localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+            
+            alert('একাউন্ট তৈরি ও লগইন সফল হয়েছে!');
+            document.getElementById('authOverlay').classList.add('hidden');
+            updateUserDataUI();
         }
 
-        async function handleLogin() {
+        function handleLogin() {
             const user = document.getElementById('loginUser').value;
             const pass = document.getElementById('loginPass').value;
+            if(!user || !pass) { alert('ইমেইল/ফোন ও পাসওয়ার্ড প্রদান করুন!'); return; }
 
-            if(!user || !pass) {
-                alert('ইমেইল/ফোন ও পাসওয়ার্ড প্রদান করুন!');
-                return;
-            }
+            currentUser = { name: user.split('@')[0], email: user, phone: user };
+            localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
 
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: user,
-                    password: pass,
-                });
-
-                if (error) {
-                    alert('লগইন ব্যর্থ হয়েছে: ' + error.message);
-                    return;
-                }
-
-                currentUser = { name: data.user.email.split('@')[0], email: data.user.email, phone: data.user.user_metadata?.phone || user };
-                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-
-                document.getElementById('authOverlay').classList.add('hidden');
-                updateUserDataUI();
-            } catch (err) {
-                alert('লগইন করার সময় সমস্যা হয়েছে।');
-            }
+            document.getElementById('authOverlay').classList.add('hidden');
+            updateUserDataUI();
         }
 
         async function handleLogout() {
-            await supabaseClient.auth.signOut();
             localStorage.removeItem('taskflex_user');
             currentUser = null;
             closeModal('accountModal');
@@ -705,7 +612,7 @@
                 workerDashboard.classList.add('hidden');
                 clientDashboard.classList.remove('hidden');
                 clientPostJobBtn.classList.remove('hidden');
-                jobsHeaderTitle.innerText = "My Posted Jobs & Submissions Review";
+                jobsHeaderTitle.innerText = "My Posted Jobs";
             } else {
                 currentRole = 'worker';
                 roleLabel.innerText = "Worker Mode";
@@ -722,7 +629,6 @@
                 document.getElementById('tab-' + id).classList.add('hidden');
                 document.getElementById('nav-' + id).className = "nav-btn flex flex-col items-center py-1 text-gray-400";
             });
-
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             document.getElementById('nav-' + tabId).className = "nav-btn flex flex-col items-center py-1 text-emerald-400 font-bold";
         }
@@ -751,8 +657,7 @@
             document.querySelectorAll('.gw-btn').forEach(btn => {
                 btn.className = "gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70";
             });
-            const selectedBtn = document.getElementById('gw-' + gw);
-            selectedBtn.className = "gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
+            document.getElementById('gw-' + gw).className = "gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
             updateGatewayUI();
         }
 
@@ -761,15 +666,12 @@
             document.querySelectorAll('.w-gw-btn').forEach(btn => {
                 btn.className = "w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70";
             });
-            const selectedBtn = document.getElementById('w-' + gw);
-            selectedBtn.className = "w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
+            document.getElementById('w-' + gw).className = "w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
         }
 
         function updateGatewayUI() {
-            const label = document.getElementById('gatewayNumberLabel');
-            const numDisplay = document.getElementById('paymentPhoneNumber');
-            label.innerText = `${selectedDepositGateway.toUpperCase()} Personal Number:`;
-            numDisplay.innerText = CONFIG.PAYMENT_NUMBERS[selectedDepositGateway] || "01748021976";
+            document.getElementById('gatewayNumberLabel').innerText = `${selectedDepositGateway.toUpperCase()} Personal Number:`;
+            document.getElementById('paymentPhoneNumber').innerText = CONFIG.PAYMENT_NUMBERS[selectedDepositGateway] || "01748021976";
         }
 
         function copyNumber() {
@@ -777,23 +679,73 @@
             navigator.clipboard.writeText(num).then(() => alert('নম্বর কপি করা হয়েছে: ' + num));
         }
 
-        function openPostJobModal() {
-            document.getElementById('postJobModal').classList.remove('hidden');
-        }
+        function openPostJobModal() { document.getElementById('postJobModal').classList.remove('hidden'); }
+        function closePostJobModal() { document.getElementById('postJobModal').classList.add('hidden'); }
 
-        function closePostJobModal() {
-            document.getElementById('postJobModal').classList.add('hidden');
-        }
-
-        // --- Deposit & Withdraw History Functions ---
-        function openDepositHistory() {
-            const listContainer = document.getElementById('depositHistoryList');
-            const localDeposits = JSON.parse(localStorage.getItem('taskflex_deposits') || '[]');
+        // --- Supabase Deposit & Withdraw Integration ---
+        async function submitDeposit() {
+            const amt = document.getElementById('depositAmount').value;
+            const sender = document.getElementById('depositSender').value;
+            const trx = document.getElementById('depositTrx').value;
+            if(!amt || !sender || !trx) { alert('সবগুলো ঘর পূরণ করুন!'); return; }
             
-            if(localDeposits.length === 0) {
+            const { error } = await supabaseClient.from('deposits').insert([{
+                user_email: currentUser?.email || 'User',
+                gateway: selectedDepositGateway,
+                amount: parseFloat(amt),
+                sender: sender,
+                trx: trx,
+                status: 'Pending'
+            }]);
+
+            if(error) {
+                alert('ডিপোজিট জমা দিতে সমস্যা হয়েছে: ' + error.message);
+                return;
+            }
+
+            alert(`আপনার ৳${amt} টাকা ডিপোজিট সাবমিট হয়েছে! TrxID: ${trx}`);
+            document.getElementById('depositAmount').value = '';
+            document.getElementById('depositSender').value = '';
+            document.getElementById('depositTrx').value = '';
+        }
+
+        async function submitWithdraw() {
+            const amt = parseFloat(document.getElementById('withdrawAmount').value);
+            const receiver = document.getElementById('withdrawReceiver').value;
+
+            if(isNaN(amt) || !receiver) { alert('উইথড্র পরিমাণ ও নম্বর লিখুন!'); return; }
+            if(amt < 100) { alert('সর্বনিম্ন উইথড্র পরিমাণ ৳১০০ টাকা হতে হবে!'); return; }
+
+            const adminFee = amt * 0.05;
+            const finalReceivable = amt - adminFee;
+
+            const { error } = await supabaseClient.from('withdraws').insert([{
+                user_email: currentUser?.email || 'User',
+                gateway: selectedWithdrawGateway,
+                amount: amt,
+                receiver: receiver,
+                fee: adminFee.toFixed(2),
+                status: 'Pending'
+            }]);
+
+            if(error) {
+                alert('উইথড্র রিকোয়েস্ট জমা দিতে সমস্যা হয়েছে: ' + error.message);
+                return;
+            }
+
+            alert(`আপনার ৳${amt} টাকার উইথড্র রিকুয়েস্ট সফল হয়েছে! আপনি পাবেন: ৳${finalReceivable.toFixed(2)}`);
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawReceiver').value = '';
+        }
+
+        async function openDepositHistory() {
+            const listContainer = document.getElementById('depositHistoryList');
+            const { data: deposits } = await supabaseClient.from('deposits').select('*').eq('user_email', currentUser?.email || 'User').order('id', { ascending: false });
+            
+            if(!deposits || deposits.length === 0) {
                 listContainer.innerHTML = `<div class="text-center py-6 text-gray-400">কোনো ডিপোজিট রেকর্ড পাওয়া যায়নি।</div>`;
             } else {
-                listContainer.innerHTML = localDeposits.map(d => `
+                listContainer.innerHTML = deposits.map(d => `
                     <div class="glass-card p-3 rounded-xl border border-cardBorder flex justify-between items-center">
                         <div>
                             <p class="font-bold text-white">৳ ${d.amount} (${d.gateway.toUpperCase()})</p>
@@ -806,18 +758,16 @@
             document.getElementById('depositHistoryModal').classList.remove('hidden');
         }
 
-        function closeDepositHistory() {
-            document.getElementById('depositHistoryModal').classList.add('hidden');
-        }
+        function closeDepositHistory() { document.getElementById('depositHistoryModal').classList.add('hidden'); }
 
-        function openWithdrawHistory() {
+        async function openWithdrawHistory() {
             const listContainer = document.getElementById('withdrawHistoryList');
-            const localWithdraws = JSON.parse(localStorage.getItem('taskflex_withdraws') || '[]');
+            const { data: withdraws } = await supabaseClient.from('withdraws').select('*').eq('user_email', currentUser?.email || 'User').order('id', { ascending: false });
             
-            if(localWithdraws.length === 0) {
+            if(!withdraws || withdraws.length === 0) {
                 listContainer.innerHTML = `<div class="text-center py-6 text-gray-400">কোনো উইথড্র রেকর্ড পাওয়া যায়নি।</div>`;
             } else {
-                listContainer.innerHTML = localWithdraws.map(w => `
+                listContainer.innerHTML = withdraws.map(w => `
                     <div class="glass-card p-3 rounded-xl border border-cardBorder flex justify-between items-center">
                         <div>
                             <p class="font-bold text-white">৳ ${w.amount} (${w.gateway.toUpperCase()})</p>
@@ -830,277 +780,42 @@
             document.getElementById('withdrawHistoryModal').classList.remove('hidden');
         }
 
-        function closeWithdrawHistory() {
-            document.getElementById('withdrawHistoryModal').classList.add('hidden');
+        function closeWithdrawHistory() { document.getElementById('withdrawHistoryModal').classList.add('hidden'); }
+
+        async function fetchJobsFromDatabase() {
+            const container = document.getElementById('availableJobsList');
+            const { data, error } = await supabaseClient.from('micro_jobs').select('*').order('id', { ascending: false });
+            if (error || !data || data.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-500 text-xs">কোনো জব পাওয়া যায়নি।</div>`;
+                return;
+            }
+            container.innerHTML = data.map(job => `
+                <div class="glass-card rounded-2xl p-3.5 space-y-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <h4 class="text-xs font-bold text-gray-100">${job.title}</h4>
+                        <span class="text-sm font-extrabold text-emerald-400">${job.reward}</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
         async function submitNewJob() {
             const title = document.getElementById('newJobTitle').value;
-            const thumbFile = document.getElementById('newJobThumbFile').files[0];
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const slots = parseInt(document.getElementById('newJobSlots').value);
             const proofReq = document.getElementById('newJobProofReq').value;
-            const screenshotCount = parseInt(document.getElementById('newJobScreenshotCount').value);
-            const textProofCount = parseInt(document.getElementById('newJobTextProofCount').value);
+            if(!title || isNaN(reward)) { alert('সব ঘর পূরণ করুন!'); return; }
 
-            if(!title || isNaN(reward) || isNaN(slots) || !proofReq) {
-                alert('দয়া করে সঠিক তথ্য দিয়ে সব ঘর পূরণ করুন!');
-                return;
-            }
-
-            const readFileAsDataURL = (file) => {
-                return new Promise((resolve, reject) => {
-                    if (!file) {
-                        resolve('https://via.placeholder.com/150');
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
-                });
-            };
-
-            try {
-                const thumbDataUrl = await readFileAsDataURL(thumbFile);
-
-                const totalRewardCost = reward * slots;
-                const adminCommission = totalRewardCost * 0.03; // 3% Admin Fee
-                const grandTotalCost = totalRewardCost + adminCommission;
-
-                const { error } = await supabaseClient
-                    .from('micro_jobs')
-                    .insert([{ 
-                        title: title, 
-                        thumbnail: thumbDataUrl,
-                        reward: `৳ ${reward.toFixed(2)}`, 
-                        slots: `0/${slots}`, 
-                        proof_requirement: proofReq,
-                        screenshot_count: screenshotCount,
-                        text_proof_count: textProofCount,
-                        client_email: currentUser?.email || 'Client',
-                        admin_commission: adminCommission.toFixed(2)
-                    }]);
-
-                if(error) {
-                    alert('জব পোস্ট করতে সমস্যা হয়েছে: ' + error.message);
-                    return;
-                }
-
-                alert(`সফলভাবে জব পোস্ট করা হয়েছে!\nমোট খরচ: ৳${grandTotalCost.toFixed(2)} (এর মধ্যে ৩% এডমিন কমিশন: ৳${adminCommission.toFixed(2)})`);
-                document.getElementById('newJobTitle').value = '';
-                document.getElementById('newJobThumbFile').value = '';
-                document.getElementById('newJobReward').value = '';
-                document.getElementById('newJobSlots').value = '';
-                document.getElementById('newJobProofReq').value = '';
-                closePostJobModal();
-                fetchJobsFromDatabase();
-            } catch(err) {
-                alert('ডাটাবেজ সংযোগে ত্রুটি ঘটেছে।');
-            }
+            await supabaseClient.from('micro_jobs').insert([{ 
+                title: title, reward: `৳ ${reward.toFixed(2)}`, slots: `0/${slots}`, proof_requirement: proofReq, client_email: currentUser?.email 
+            }]);
+            alert('সফলভাবে জব পোস্ট করা হয়েছে!');
+            closePostJobModal();
+            fetchJobsFromDatabase();
         }
 
-        async function fetchJobsFromDatabase() {
-            const container = document.getElementById('availableJobsList');
-            try {
-                const { data, error } = await supabaseClient
-                    .from('micro_jobs')
-                    .select('*')
-                    .order('id', { ascending: false });
-
-                if (error || !data || data.length === 0) {
-                    container.innerHTML = `<div class="text-center py-10 text-gray-500 text-xs">কোনো জব পাওয়া যায়নি।</div>`;
-                    return;
-                }
-
-                if(currentRole === 'client') {
-                    container.innerHTML = data.filter(j => j.client_email === currentUser?.email).map(job => `
-                        <div class="glass-card rounded-2xl p-3.5 space-y-2">
-                            <div class="flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <img src="${job.thumbnail}" class="w-10 h-10 rounded-xl object-cover border border-cardBorder">
-                                    <div>
-                                        <h4 class="text-xs font-bold text-gray-100">${job.title}</h4>
-                                        <span class="text-[10px] text-gray-400">Slots: ${job.slots} | Screenshots: ${job.screenshot_count || 1}, Texts: ${job.text_proof_count || 1}</span>
-                                        <p class="text-[10px] text-emerald-400 mt-0.5">কাজের প্রুফ এবং বিবরণ: ${job.proof_requirement}</p>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-extrabold text-emerald-400">${job.reward}</span>
-                            </div>
-                        </div>
-                    `).join('') || `<div class="text-center py-10 text-gray-500 text-xs">আপনি কোনো জব পোস্ট করেননি।</div>`;
-                } else {
-                    container.innerHTML = data.map(job => `
-                        <div class="glass-card rounded-2xl p-3.5 space-y-3">
-                            <div class="flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <img src="${job.thumbnail}" class="w-10 h-10 rounded-xl object-cover border border-cardBorder">
-                                    <div>
-                                        <h4 class="text-xs font-bold text-gray-100">${job.title}</h4>
-                                        <span class="text-[10px] text-gray-400">Slots: ${job.slots} | প্রুফ প্রয়োজন: ${job.screenshot_count || 1}টি স্ক্রিনশট, ${job.text_proof_count || 1}টি টেক্সট</span>
-                                        <p class="text-[10px] text-gray-300 mt-1"><b>কাজের প্রুফ এবং বিবরণ:</b> ${job.proof_requirement}</p>
-                                    </div>
-                                </div>
-                                <span class="text-sm font-extrabold text-emerald-400">${job.reward}</span>
-                            </div>
-                            <button onclick="openSubmitProofModal(${job.id}, '${job.proof_requirement}', ${job.screenshot_count || 1}, ${job.text_proof_count || 1})" class="w-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold py-2 rounded-xl text-xs transition">
-                                কাজ জমা দিন (Submit Work Proof)
-                            </button>
-                        </div>
-                    `).join('');
-                }
-            } catch (err) {
-                container.innerHTML = `<div class="text-center py-10 text-gray-500 text-xs">ডেটা লোড করা যায়নি।</div>`;
-            }
-        }
-
-        function openSubmitProofModal(jobId, requirement, screenCount, textCount) {
-            selectedJobForProof = jobId;
-            requiredScreenshotCount = screenCount;
-            requiredTextProofCount = textCount;
-            document.getElementById('proofReqInstruction').innerText = `নির্দেশনা: ${requirement} (প্রয়োজন: ${textCount}টি টেক্সট ও ${screenCount}টি স্ক্রিনশট)`;
-            
-            const container = document.getElementById('dynamicProofInputsContainer');
-            container.innerHTML = '';
-            
-            for(let i = 1; i <= textCount; i++) {
-                container.innerHTML += `
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">লিখিত প্রমাণ বা বিবরণ ${i} (Text Proof)</label>
-                        <textarea id="workerTextProof_${i}" rows="2" placeholder="আপনার বিবরণ বা প্রুফ এখানে লিখুন..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
-                    </div>
-                `;
-            }
-
-            for(let i = 1; i <= screenCount; i++) {
-                container.innerHTML += `
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">স্ক্রিনশট ছবি ${i} আপলোড করুন</label>
-                        <input type="file" id="workerScreenFile_${i}" accept="image/*" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none focus:border-emerald-500 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/35">
-                    </div>
-                `;
-            }
-
-            document.getElementById('submitProofModal').classList.remove('hidden');
-        }
-
-        function closeSubmitProofModal() {
-            document.getElementById('submitProofModal').classList.add('hidden');
-        }
-
-        async function confirmSubmitProof() {
-            let textProofsList = [];
-            for(let i = 1; i <= requiredTextProofCount; i++) {
-                const txt = document.getElementById(`workerTextProof_${i}`)?.value;
-                if(!txt) {
-                    alert(`দয়া করে সবকটি টেক্সট প্রুফ (${i} নম্বর) পূরণ করুন!`);
-                    return;
-                }
-                textProofsList.push(txt);
-            }
-
-            const readFileAsDataURL = (file) => {
-                return new Promise((resolve, reject) => {
-                    if (!file) resolve(null);
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = error => reject(error);
-                    reader.readAsDataURL(file);
-                });
-            };
-
-            try {
-                let screenBase64List = [];
-                for(let i = 1; i <= requiredScreenshotCount; i++) {
-                    const fileInput = document.getElementById(`workerScreenFile_${i}`);
-                    if(fileInput && fileInput.files[0]) {
-                        const base64 = await readFileAsDataURL(fileInput.files[0]);
-                        if(base64) screenBase64List.push(base64);
-                    }
-                }
-
-                if(screenBase64List.length === 0 && requiredScreenshotCount > 0) {
-                    alert('কমপক্ষে নির্ধারিত স্ক্রিনশট ছবি আপলোড করুন!');
-                    return;
-                }
-
-                const { error } = await supabaseClient
-                    .from('job_submissions')
-                    .insert([{
-                        job_id: selectedJobForProof,
-                        worker_email: currentUser?.email || 'Worker',
-                        written_proof: JSON.stringify(textProofsList),
-                        screenshot_proof: JSON.stringify(screenBase64List),
-                        status: 'Pending Review'
-                    }]);
-
-                if(error) {
-                    alert('প্রুফ সাবমিট করতে সমস্যা হয়েছে: ' + error.message);
-                    return;
-                }
-
-                alert('আপনার কাজের প্রুফ সফলভাবে ক্লায়েন্টের কাছে সাবমিট করা হয়েছে!');
-                closeSubmitProofModal();
-            } catch(err) {
-                alert('ডাটাবেজে সংযোগে ত্রুটি ঘটেছে।');
-            }
-        }
-
-        function submitDeposit() {
-            const amt = document.getElementById('depositAmount').value;
-            const sender = document.getElementById('depositSender').value;
-            const trx = document.getElementById('depositTrx').value;
-            if(!amt || !sender || !trx) { alert('সবগুলো ঘর পূরণ করুন!'); return; }
-            
-            const depositData = { amount: amt, sender: sender, trx: trx, gateway: selectedDepositGateway, status: 'Pending' };
-            const existing = JSON.parse(localStorage.getItem('taskflex_deposits') || '[]');
-            existing.unshift(depositData);
-            localStorage.setItem('taskflex_deposits', JSON.stringify(existing));
-
-            alert(`আপনার ৳${amt} টাকা ডিপোজিট সাবমিট হয়েছে! TrxID: ${trx}`);
-            document.getElementById('depositAmount').value = '';
-            document.getElementById('depositSender').value = '';
-            document.getElementById('depositTrx').value = '';
-        }
-
-        function submitWithdraw() {
-            const amt = parseFloat(document.getElementById('withdrawAmount').value);
-            const receiver = document.getElementById('withdrawReceiver').value;
-
-            if(isNaN(amt) || !receiver) {
-                alert('উইথড্র পরিমাণ ও নম্বর লিখুন!');
-                return;
-            }
-
-            if(amt < 100) {
-                alert('সর্বনিম্ন উইথড্র পরিমাণ ৳১০০ টাকা হতে হবে!');
-                return;
-            }
-
-            const adminFee = amt * 0.05; // 5% Withdrawal Fee
-            const finalReceivable = amt - adminFee;
-
-            const withdrawData = { amount: amt, receiver: receiver, gateway: selectedWithdrawGateway, fee: adminFee.toFixed(2), status: 'Pending' };
-            const existing = JSON.parse(localStorage.getItem('taskflex_withdraws') || '[]');
-            existing.unshift(withdrawData);
-            localStorage.setItem('taskflex_withdraws', JSON.stringify(existing));
-
-            alert(`আপনার ৳${amt} (${selectedWithdrawGateway.toUpperCase()}) টাকার উইথড্র রিকুয়েস্ট সফল হয়েছে!\nএডমিন ফি (৫%): ৳${adminFee.toFixed(2)}\nআপনি পাবেন: ৳${finalReceivable.toFixed(2)}`);
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawReceiver').value = '';
-        }
-
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
-        }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        }
+        function openModal(id) { const m = document.getElementById(id); m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10); }
+        function closeModal(id) { const m = document.getElementById(id); m.classList.add('opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); }
     </script>
 </body>
 </html>
