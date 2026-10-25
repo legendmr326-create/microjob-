@@ -15,10 +15,7 @@
                         bgDark: '#0B0F17',
                         cardDark: '#131926',
                         cardBorder: '#1F293D',
-                        bkashColor: '#E2136E',
                         nagadColor: '#F7931E',
-                        rocketColor: '#8C3494',
-                        upayColor: '#FFC425'
                     }
                 }
             }
@@ -28,17 +25,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #05070A;
-            color: #F3F4F6;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-card {
-            background: rgba(19, 25, 38, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #05070A; color: #F3F4F6; -webkit-tap-highlight-color: transparent; }
+        .glass-card { background: rgba(19, 25, 38, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0B0F17; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1F293D; border-radius: 4px; }
@@ -110,74 +98,56 @@
                 <h1 class="font-extrabold text-sm text-white">Micro job <span class="text-emerald-400">TaskFlex</span></h1>
             </div>
 
-            <!-- Role Toggle Switch -->
-            <button onclick="toggleUserRole()" id="roleBadge" class="glass-card px-3 py-1.5 rounded-full flex items-center gap-2 hover:border-emerald-500/50 transition">
+            <button onclick="toggleUserRole()" id="roleBadge" class="glass-card px-3 py-1.5 rounded-full flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span id="roleLabel" class="text-xs font-bold text-gray-200">Worker Mode</span>
                 <i class="fa-solid fa-repeat text-gray-400 text-xs"></i>
             </button>
 
-            <!-- Profile Avatar -->
             <button onclick="openModal('accountModal')" class="w-9 h-9 rounded-full bg-gradient-to-r from-emerald-500 to-indigo-500 p-0.5">
                 <img id="headerUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="Avatar" class="w-full h-full rounded-full bg-cardDark">
             </button>
         </header>
 
-        <!-- MAIN VIEW AREA -->
+        <!-- MAIN CONTENT AREA -->
         <main class="flex-1 px-4 py-4 space-y-5 overflow-y-auto custom-scrollbar">
 
-            <!-- TAB 1: DASHBOARD VIEW -->
+            <!-- TAB 1: DASHBOARD -->
             <div id="tab-dashboard" class="space-y-5">
                 
-                <!-- FREELANCER/WORKER METRICS -->
+                <!-- WORKER DASHBOARD -->
                 <div id="workerDashboard" class="space-y-4">
-                    <div class="glass-card rounded-2xl p-4 relative overflow-hidden bg-gradient-to-br from-emerald-950/30 via-cardDark to-cardDark border border-emerald-500/20">
+                    <div class="glass-card rounded-2xl p-4 relative bg-gradient-to-br from-emerald-950/30 via-cardDark to-cardDark border border-emerald-500/20">
                         <div class="flex justify-between items-start mb-3">
                             <div>
                                 <p class="text-xs text-gray-400 font-medium">Available Balance</p>
                                 <h3 id="workerBalance" class="text-2xl font-extrabold text-white mt-0.5">৳ 0.00</h3>
                             </div>
-                            <button onclick="switchTab('wallet')" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-emerald-500/25 transition flex items-center gap-1.5">
+                            <button onclick="switchTab('wallet')" class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
                                 <i class="fa-solid fa-wallet text-xs"></i> Cashout
                             </button>
                         </div>
                         <div class="grid grid-cols-2 gap-2 pt-2 border-t border-cardBorder text-xs">
-                            <div>
-                                <span class="text-gray-400">Pending Review</span>
-                                <p id="pendingReviewAmt" class="font-bold text-amber-400">৳ 0.00</p>
-                            </div>
-                            <div>
-                                <span class="text-gray-400">Total Lifetime Earned</span>
-                                <p id="lifetimeEarnedAmt" class="font-bold text-emerald-400">৳ 0.00</p>
-                            </div>
+                            <div><span class="text-gray-400">Pending Review</span><p id="pendingReviewAmt" class="font-bold text-amber-400">৳ 0.00</p></div>
+                            <div><span class="text-gray-400">Total Lifetime Earned</span><p id="lifetimeEarnedAmt" class="font-bold text-emerald-400">৳ 0.00</p></div>
                         </div>
                     </div>
 
-                    <!-- Task Statistics Cards -->
                     <div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">Task Statistics</p>
                         <div class="grid grid-cols-3 gap-2.5 text-center">
-                            <div class="glass-card rounded-2xl p-3 border-b-2 border-amber-400">
-                                <p class="text-[11px] text-gray-400 font-medium">Pending</p>
-                                <h4 id="statPendingCount" class="text-lg font-extrabold text-amber-400 mt-1">0</h4>
-                            </div>
-                            <div class="glass-card rounded-2xl p-3 border-b-2 border-emerald-400">
-                                <p class="text-[11px] text-gray-400 font-medium">Approved</p>
-                                <h4 id="statApprovedCount" class="text-lg font-extrabold text-emerald-400 mt-1">0</h4>
-                            </div>
-                            <div class="glass-card rounded-2xl p-3 border-b-2 border-rose-400">
-                                <p class="text-[11px] text-gray-400 font-medium">Rejected</p>
-                                <h4 id="statRejectedCount" class="text-lg font-extrabold text-rose-400 mt-1">0</h4>
-                            </div>
+                            <div class="glass-card rounded-2xl p-3 border-b-2 border-amber-400"><p class="text-[11px] text-gray-400 font-medium">Pending</p><h4 class="text-lg font-extrabold text-amber-400 mt-1">0</h4></div>
+                            <div class="glass-card rounded-2xl p-3 border-b-2 border-emerald-400"><p class="text-[11px] text-gray-400 font-medium">Approved</p><h4 class="text-lg font-extrabold text-emerald-400 mt-1">0</h4></div>
+                            <div class="glass-card rounded-2xl p-3 border-b-2 border-rose-400"><p class="text-[11px] text-gray-400 font-medium">Rejected</p><h4 class="text-lg font-extrabold text-rose-400 mt-1">0</h4></div>
                         </div>
                     </div>
 
-                    <button onclick="switchTab('jobs')" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-emerald-500/15 flex items-center justify-center gap-2 transition">
+                    <button onclick="switchTab('jobs')" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
                         <i class="fa-solid fa-magnifying-glass"></i> Find Available Jobs
                     </button>
                 </div>
 
-                <!-- CLIENT/ADVERTISER METRICS -->
+                <!-- CLIENT DASHBOARD -->
                 <div id="clientDashboard" class="space-y-4 hidden">
                     <div class="glass-card rounded-2xl p-4 relative bg-gradient-to-br from-indigo-950/30 via-cardDark to-cardDark border border-indigo-500/20">
                         <div class="flex justify-between items-start mb-2">
@@ -185,135 +155,86 @@
                                 <p class="text-xs text-gray-400 font-medium">Deposit Balance</p>
                                 <h3 id="clientBalance" class="text-2xl font-extrabold text-white mt-0.5">৳ 0.00</h3>
                             </div>
-                            <button onclick="switchTab('wallet')" class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-indigo-500/20 transition flex items-center gap-1.5">
+                            <button onclick="switchTab('wallet')" class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
                                 <i class="fa-solid fa-plus text-xs"></i> Add Funds
                             </button>
                         </div>
                     </div>
-
                     <button onclick="openPostJobModal()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
                         <i class="fa-solid fa-plus-circle"></i> Post New Job
                     </button>
                 </div>
-
             </div>
 
-            <!-- TAB 2: JOBS VIEW -->
+            <!-- TAB 2: JOBS -->
             <div id="tab-jobs" class="space-y-4 hidden">
                 <div class="flex items-center justify-between">
                     <h2 class="text-base font-bold text-white" id="jobsHeaderTitle">Active Microjobs</h2>
-                    <button onclick="openPostJobModal()" id="clientPostJobBtn" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                        <i class="fa-solid fa-plus mr-1"></i> Post Job
-                    </button>
+                    <button onclick="openPostJobModal()" id="clientPostJobBtn" class="hidden bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg">Post Job</button>
                 </div>
                 <div id="availableJobsList" class="space-y-3"></div>
             </div>
 
-            <!-- TAB 3: WALLET & DEPOSIT/WITHDRAW -->
+            <!-- TAB 3: WALLET -->
             <div id="tab-wallet" class="space-y-5 hidden">
                 <div class="bg-cardDark p-1 rounded-xl border border-cardBorder flex text-xs font-bold">
                     <button onclick="switchWalletMode('deposit')" id="modeBtnDeposit" class="flex-1 py-2.5 rounded-lg bg-emerald-600 text-white transition text-center">ডিপোজিট</button>
-                    <button onclick="switchWalletMode('withdraw')" id="modeBtnWithdraw" class="flex-1 py-2.5 rounded-lg text-gray-400 hover:text-white transition text-center">উইথড্র</button>
+                    <button onclick="switchWalletMode('withdraw')" id="modeBtnWithdraw" class="flex-1 py-2.5 rounded-lg text-gray-400 transition text-center">উইথড্র</button>
                 </div>
 
-                <!-- DEPOSIT FORM -->
+                <!-- DEPOSIT -->
                 <div id="depositSection" class="space-y-4">
                     <div class="glass-card rounded-2xl p-4 space-y-3">
-                        <label class="block text-xs font-bold text-gray-300 uppercase">পেমেন্ট মেথড সিলেক্ট করুন</label>
+                        <label class="block text-xs font-bold text-gray-300 uppercase">পেমেন্ট মেথড</label>
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="selectGateway('bkash')" id="gw-bkash" class="gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1">
-                                <span class="font-extrabold text-xs text-white">bKash</span>
-                            </button>
-                            <button onclick="selectGateway('nagad')" id="gw-nagad" class="gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70">
-                                <span class="font-extrabold text-xs text-nagadColor">Nagad</span>
-                            </button>
-                            <button onclick="selectGateway('upay')" id="gw-upay" class="gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70">
-                                <span class="font-extrabold text-xs text-amber-400">Upay</span>
-                            </button>
-                            <button onclick="selectGateway('rocket')" id="gw-rocket" class="gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70">
-                                <span class="font-extrabold text-xs text-purple-400">Rocket</span>
-                            </button>
+                            <button onclick="selectGateway('bkash')" id="gw-bkash" class="gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center"><span class="font-extrabold text-xs text-white">bKash</span></button>
+                            <button onclick="selectGateway('nagad')" id="gw-nagad" class="gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70"><span class="font-extrabold text-xs text-nagadColor">Nagad</span></button>
+                            <button onclick="selectGateway('upay')" id="gw-upay" class="gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70"><span class="font-extrabold text-xs text-amber-400">Upay</span></button>
+                            <button onclick="selectGateway('rocket')" id="gw-rocket" class="gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70"><span class="font-extrabold text-xs text-purple-400">Rocket</span></button>
                         </div>
-
                         <div class="bg-cardDark/90 border border-emerald-500/30 rounded-xl p-3.5 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <span id="gatewayNumberLabel" class="text-xs font-semibold text-gray-300">bKash Personal Number:</span>
-                                <button onclick="copyNumber()" class="text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">Copy</button>
-                            </div>
-                            <p id="paymentPhoneNumber" class="font-mono text-lg font-extrabold text-emerald-400 tracking-wider">01748021976</p>
+                            <span class="text-xs font-semibold text-gray-300">Personal Number:</span>
+                            <p class="font-mono text-lg font-extrabold text-emerald-400">01748021976</p>
                         </div>
-
-                        <div class="space-y-3 pt-1">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-300 mb-1">পরিমাণ (BDT ৳)</label>
-                                <input type="number" id="depositAmount" placeholder="সর্বনিম্ন ৳১০০" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-300 mb-1">প্রেরকের নম্বর</label>
-                                <input type="text" id="depositSender" placeholder="017xxxxxxxx" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-300 mb-1">Transaction ID (TrxID)</label>
-                                <input type="text" id="depositTrx" placeholder="TrxID" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 uppercase">
-                            </div>
+                        <div class="space-y-3">
+                            <input type="number" id="depositAmount" placeholder="পরিমাণ (BDT ৳)" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="depositSender" placeholder="প্রেরকের নম্বর" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="depositTrx" placeholder="Transaction ID (TrxID)" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white uppercase focus:outline-none focus:border-emerald-500">
                         </div>
-
-                        <button onclick="submitDeposit()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl shadow-lg transition">Submit Deposit</button>
+                        <button onclick="submitDeposit()" class="w-full bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl shadow-lg">Submit Deposit</button>
                     </div>
                 </div>
 
-                <!-- WITHDRAW FORM -->
+                <!-- WITHDRAW -->
                 <div id="withdrawSection" class="space-y-4 hidden">
                     <div class="glass-card rounded-2xl p-4 space-y-3">
                         <label class="block text-xs font-bold text-gray-300 uppercase">উইথড্র মেথড</label>
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="selectWithdrawGateway('bkash')" id="w-bkash" class="w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1">
-                                <span class="font-extrabold text-xs text-white">bKash</span>
-                            </button>
-                            <button onclick="selectWithdrawGateway('nagad')" id="w-nagad" class="w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70">
-                                <span class="font-extrabold text-xs text-nagadColor">Nagad</span>
-                            </button>
-                            <button onclick="selectWithdrawGateway('upay')" id="w-upay" class="w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70">
-                                <span class="font-extrabold text-xs text-amber-400">Upay</span>
-                            </button>
-                            <button onclick="selectWithdrawGateway('rocket')" id="w-rocket" class="w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70">
-                                <span class="font-extrabold text-xs text-purple-400">Rocket</span>
-                            </button>
+                            <button onclick="selectWithdrawGateway('bkash')" id="w-bkash" class="w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center"><span class="font-extrabold text-xs text-white">bKash</span></button>
+                            <button onclick="selectWithdrawGateway('nagad')" id="w-nagad" class="w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70"><span class="font-extrabold text-xs text-nagadColor">Nagad</span></button>
+                            <button onclick="selectWithdrawGateway('upay')" id="w-upay" class="w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70"><span class="font-extrabold text-xs text-amber-400">Upay</span></button>
+                            <button onclick="selectWithdrawGateway('rocket')" id="w-rocket" class="w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70"><span class="font-extrabold text-xs text-purple-400">Rocket</span></button>
                         </div>
-                        <div class="space-y-3 pt-1">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-300 mb-1">পরিমাণ (Min: ৳100)</label>
-                                <input type="number" id="withdrawAmount" placeholder="100" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-300 mb-1">রিসিভার নম্বর</label>
-                                <input type="text" id="withdrawReceiver" placeholder="017xxxxxxxx" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            </div>
+                        <div class="space-y-3">
+                            <input type="number" id="withdrawAmount" placeholder="পরিমাণ (Min: ৳100)" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="withdrawReceiver" placeholder="রিসিভার নম্বর" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                         </div>
-                        <button onclick="submitWithdraw()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl shadow-lg transition">Request Withdrawal (5% Fee)</button>
+                        <button onclick="submitWithdraw()" class="w-full bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl shadow-lg">Request Withdrawal</button>
                     </div>
                 </div>
             </div>
 
         </main>
 
-        <!-- BOTTOM NAVIGATION -->
+        <!-- BOTTOM NAV -->
         <nav class="fixed bottom-0 w-full max-w-md bg-bgDark/95 backdrop-blur-md border-t border-cardBorder grid grid-cols-4 px-2 py-2 text-center z-40">
-            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center py-1 text-emerald-400">
-                <i class="fa-solid fa-house text-base mb-0.5"></i><span class="text-[10px] font-semibold">Home</span>
-            </button>
-            <button onclick="switchTab('jobs')" id="nav-jobs" class="nav-btn flex flex-col items-center py-1 text-gray-400">
-                <i class="fa-solid fa-list-check text-base mb-0.5"></i><span class="text-[10px] font-semibold">Jobs</span>
-            </button>
-            <button onclick="switchTab('wallet')" id="nav-wallet" class="nav-btn flex flex-col items-center py-1 text-gray-400">
-                <i class="fa-solid fa-wallet text-base mb-0.5"></i><span class="text-[10px] font-semibold">Wallet</span>
-            </button>
-            <button onclick="openModal('accountModal')" id="nav-account" class="nav-btn flex flex-col items-center py-1 text-gray-400">
-                <i class="fa-solid fa-user text-base mb-0.5"></i><span class="text-[10px] font-semibold">Account</span>
-            </button>
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center py-1 text-emerald-400"><i class="fa-solid fa-house text-base mb-0.5"></i><span class="text-[10px] font-semibold">Home</span></button>
+            <button onclick="switchTab('jobs')" id="nav-jobs" class="nav-btn flex flex-col items-center py-1 text-gray-400"><i class="fa-solid fa-list-check text-base mb-0.5"></i><span class="text-[10px] font-semibold">Jobs</span></button>
+            <button onclick="switchTab('wallet')" id="nav-wallet" class="nav-btn flex flex-col items-center py-1 text-gray-400"><i class="fa-solid fa-wallet text-base mb-0.5"></i><span class="text-[10px] font-semibold">Wallet</span></button>
+            <button onclick="openModal('accountModal')" id="nav-account" class="nav-btn flex flex-col items-center py-1 text-gray-400"><i class="fa-solid fa-user text-base mb-0.5"></i><span class="text-[10px] font-semibold">Account</span></button>
         </nav>
 
-        <!-- ACCOUNT MODAL (Restored all previous links & options) -->
+        <!-- ACCOUNT MODAL (Restored all previous links) -->
         <div id="accountModal" class="fixed inset-0 bg-black/80 z-50 flex justify-center hidden opacity-0 transition-opacity duration-300">
             <div class="w-full max-w-md bg-bgDark h-full flex flex-col overflow-y-auto custom-scrollbar">
                 <div class="flex items-center justify-between p-4 border-b border-cardBorder sticky top-0 bg-bgDark z-10">
@@ -330,30 +251,12 @@
                         </div>
                     </div>
                     <div class="glass-card rounded-2xl divide-y divide-cardBorder overflow-hidden text-xs">
-                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-gray-200 flex items-center gap-3"><i class="fa-solid fa-gear text-emerald-400"></i> Settings</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                        </div>
-                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-gray-200 flex items-center gap-3"><i class="fa-solid fa-gift text-emerald-400"></i> Refer & Earn</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                        </div>
-                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-gray-200 flex items-center gap-3"><i class="fa-solid fa-trophy text-emerald-400"></i> Leaderboard</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                        </div>
-                        <div onclick="openDepositHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-gray-200 flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> ডিপোজিট হিস্ট্রি (Deposit History)</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                        </div>
-                        <div onclick="openWithdrawHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-gray-200 flex items-center gap-3"><i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> উইথড্র হিস্ট্রি (Withdraw History)</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                        </div>
-                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-gray-200 flex items-center gap-3"><i class="fa-solid fa-headset text-emerald-400"></i> Contact Us / Support Ticket</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400"></i>
-                        </div>
+                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50"><span class="flex items-center gap-3"><i class="fa-solid fa-gear text-emerald-400"></i> Settings</span><i class="fa-solid fa-chevron-right text-gray-400"></i></div>
+                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50"><span class="flex items-center gap-3"><i class="fa-solid fa-gift text-emerald-400"></i> Refer & Earn</span><i class="fa-solid fa-chevron-right text-gray-400"></i></div>
+                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50"><span class="flex items-center gap-3"><i class="fa-solid fa-trophy text-emerald-400"></i> Leaderboard</span><i class="fa-solid fa-chevron-right text-gray-400"></i></div>
+                        <div onclick="openDepositHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50"><span class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> ডিপোজিট হিস্ট্রি (Deposit History)</span><i class="fa-solid fa-chevron-right text-gray-400"></i></div>
+                        <div onclick="openWithdrawHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50"><span class="flex items-center gap-3"><i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> উইথড্র হিস্ট্রি (Withdraw History)</span><i class="fa-solid fa-chevron-right text-gray-400"></i></div>
+                        <div class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50"><span class="flex items-center gap-3"><i class="fa-solid fa-headset text-emerald-400"></i> Contact Us / Support Ticket</span><i class="fa-solid fa-chevron-right text-gray-400"></i></div>
                     </div>
                     <button onclick="handleLogout()" class="w-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold py-3.5 rounded-2xl transition mt-4">Logout</button>
                 </div>
@@ -389,24 +292,12 @@
                     <button onclick="closePostJobModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
                 <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Job Title</label>
-                        <input type="text" id="newJobTitle" placeholder="Job Title" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Proof Requirement</label>
-                        <textarea id="newJobProofReq" rows="3" placeholder="Details..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Reward per Worker (BDT)</label>
-                        <input type="number" id="newJobReward" placeholder="5.00" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-300 mb-1">Total Slots</label>
-                        <input type="number" id="newJobSlots" placeholder="50" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
+                    <input type="text" id="newJobTitle" placeholder="Job Title" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white">
+                    <textarea id="newJobProofReq" rows="3" placeholder="Proof Requirement..." class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white"></textarea>
+                    <input type="number" id="newJobReward" placeholder="Reward per Worker (BDT)" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white">
+                    <input type="number" id="newJobSlots" placeholder="Total Slots" class="w-full bg-bgDark border border-cardBorder rounded-xl px-3 py-2 text-sm text-white">
                 </div>
-                <button onclick="submitNewJob()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition text-sm shadow-lg">Publish Job</button>
+                <button onclick="submitNewJob()" class="w-full bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-sm">Publish Job</button>
             </div>
         </div>
 
@@ -553,14 +444,14 @@
 
         function selectGateway(gw) {
             selectedDepositGateway = gw;
-            document.querySelectorAll('.gw-btn').forEach(btn => btn.className = "gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70");
-            document.getElementById('gw-' + gw).className = "gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
+            document.querySelectorAll('.gw-btn').forEach(btn => btn.className = "gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70");
+            document.getElementById('gw-' + gw).className = "gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center opacity-100";
         }
 
         function selectWithdrawGateway(gw) {
             selectedWithdrawGateway = gw;
-            document.querySelectorAll('.w-gw-btn').forEach(btn => btn.className = "w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70");
-            document.getElementById('w-' + gw).className = "w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
+            document.querySelectorAll('.w-gw-btn').forEach(btn => btn.className = "w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center opacity-70");
+            document.getElementById('w-' + gw).className = "w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center opacity-100";
         }
 
         async function submitDeposit() {
