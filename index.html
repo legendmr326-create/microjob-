@@ -525,6 +525,7 @@
         let currentUser = null;
         let currentRole = 'worker';
         let selectedDepositGateway = 'bkash';
+        let selectedWithdrawGateway = 'bkash'; // উইথড্র গেটওয়ে ভেরিয়েবল যোগ করা হলো
         let selectedJobForProof = null;
         let requiredScreenshotCount = 1;
         let requiredTextProofCount = 1;
@@ -719,6 +720,16 @@
             const selectedBtn = document.getElementById('gw-' + gw);
             selectedBtn.className = "gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
             updateGatewayUI();
+        }
+
+        // উইথড্র মেথড সিলেকশন ফাংশন যোগ করা হলো
+        function selectWithdrawGateway(gw) {
+            selectedWithdrawGateway = gw;
+            document.querySelectorAll('.w-gw-btn').forEach(btn => {
+                btn.className = "w-gw-btn border border-cardBorder glass-card rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-70";
+            });
+            const selectedBtn = document.getElementById('w-' + gw);
+            selectedBtn.className = "w-gw-btn border-2 border-emerald-500 bg-emerald-500/10 rounded-xl p-2.5 flex flex-col items-center gap-1 opacity-100";
         }
 
         function updateGatewayUI() {
@@ -978,7 +989,7 @@
             const adminFee = amt * 0.05; // 5% Withdrawal Fee
             const finalReceivable = amt - adminFee;
 
-            alert(`আপনার ৳${amt} টাকার উইথড্র রিকুয়েস্ট সফল হয়েছে!\nএডমিন ফি (৫%): ৳${adminFee.toFixed(2)}\nআপনি পাবেন: ৳${finalReceivable.toFixed(2)}`);
+            alert(`আপনার ৳${amt} (${selectedWithdrawGateway.toUpperCase()}) টাকার উইথড্র রিকুয়েস্ট সফল হয়েছে!\nএডমিন ফি (৫%): ৳${adminFee.toFixed(2)}\nআপনি পাবেন: ৳${finalReceivable.toFixed(2)}`);
         }
 
         function openModal(id) {
