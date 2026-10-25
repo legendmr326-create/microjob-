@@ -384,16 +384,8 @@
                         </div>
                     </div>
 
-                    <!-- Main Account Options with Deposit & Withdraw History -->
+                    <!-- Main Account Options (Deposit & Withdraw History placed right above Support) -->
                     <div class="glass-card rounded-2xl divide-y divide-cardBorder overflow-hidden">
-                        <div onclick="openDepositHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-emerald-400 text-sm"></i> ডিপোজিট হিস্ট্রি (Deposit History)</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
-                        </div>
-                        <div onclick="openWithdrawHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
-                            <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-file-invoice-dollar text-emerald-400 text-sm"></i> উইথড্র হিস্ট্রি (Withdraw History)</span>
-                            <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
-                        </div>
                         <div onclick="alert('Settings option clicked')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
                             <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-gear text-emerald-400 text-sm"></i> Settings</span>
                             <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
@@ -404,6 +396,14 @@
                         </div>
                         <div onclick="alert('Leaderboard option clicked')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
                             <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-trophy text-emerald-400 text-sm"></i> Leaderboard</span>
+                            <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+                        </div>
+                        <div onclick="openDepositHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
+                            <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-emerald-400 text-sm"></i> ডিপোজিট হিস্ট্রি (Deposit History)</span>
+                            <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
+                        </div>
+                        <div onclick="openWithdrawHistory()" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
+                            <span class="text-xs font-semibold text-gray-200 flex items-center gap-3"><i class="fa-solid fa-file-invoice-dollar text-emerald-400 text-sm"></i> উইথড্র হিস্ট্রি (Withdraw History)</span>
                             <i class="fa-solid fa-chevron-right text-gray-400 text-xs"></i>
                         </div>
                         <div onclick="alert('Contact Us / Support Ticket clicked')" class="p-3.5 flex items-center justify-between cursor-pointer hover:bg-cardDark/50 transition">
@@ -1052,7 +1052,6 @@
             const trx = document.getElementById('depositTrx').value;
             if(!amt || !sender || !trx) { alert('সবগুলো ঘর পূরণ করুন!'); return; }
             
-            // Save to LocalStorage for History
             const depositData = { amount: amt, sender: sender, trx: trx, gateway: selectedDepositGateway, status: 'Pending' };
             const existing = JSON.parse(localStorage.getItem('taskflex_deposits') || '[]');
             existing.unshift(depositData);
@@ -1081,7 +1080,6 @@
             const adminFee = amt * 0.05; // 5% Withdrawal Fee
             const finalReceivable = amt - adminFee;
 
-            // Save to LocalStorage for History
             const withdrawData = { amount: amt, receiver: receiver, gateway: selectedWithdrawGateway, fee: adminFee.toFixed(2), status: 'Pending' };
             const existing = JSON.parse(localStorage.getItem('taskflex_withdraws') || '[]');
             existing.unshift(withdrawData);
