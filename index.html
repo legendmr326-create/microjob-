@@ -1,353 +1,61 @@
 <!doctype html>
-<html lang="bn">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#b91c1c">
+<html lang="bn"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101410">
 <title>MicroJob — User Portal</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--red:#b91c1c;--red2:#991b1b;--bg:#f5f6fa;--ink:#202124;--muted:#6b7280;--line:#e5e7eb;--white:#fff;--green:#15803d}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;border-radius:9px;padding:10px 14px;background:var(--red);color:#fff;font-weight:650}button:disabled{opacity:.55;cursor:not-allowed}.secondary{background:#f3f4f6;color:#222;border:1px solid var(--line)}.danger{background:#991b1b}.success{background:var(--green)}
-header{background:linear-gradient(120deg,var(--red2),var(--red));color:#fff;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:5;box-shadow:0 3px 12px #0001}
-.brand{font-size:20px;font-weight:850;letter-spacing:.2px}.brand span{color:#fecaca}.header-right{display:flex;align-items:center;gap:8px}
-.wrap{max-width:1050px;margin:auto;padding:16px}.hidden{display:none!important}.muted{color:var(--muted);font-size:13px}.card{background:var(--white);border:1px solid #eceef2;border-radius:15px;padding:16px;box-shadow:0 3px 12px #11100606;margin-bottom:14px}
-h1,h2,h3,p{margin-top:0}h2{font-size:21px;margin-bottom:12px}h3{font-size:16px;margin-bottom:8px}
-input,textarea,select{width:100%;padding:12px;border:1px solid #d8dbe2;border-radius:9px;background:#fff;margin:5px 0 11px;color:#222}
-textarea{min-height:90px;resize:vertical}label{font-size:13px;font-weight:700;display:block}.auth{max-width:440px;margin:32px auto}.auth .brandline{text-align:center;font-size:25px;font-weight:850;color:var(--red);margin-bottom:4px}
-.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:15px}.tabs button{background:#fff;color:#333;border:1px solid var(--line);padding:10px 5px;font-size:13px}.tabs button.active{background:var(--red);color:#fff;border-color:var(--red)}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px}.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:24px;font-weight:850;margin-top:5px}.stat.highlight{background:#fff7f7;border-color:#fecaca}
-.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.item{border:1px solid var(--line);border-radius:12px;padding:13px;margin:10px 0;background:#fff;overflow-wrap:anywhere}.item p{margin:5px 0}.pill{display:inline-block;border-radius:99px;background:#f3f4f6;padding:3px 9px;font-size:12px}.pill.pending{background:#fef3c7;color:#92400e}.pill.approved,.pill.completed{background:#dcfce7;color:#166534}.pill.rejected{background:#fee2e2;color:#991b1b}
-.grid2{display:grid;grid-template-columns:1fr;gap:14px}.notice{border-radius:10px;padding:11px;margin-bottom:12px;white-space:pre-wrap}.notice.err{background:#fee2e2;color:#991b1b}.notice.ok{background:#dcfce7;color:#166534}.empty{padding:18px;text-align:center;color:var(--muted)}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
-@media(min-width:700px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.grid2{grid-template-columns:1fr 1fr}.tabs{grid-template-columns:repeat(6,minmax(0,1fr))}.wrap{padding:22px}}
-</style>
-</head>
-<body>
-<header><div class="brand">Micro<span>Job</span></div><div class="header-right"><span id="headerUser" class="muted" style="color:#fff"></span><button id="logoutBtn" class="secondary hidden">Logout</button></div></header>
-<div class="wrap">
-<div id="notice" class="notice hidden"></div>
-<section id="authView" class="auth card">
-  <div class="brandline">MicroJob</div><p class="muted" style="text-align:center">ছোট কাজ করুন, আয় ট্র্যাক করুন</p>
-  <div class="tabs" style="grid-template-columns:1fr 1fr">
-    <button id="loginTab" class="active" onclick="setAuthMode('login')">Login</button>
-    <button id="signupTab" onclick="setAuthMode('signup')">Register</button>
-  </div>
-  <form id="authForm">
-    <div id="nameField" class="hidden"><label>আপনার নাম</label><input id="fullName" autocomplete="name" placeholder="পূর্ণ নাম"></div>
-    <label>ইমেইল</label><input id="email" type="email" required autocomplete="email" placeholder="you@example.com">
-    <div id="passwordField"><label>পাসওয়ার্ড</label><input id="password" type="password" required minlength="6" autocomplete="current-password" placeholder="কমপক্ষে ৬ অক্ষর"></div>
-    <div id="confirmPasswordField" class="hidden"><label>পাসওয়ার্ড আবার লিখুন</label><input id="confirmPassword" type="password" minlength="6" autocomplete="new-password" placeholder="একই পাসওয়ার্ড আবার দিন"></div>
-    <button id="authSubmit" style="width:100%" type="submit">Login</button>
-  </form>
-  <p class="muted" style="margin:12px 0 0">নতুন অ্যাকাউন্ট তৈরি করলে ইমেইল ভেরিফিকেশন চাইতে পারে।</p>
-</section>
-
-<main id="appView" class="hidden">
-  <div class="card row"><div><h2 style="margin-bottom:2px">আপনার Dashboard</h2><div class="muted" id="welcomeText">স্বাগতম</div></div><span class="pill" id="rolePill">Worker</span></div>
-  <nav class="tabs" id="mainTabs">
-    <button class="active" data-page="home" onclick="showPage('home',this)">Dashboard</button>
-    <button data-page="jobs" onclick="showPage('jobs',this)">Find Jobs</button>
-    <button data-page="myjobs" onclick="showPage('myjobs',this)">My Jobs</button>
-    <button data-page="wallet" onclick="showPage('wallet',this)">Wallet</button>
-    <button data-page="history" onclick="showPage('history',this)">History</button>
-    <button data-page="support" onclick="showPage('support',this)">Support</button>
-  </nav>
-
-  <section id="home" class="page">
-    <div class="stats">
-      <div class="stat highlight"><div class="label">Wallet Balance (BDT)</div><div class="value" id="balance">—</div></div>
-      <div class="stat"><div class="label">Total Earned (BDT)</div><div class="value" id="earned">—</div></div>
-      <div class="stat"><div class="label">Pending Balance (BDT)</div><div class="value" id="pendingBalance">—</div></div>
-      <div class="stat"><div class="label">My Submissions</div><div class="value" id="submissionCount">—</div></div>
-      <div class="stat"><div class="label">Available Jobs</div><div class="value" id="availableCount">—</div></div>
-    </div>
-    <div class="grid2" style="margin-top:14px">
-      <div class="card"><div class="row"><h3>সাম্প্রতিক লেনদেন</h3><button class="secondary" onclick="showPage('history',document.querySelector('[data-page=history]'))">সব দেখুন</button></div><div id="recentTransactions"><div class="empty">লোড হচ্ছে…</div></div></div>
-      <div class="card"><div class="row"><h3>নতুন কাজ</h3><button class="secondary" onclick="showPage('jobs',document.querySelector('[data-page=jobs]'))">সব জব</button></div><div id="recentJobs"><div class="empty">লোড হচ্ছে…</div></div></div>
-    </div>
-  </section>
-
-  <section id="jobs" class="page hidden">
-    <div class="card"><div class="row"><div><h2>Find Jobs</h2><p class="muted">উপলভ্য কাজ দেখুন এবং নির্দেশনা পড়ে কাজ শুরু করুন।</p></div><button onclick="loadJobs()">Refresh</button></div>
-      <input id="jobSearch" placeholder="জব খুঁজুন…" oninput="renderJobs()"><div id="jobsList"><div class="empty">লোড হচ্ছে…</div></div>
-    </div>
-  </section>
-
-  <section id="myjobs" class="page hidden">
-    <div class="card">
-      <h2 id="myJobsTitle">My Jobs & Submissions</h2>
-      <p class="muted" id="myJobsHint">আপনার কাজের অবস্থা এখানে দেখুন।</p>
-      <div id="clientCreate" class="hidden">
-        <h3>নতুন Job পোস্ট করুন</h3>
-        <form id="createJobForm">
-          <label>Job Title</label><input id="jobTitle" required maxlength="120" placeholder="কাজের শিরোনাম">
-          <label>কাজের নির্দেশনা</label><textarea id="jobDescription" required placeholder="কী করতে হবে বিস্তারিত লিখুন"></textarea>
-          <label>প্রতি কাজের পুরস্কার (BDT)</label><input id="jobReward" type="number" min="1" step="0.01" required>
-          <label>কতটি কাজ নেওয়া হবে?</label><input id="jobSlots" type="number" min="1" step="1" value="1" required>
-          <button type="submit">Post Job</button>
-        </form>
-        <p class="muted">Job budget/commission-এর হিসাব সার্ভার-সাইডে যাচাই করা আবশ্যক।</p>
-      </div>
-      <div id="myJobsList"><div class="empty">লোড হচ্ছে…</div></div>
-    </div>
-    <div class="card" id="submitCard">
-      <h3>কাজের প্রমাণ জমা দিন</h3>
-      <form id="submissionForm">
-        <label>Job ID</label><input id="submissionJobId" required placeholder="জবের ID">
-        <label>Proof / প্রমাণের লিংক বা বিবরণ</label><textarea id="submissionProof" required placeholder="প্রমাণের লিংক বা কাজের বিবরণ"></textarea>
-        <button type="submit">Submit Proof</button>
-      </form>
-    </div>
-  </section>
-
-  <section id="wallet" class="page hidden">
-    <div class="grid2">
-      <div class="card"><h2>Wallet</h2><p class="muted">আপনার ব্যালেন্স</p><div class="value" style="font-size:30px;font-weight:850">৳ <span id="walletBalance">—</span></div><p class="muted">পেমেন্ট অনুরোধ যাচাইয়ের পর ব্যালেন্স আপডেট হবে।</p></div>
-      <div class="card"><h3>Deposit Request</h3>
-        <form id="depositForm">
-          <label>পেমেন্ট মাধ্যম</label><select id="depositMethod"><option value="bkash">bKash</option><option value="nagad">Nagad</option><option value="rocket">Rocket</option><option value="upay">Upay</option></select>
-          <div class="item" style="margin:10px 0"><b>পেমেন্ট নম্বর: <span id="depositReceiverNumber">01748021976</span></b><p id="depositReceiverType" class="muted">Personal · Send Money</p><small>টাকা পাঠানোর আগে নির্বাচিত মাধ্যম ও নম্বর মিলিয়ে নিন।</small></div>
-          <label>টাকার পরিমাণ (BDT) — মিনিমাম ৳১০০</label><input id="depositAmount" type="number" min="100" step="1" required>
-          <label>যে নম্বর থেকে পাঠিয়েছেন</label><input id="depositAccount" required placeholder="01XXXXXXXXX">
-          <label>Transaction ID</label><input id="depositTxn" required placeholder="পেমেন্ট Transaction ID">
-          <label>Payment Screenshot / পেমেন্টের স্ক্রিনশট</label><input id="depositScreenshot" type="file" accept="image/png,image/jpeg,image/webp" required>
-          <small class="muted">শুধু পেমেন্টের স্ক্রিনশট দিন (PNG, JPG বা WebP; সর্বোচ্চ 5 MB)।</small>
-          <button type="submit">Deposit Request পাঠান</button>
-        </form>
-      </div>
-    </div>
-    <div class="card"><h3>Withdrawal Request</h3>
-      <form id="withdrawForm">
-        <label>পেমেন্ট মাধ্যম</label><select id="withdrawMethod"><option value="bkash">bKash</option><option value="nagad">Nagad</option><option value="rocket">Rocket</option><option value="upay">Upay</option></select>
-        <label>টাকার পরিমাণ (BDT) — মিনিমাম ৳২০</label><input id="withdrawAmount" type="number" min="20" step="1" required>
-        <label>যে নম্বরে টাকা নেবেন</label><input id="withdrawAccount" required placeholder="01XXXXXXXXX">
-        <button type="submit">Withdrawal Request পাঠান</button>
-      </form>
-    </div>
-    <div class="card"><h3>আমার পেমেন্ট অনুরোধ</h3><button class="secondary" onclick="loadPaymentRequests()">Refresh</button><div id="paymentRequests"></div></div>
-  </section>
-
-  <section id="history" class="page hidden">
-    <div class="card"><div class="row"><h2>Transaction History</h2><button onclick="loadTransactions()">Refresh</button></div><div id="historyList"></div></div>
-  </section>
-
-  <section id="support" class="page hidden">
-    <div class="card"><h2>Support Center</h2><p class="muted">সমস্যা বা প্রশ্ন জানাতে টিকিট তৈরি করুন।</p>
-      <form id="supportForm"><label>বিষয়</label><input id="ticketSubject" required maxlength="120" placeholder="সমস্যার বিষয়"><label>বিস্তারিত</label><textarea id="ticketMessage" required placeholder="আপনার সমস্যাটি লিখুন"></textarea><button type="submit">Ticket তৈরি করুন</button></form>
-    </div>
-    <div class="card"><div class="row"><h3>আমার Support Tickets</h3><button class="secondary" onclick="loadTickets()">Refresh</button></div><div id="ticketsList"></div></div>
-  </section>
-
-</main>
-<footer>MicroJob · কাজের নিয়ম মেনে নিরাপদে ব্যবহার করুন</footer>
-</div>
-
+:root{--bg:#101410;--p:#1a231c;--p2:#202c22;--line:#304033;--g:#39d879;--g2:#8af0ad;--t:#f4f8f4;--m:#a8b7aa}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:15px system-ui,Arial}.top{position:sticky;top:0;z-index:5;background:#101410ee;border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:12px;align-items:center}.logo{background:var(--g);color:#07150b;border-radius:13px;width:42px;height:42px;display:grid;place-items:center;font-size:23px;font-weight:900}.brand{flex:1}.brand b{display:block;font-size:19px}.muted,.sub{color:var(--m);font-size:13px}.wrap{max-width:1100px;margin:auto}.layout{display:grid;grid-template-columns:205px 1fr;gap:18px;padding:18px}.side{position:sticky;top:78px;align-self:start;background:var(--p);border:1px solid var(--line);border-radius:17px;padding:9px}.nav{display:flex;gap:10px;align-items:center;width:100%;border:0;background:transparent;color:var(--m);padding:12px;border-radius:11px;text-align:left;margin:2px 0}.nav.active,.nav:hover{background:#29402e;color:var(--g2)}.page{display:none}.page.active{display:block}.head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:4px 0 16px}.head h1{font-size:24px;margin:0}.card,.job,.stat{background:var(--p);border:1px solid var(--line);border-radius:17px;padding:16px;margin-bottom:13px}.balance{background:linear-gradient(135deg,#1b2c20,#233e2a)}.amount{font-size:31px;font-weight:800;margin:7px 0 15px}.btn{background:var(--g);color:#07150b;border:0;border-radius:11px;padding:11px 15px;font-weight:750;cursor:pointer}.btn.alt{background:var(--p2);border:1px solid var(--line);color:var(--t)}.actions{display:flex;gap:9px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.stat strong{display:block;font-size:23px;margin:6px 0}.section{margin:21px 0 12px;font-size:17px}.jobtop{display:flex;justify-content:space-between;gap:10px}.job h3{margin:0 0 5px}.reward{color:var(--g2);font-weight:800;white-space:nowrap}.pill{display:inline-block;background:#2c3c2e;color:var(--g2);padding:4px 9px;border-radius:20px;font-size:11px}.field{display:flex;flex-direction:column;gap:7px;margin:0 0 13px}.field label{font-size:13px;color:#c4d1c6}.field input,.field textarea,.field select{background:#101710;color:var(--t);border:1px solid var(--line);border-radius:10px;padding:12px;width:100%;font:inherit}.field textarea{min-height:95px}.notice{background:#2a3325;padding:12px;border-radius:12px;font-size:13px;line-height:1.6;margin-bottom:13px}.notice.warn{background:#3a3020;color:#ffe2a1}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:430px;font-size:13px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--m)}.empty{text-align:center;color:var(--m);padding:22px}.msg{font-size:13px;margin-top:9px;color:var(--g2)}.err{color:#ff9292}.auth{max-width:450px;margin:30px auto;padding:14px}.hidden{display:none!important}.bottom{display:none}
+@media(max-width:740px){.layout{display:block;padding:13px 11px 85px}.side{display:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.head h1{font-size:22px}.bottom{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:10;background:#151d16f5;border-top:1px solid var(--line);padding:5px 2px calc(5px + env(safe-area-inset-bottom));justify-content:space-around}.bottom .nav{flex:1;display:flex;flex-direction:column;gap:3px;text-align:center;justify-content:center;padding:6px 1px;font-size:10px}.bottom .nav span:first-child{font-size:17px}.actions .btn{flex:1}}
+</style></head><body><div class="wrap">
+<header class="top"><div class="logo">M</div><div class="brand"><b>MicroJob</b><span class="muted">Work smart. Earn more.</span></div><button class="btn alt" id="logout" onclick="signOut()" style="display:none">লগআউট</button></header>
+<section id="auth" class="auth"><div class="card"><div class="actions" style="margin-bottom:18px"><button class="btn" id="loginTab" onclick="setMode('login')">লগইন</button><button class="btn alt" id="signupTab" onclick="setMode('signup')">নতুন অ্যাকাউন্ট</button></div><h2 id="authTitle">অ্যাকাউন্টে লগইন করুন</h2><form id="authForm"><div class="field hidden" id="nameBox"><label>আপনার নাম</label><input id="fullName" placeholder="সম্পূর্ণ নাম"></div><div class="field"><label>ইমেইল</label><input id="email" type="email" required></div><div class="field"><label>পাসওয়ার্ড</label><input id="password" type="password" minlength="6" required></div><button class="btn" id="authSubmit">লগইন করুন</button><div id="authMsg" class="msg"></div></form></div></section>
+<div id="portal" class="hidden"><div class="layout"><aside id="side" class="side"></aside><main>
+<section class="page active" id="page-dashboard"><div class="head"><div><h1>ড্যাশবোর্ড</h1><div class="sub" id="welcome">আপনার MicroJob অ্যাকাউন্ট</div></div><span class="pill">Worker / Client</span></div><div class="card balance"><div class="muted">আপনার ওয়ালেট ব্যালেন্স</div><div class="amount" id="dashBalance">৳ 0.00</div><div class="actions"><button class="btn" onclick="go('deposit')">＋ Deposit</button><button class="btn alt" onclick="go('withdraw')">↗ Withdraw</button></div></div><div class="grid"><div class="stat">💼<div class="muted">খোলা কাজ</div><strong id="statJobs">—</strong></div><div class="stat">📨<div class="muted">আমার জমা</div><strong id="statSubs">—</strong></div><div class="stat">💰<div class="muted">অনুমোদিত আয়</div><strong id="statEarn">৳0</strong></div></div><h2 class="section">নতুন কাজ</h2><div id="dashJobs"></div></section>
+<section class="page" id="page-jobs"><div class="head"><div><h1>কাজ খুঁজুন</h1><div class="sub">খোলা কাজ দেখুন ও প্রুফ জমা দিন।</div></div><button class="btn alt" onclick="loadJobs()">রিফ্রেশ</button></div><div id="jobsList"></div></section>
+<section class="page" id="page-myjobs"><div class="head"><div><h1>আমার কাজ</h1><div class="sub">জমা দেওয়া ও পোস্ট করা কাজ।</div></div><button class="btn alt" onclick="loadMyJobs()">রিফ্রেশ</button></div><div class="card"><h3>আমার সাবমিশন</h3><div id="mySubs"></div></div><div class="card"><h3>আমার পোস্ট করা কাজ</h3><div id="myPosted"></div></div></section>
+<section class="page" id="page-create"><div class="head"><div><h1>কাজ পোস্ট করুন</h1><div class="sub">ক্লায়েন্ট হিসেবে নতুন কাজ তৈরি করুন।</div></div></div><div class="notice warn">এই প্রাথমিক সংস্করণে বাজেট কাটা, স্লট নিয়ন্ত্রণ ও কমিশন নিরাপদ সার্ভার-সাইডে যুক্ত হয়নি। সেটি ডেটাবেস ধাপে যোগ করব। বাস্তব লেনদেনের জন্য এখনই ব্যবহার করবেন না।</div><div class="card"><form id="createForm"><div class="field"><label>কাজের শিরোনাম</label><input id="jobTitle" required maxlength="100"></div><div class="field"><label>কাজের বিবরণ</label><textarea id="jobDescription" required></textarea></div><div class="field"><label>প্রতি কাজের পুরস্কার (৳)</label><input id="jobReward" type="number" min="1" required></div><div class="field"><label>Worker সংখ্যা</label><input id="jobSlots" type="number" min="1" value="1" required></div><button class="btn">কাজ পোস্ট করুন</button><div id="createMsg" class="msg"></div></form></div></section>
+<section class="page" id="page-wallet"><div class="head"><div><h1>ওয়ালেট</h1><div class="sub">ব্যালেন্স ও সাম্প্রতিক লেনদেন।</div></div><button class="btn alt" onclick="loadWallet()">রিফ্রেশ</button></div><div class="card balance"><div class="muted">বর্তমান ব্যালেন্স</div><div class="amount" id="walletBalance">৳0.00</div><div class="actions"><button class="btn" onclick="go('deposit')">Deposit</button><button class="btn alt" onclick="go('withdraw')">Withdraw</button></div></div><div class="grid"><div class="stat"><div class="muted">অনুমোদিত আয়</div><strong id="walletEarn">৳0</strong></div><div class="stat"><div class="muted">লেনদেন সংখ্যা</div><strong id="txCount">0</strong></div></div><h2 class="section">সাম্প্রতিক লেনদেন</h2><div class="card" id="walletRecent"></div></section>
+<section class="page" id="page-deposit"><div class="head"><div><h1>Deposit</h1><div class="sub">টাকা যোগ করার অনুরোধ।</div></div></div><div class="notice">সর্বনিম্ন Deposit <b>৳100</b>। নিচের নম্বরে Send Money করে Transaction ID দিন। অ্যাডমিন অনুমোদনের পরই ব্যালেন্স যোগ হবে।</div><div class="card balance"><div class="muted">পেমেন্ট নম্বর · Personal — Send Money</div><div class="amount">01748021976</div><button type="button" class="btn alt" onclick="copyNum()">নম্বর কপি করুন</button></div><div class="card"><form id="depositForm"><div class="field"><label>পেমেন্ট মাধ্যম</label><select id="depMethod" required><option value="">নির্বাচন করুন</option><option>bKash</option><option>Nagad</option><option>Rocket</option><option>Upay</option></select></div><div class="field"><label>পরিমাণ (৳)</label><input id="depAmount" type="number" min="100" required></div><div class="field"><label>যে নম্বর থেকে পাঠিয়েছেন</label><input id="depAccount" type="tel" required></div><div class="field"><label>Transaction ID</label><input id="depTrx" required></div><div class="field"><label>পেমেন্ট স্ক্রিনশট (ঐচ্ছিক)</label><input id="depProof" type="file" accept="image/*"></div><button class="btn">Deposit অনুরোধ পাঠান</button><div id="depMsg" class="msg"></div></form></div><h2 class="section">আমার Deposit অনুরোধ</h2><div class="card" id="depRequests"></div></section>
+<section class="page" id="page-withdraw"><div class="head"><div><h1>Withdraw</h1><div class="sub">টাকা উত্তোলনের অনুরোধ।</div></div></div><div class="notice">সর্বনিম্ন Withdraw <b>৳20</b>। সঠিক পেমেন্ট মাধ্যম ও নম্বর দিন।</div><div class="card"><div class="muted">বর্তমান ব্যালেন্স</div><div class="amount" id="withdrawBalance">৳0.00</div><form id="withdrawForm"><div class="field"><label>পেমেন্ট মাধ্যম</label><select id="wdMethod" required><option value="">নির্বাচন করুন</option><option>bKash</option><option>Nagad</option><option>Rocket</option><option>Upay</option></select></div><div class="field"><label>পরিমাণ (৳)</label><input id="wdAmount" type="number" min="20" required></div><div class="field"><label>যে নম্বরে টাকা নেবেন</label><input id="wdAccount" type="tel" required></div><button class="btn">Withdraw অনুরোধ পাঠান</button><div id="wdMsg" class="msg"></div></form></div><h2 class="section">আমার Withdraw অনুরোধ</h2><div class="card" id="wdRequests"></div></section>
+<section class="page" id="page-history"><div class="head"><div><h1>লেনদেনের ইতিহাস</h1><div class="sub">Transaction History</div></div><button class="btn alt" onclick="loadHistory()">রিফ্রেশ</button></div><div class="card" id="historyList"></div></section>
+<section class="page" id="page-support"><div class="head"><div><h1>সাপোর্ট সেন্টার</h1><div class="sub">সমস্যা জানিয়ে টিকিট খুলুন।</div></div></div><div class="card"><h3>নতুন সাপোর্ট টিকিট</h3><form id="supportForm"><div class="field"><label>বিষয়</label><select id="supportSubject" required><option value="">বিষয় নির্বাচন করুন</option><option>অ্যাকাউন্ট / লগইন</option><option>Deposit সমস্যা</option><option>Withdraw সমস্যা</option><option>কাজ / সাবমিশন</option><option>ওয়ালেট / লেনদেন</option><option>অন্যান্য</option></select></div><div class="field"><label>বার্তা</label><textarea id="supportText" required minlength="5"></textarea></div><button class="btn">সাপোর্টে পাঠান</button><div id="supportMsg" class="msg"></div></form></div><h2 class="section">আমার টিকিট</h2><div id="supportList"></div></section>
+<section class="page" id="page-profile"><div class="head"><div><h1>প্রোফাইল</h1><div class="sub">অ্যাকাউন্টের তথ্য</div></div></div><div class="card"><div class="field"><label>নাম</label><input id="profName" readonly></div><div class="field"><label>ইমেইল</label><input id="profEmail" readonly></div><div class="field"><label>রোল</label><input id="profRole" readonly></div><div class="field"><label>User ID</label><input id="profId" readonly></div><button class="btn alt" onclick="signOut()">লগআউট</button></div></section>
+</main></div><nav class="bottom" id="bottom"></nav></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/*
-  IMPORTANT:
-  Replace these with the existing Supabase project's URL and publishable key.
-  Never put a service_role/secret key in browser code.
-*/
-const SUPABASE_URL = "https://ydskgvciiwlxbonvradu.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-let authMode = "login", currentUser = null, currentProfile = null, jobsCache = [];
-const $ = id => document.getElementById(id);
-function notify(text, error=false) {
-  const n=$("notice"); n.textContent=text; n.className="notice "+(error?"err":"ok");
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function clearNotice(){ $("notice").className="notice hidden"; }
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function money(v){const n=Number(v||0);return Number.isFinite(n)?n.toLocaleString("en-BD",{minimumFractionDigits:2,maximumFractionDigits:2}):"0.00";}
-function date(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleString("en-GB");}
-function statusPill(s){const v=String(s||"pending").toLowerCase();return `<span class="pill ${esc(v)}">${esc(v)}</span>`;}
-function setAuthMode(mode){
-  authMode=mode;$("loginTab").classList.toggle("active",mode==="login");$("signupTab").classList.toggle("active",mode==="signup");
-  $("nameField").classList.toggle("hidden",mode!=="signup");
-  $("confirmPasswordField").classList.toggle("hidden",mode!=="signup");
-  $("confirmPassword").required=mode==="signup";
-  $("password").autocomplete=mode==="signup"?"new-password":"current-password";
-  if(mode!=="signup")$("confirmPassword").value="";
-  $("authSubmit").textContent=mode==="signup"?"Create Account":"Login";
-}
-$("authForm").addEventListener("submit",async e=>{
-  e.preventDefault();clearNotice();const email=$("email").value.trim(),password=$("password").value;
-  try{
-    let result;
-    if(authMode==="signup"){
-      const full_name=$("fullName").value.trim();if(!full_name)throw Error("আপনার নাম লিখুন।");
-      result=await db.auth.signUp({email,password,options:{data:{full_name,role:"worker"}}});
-      if(result.error)throw result.error;
-      if(!result.data.session){notify("অ্যাকাউন্ট তৈরি হয়েছে। ইমেইল ভেরিফাই করে লগইন করুন।");setAuthMode("login");return;}
-    }else{
-      result=await db.auth.signInWithPassword({email,password});if(result.error)throw result.error;
-    }
-    await boot();
-  }catch(err){notify("Login/Register হয়নি: "+(err.message||err),true);}
-});
-$("logoutBtn").addEventListener("click",async()=>{await db.auth.signOut();currentUser=null;currentProfile=null;$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("logoutBtn").classList.add("hidden");$("headerUser").textContent="";notify("আপনি Logout করেছেন।");});
-
-async function boot(){
-  const {data:{user},error}=await db.auth.getUser();if(error)throw error;
-  if(!user){$("authView").classList.remove("hidden");$("appView").classList.add("hidden");return;}
-  currentUser=user;
-  const {data:profile,error:profileError}=await db.from("profiles").select("id,full_name,role").eq("id",user.id).maybeSingle();
-  if(profileError)throw Error("Profile load হয়নি: "+profileError.message);
-  currentProfile=profile;
-  if(!profile){
-    // Profile creation should preferably be handled by a secure database trigger.
-    notify("আপনার profile পাওয়া যায়নি। Supabase-এ profiles row তৈরি করার ব্যবস্থা যাচাই করুন।",true);
-  }
-  $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");
-  $("headerUser").textContent=profile?.full_name||user.email||"User";
-  $("welcomeText").textContent="স্বাগতম, "+(profile?.full_name||user.email||"User");
-  $("rolePill").textContent="Worker + Client";
-  $("clientCreate").classList.remove("hidden");
-  $("myJobsTitle").textContent="My Posted Jobs & Submissions";
-  $("myJobsHint").textContent="একই অ্যাকাউন্ট থেকে জব পোস্ট করুন এবং অন্যদের জবের প্রমাণ জমা দিন।";
-  $("submitCard").classList.remove("hidden");
-  await refreshAll();
-}
-async function safeQuery(label,fn){try{return await fn();}catch(e){console.error(label,e);return null;}}
-async function refreshAll(){
-  await Promise.all([loadWallet(),loadJobs(),loadTransactions(),loadPaymentRequests(),loadTickets(),loadMyJobs()]);
-}
-function showPage(page,button){
-  document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(page).classList.remove("hidden");
-  document.querySelectorAll("#mainTabs button").forEach(x=>x.classList.remove("active"));if(button)button.classList.add("active");
-  if(page==="wallet")loadWallet();if(page==="jobs")loadJobs();if(page==="myjobs")loadMyJobs();if(page==="history")loadTransactions();if(page==="support")loadTickets();
-}
-async function loadWallet(){
-  if(!currentUser)return;
-  const {data,error}=await db.from("wallets").select("balance").eq("user_id",currentUser.id).maybeSingle();
-  if(error){$("balance").textContent="—";$("walletBalance").textContent="—";console.error(error);return;}
-  const b=Number(data?.balance||0);$("balance").textContent=money(b);$("walletBalance").textContent=money(b);
-  const {data:tx}=await db.from("transactions").select("amount,type,status").eq("user_id",currentUser.id).eq("status","approved").limit(200);
-  const earned=(tx||[]).filter(t=>String(t.type||"").toLowerCase().includes("earn")).reduce((s,t)=>s+Number(t.amount||0),0);
-  $("earned").textContent=money(earned);
-}
-async function loadJobs(){
-  const box=$("jobsList");box.innerHTML='<div class="empty">লোড হচ্ছে…</div>';
-  // Public jobs are expected to have status='open'. Adjust this filter if your schema uses another status.
-  const {data,error}=await db.from("jobs").select("*").eq("status","open").order("created_at",{ascending:false}).limit(100);
-  if(error){box.innerHTML=`<div class="empty">জব লোড হয়নি: ${esc(error.message)}<br><span class="muted">Supabase jobs table-এর read policy/status values যাচাই করুন।</span></div>`;jobsCache=[];return;}
-  jobsCache=data||[];$("availableCount").textContent=jobsCache.length;renderJobs();
-  $("recentJobs").innerHTML=jobsCache.slice(0,3).map(jobCard).join("")||'<div class="empty">এখন কোনো জব নেই।</div>';
-}
-function jobCard(j){
-  const title=j.title||("Job "+(j.id||""));return `<div class="item"><div class="row"><b>${esc(title)}</b><span class="pill">${money(j.reward)} BDT</span></div><p>${esc(j.description||"বিস্তারিত দেওয়া হয়নি")}</p><p class="muted">Job ID: ${esc(j.id)} · ${date(j.created_at)}</p><button onclick="startJob('${esc(j.id)}')">কাজ শুরু / ID ব্যবহার</button></div>`;
-}
-function renderJobs(){
-  const q=($("jobSearch").value||"").toLowerCase();
-  const list=jobsCache.filter(j=>String(j.title||"").toLowerCase().includes(q)||String(j.description||"").toLowerCase().includes(q));
-  $("jobsList").innerHTML=list.map(jobCard).join("")||'<div class="empty">মিল পাওয়া যায়নি বা কোনো জব নেই।</div>';
-}
-function startJob(id){$("submissionJobId").value=id;showPage("myjobs",document.querySelector('[data-page="myjobs"]'));notify("জবের ID বসানো হয়েছে। কাজ শেষ করে প্রমাণ জমা দিন।");}
-async function loadMyJobs(){
-  if(!currentUser)return;
-  const box=$("myJobsList");box.innerHTML='<div class="empty">লোড হচ্ছে…</div>';
-  const [jobsResult,subsResult]=await Promise.all([
-    db.from("jobs").select("*").eq("client_id",currentUser.id).order("created_at",{ascending:false}).limit(100),
-    db.from("submissions").select("*").eq("worker_id",currentUser.id).order("submitted_at",{ascending:false}).limit(100)
-  ]);
-  let html='';
-  if(jobsResult.error){html+=`<div class="item"><b>আপনার পোস্ট করা জব লোড হয়নি</b><p>${esc(jobsResult.error.message)}</p></div>`;}
-  else {
-    const ownJobs=jobsResult.data||[];
-    html+='<h3>আমার পোস্ট করা জব</h3>'+(ownJobs.map(j=>`<div class="item"><b>${esc(j.title||"Job")}</b><p>${esc(j.description||"")}</p><p>Reward: ${money(j.reward)} BDT · Status: ${statusPill(j.status)}</p><p class="muted">ID: ${esc(j.id)}</p></div>`).join("")||'<div class="empty">আপনি এখনো কোনো জব পোস্ট করেননি।</div>');
-  }
-  if(subsResult.error){$("submissionCount").textContent="—";html+=`<div class="item"><b>জমা দেওয়া প্রুফ লোড হয়নি</b><p>${esc(subsResult.error.message)}</p></div>`;}
-  else {
-    const subs=subsResult.data||[];$("submissionCount").textContent=subs.length;
-    const pendingSubs=subs.filter(s=>String(s.status||"").toLowerCase()==="pending");
-    let pendingTotal=0;
-    if(pendingSubs.length){
-      const jobIds=[...new Set(pendingSubs.map(s=>s.job_id).filter(Boolean))];
-      if(jobIds.length){
-        const {data:pendingJobs,error:pendingJobsError}=await db.from("jobs").select("id,reward").in("id",jobIds);
-        if(!pendingJobsError){
-          const rewardsByJob=new Map((pendingJobs||[]).map(j=>[String(j.id),Number(j.reward||0)]));
-          pendingTotal=pendingSubs.reduce((sum,sub)=>sum+(rewardsByJob.get(String(sub.job_id))||0),0);
-        }
-      }
-    }
-    $("pendingBalance").textContent=money(pendingTotal);
-    html+='<h3 style="margin-top:18px">আমার জমা দেওয়া প্রুফ</h3>'+(subs.map(s=>`<div class="item"><b>Submission</b><p>Job ID: ${esc(s.job_id)}</p><p>Status: ${statusPill(s.status)}</p><p>${esc(s.proof||"")}</p><p class="muted">${date(s.submitted_at)}</p></div>`).join("")||'<div class="empty">এখনো কোনো প্রমাণ জমা দেননি।</div>');
-  }
-  box.innerHTML=html;
-}
-$("createJobForm").addEventListener("submit",async e=>{
-  e.preventDefault();if(!currentUser){notify("আগে Login করুন।",true);return;}
-  const title=$("jobTitle").value.trim(),description=$("jobDescription").value.trim(),reward=Number($("jobReward").value),slots=Number($("jobSlots").value);
-  if(!title||!description||reward<=0||slots<1){notify("সব তথ্য সঠিকভাবে দিন।",true);return;}
-  // Existing schema confirms title is not guaranteed. This insert expects a title column and may need schema adjustment.
-  const {error}=await db.from("jobs").insert({client_id:currentUser.id,title,description,reward,status:"open"});
-  if(error){notify("জব পোস্ট হয়নি: "+error.message,true);return;}
-  $("createJobForm").reset();notify("জব পোস্ট হয়েছে।");await loadJobs();await loadMyJobs();
-});
-$("submissionForm").addEventListener("submit",async e=>{
-  e.preventDefault();if(!currentUser){notify("আগে Login করুন।",true);return;}
-  const job_id=$("submissionJobId").value.trim(),proof=$("submissionProof").value.trim();
-  if(!job_id||!proof)return;
-  const {error}=await db.from("submissions").insert({job_id,worker_id:currentUser.id,proof,status:"pending"});
-  if(error){notify("প্রমাণ জমা হয়নি: "+error.message,true);return;}
-  $("submissionForm").reset();notify("প্রমাণ জমা হয়েছে। Client যাচাই করবেন।");await loadMyJobs();
-});
-async function sendPaymentRequest(type){
-  const isDep=type==="deposit",method=$(isDep?"depositMethod":"withdrawMethod").value,amount=Number($(isDep?"depositAmount":"withdrawAmount").value),account=$(isDep?"depositAccount":"withdrawAccount").value.trim(),txn=isDep?$("depositTxn").value.trim():null;
-  if(!Number.isFinite(amount)||!account){notify("সঠিক পরিমাণ ও অ্যাকাউন্ট নম্বর দিন।",true);return;}
-  if(isDep&&amount<100){notify("মিনিমাম Deposit ৳১০০।",true);return;}
-  if(!isDep&&amount<20){notify("মিনিমাম Withdrawal ৳২০।",true);return;}
-  if(isDep&&!txn){notify("Transaction ID দিন।",true);return;}
-  let proofPath=null;
-  if(isDep){
-    const file=$("depositScreenshot").files[0];
-    if(!file){notify("পেমেন্টের স্ক্রিনশট আপলোড করুন।",true);return;}
-    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>5*1024*1024){notify("PNG/JPG/WebP ছবি দিন; সর্বোচ্চ 5 MB।",true);return;}
-    proofPath=`${currentUser.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,"_")}`;
-    const {error:uploadError}=await db.storage.from("payment-proofs").upload(proofPath,file,{contentType:file.type,upsert:false});
-    if(uploadError){notify("স্ক্রিনশট আপলোড হয়নি: "+uploadError.message+"। Supabase-এ payment-proofs Storage bucket ও upload policy তৈরি আছে কি না দেখুন।",true);return;}
-  }
-  const row={user_id:currentUser.id,request_type:type,amount,payment_method:method,account_number:account,status:"pending"};
-  if(isDep){row.transaction_id=txn;row.screenshot_path=proofPath;}
-  const {error}=await db.from("payment_requests").insert(row);
-  if(error){notify("অনুরোধ পাঠানো যায়নি: "+error.message,true);return;}
-  notify("অনুরোধ জমা হয়েছে। Owner যাচাই করবেন।");$(isDep?"depositForm":"withdrawForm").reset();await loadPaymentRequests();
-}
-$("depositMethod").addEventListener("change",()=>{ $("depositReceiverNumber").textContent="01748021976"; $("depositReceiverType").textContent="Personal · Send Money · "+$("depositMethod").selectedOptions[0].text; });
-$("depositForm").addEventListener("submit",e=>{e.preventDefault();sendPaymentRequest("deposit");});
-$("withdrawForm").addEventListener("submit",e=>{e.preventDefault();sendPaymentRequest("withdrawal");});
-async function loadPaymentRequests(){
-  if(!currentUser)return;const box=$("paymentRequests");box.innerHTML='<div class="empty">লোড হচ্ছে…</div>';
-  const {data,error}=await db.from("payment_requests").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
-  if(error){box.innerHTML=`<div class="empty">অনুরোধ লোড হয়নি: ${esc(error.message)}</div>`;return;}
-  box.innerHTML=(data||[]).map(r=>`<div class="item"><div class="row"><b>${esc(r.request_type)} · ${money(r.amount)} BDT</b>${statusPill(r.status)}</div><p>${esc(r.payment_method)} · ${esc(r.account_number||"")}</p><p class="muted">${date(r.created_at)} ${r.transaction_id?"· Txn: "+esc(r.transaction_id):""}</p>${r.admin_note?`<p>Note: ${esc(r.admin_note)}</p>`:""}</div>`).join("")||'<div class="empty">কোনো পেমেন্ট অনুরোধ নেই।</div>';
-}
-async function loadTransactions(){
-  if(!currentUser)return;const box=$("historyList");box.innerHTML='<div class="empty">লোড হচ্ছে…</div>';
-  const {data,error}=await db.from("transactions").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
-  if(error){box.innerHTML=`<div class="empty">History লোড হয়নি: ${esc(error.message)}</div>`;$("recentTransactions").innerHTML=box.innerHTML;return;}
-  const markup=(data||[]).map(t=>`<div class="item"><div class="row"><b>${esc(t.type||"Transaction")}</b><b>৳ ${money(t.amount)}</b></div><p>Status: ${statusPill(t.status)}</p><p class="muted">${date(t.created_at)} · ${esc(t.reference||"")}</p></div>`).join("")||'<div class="empty">কোনো লেনদেন নেই।</div>';
-  box.innerHTML=markup;$("recentTransactions").innerHTML=(data||[]).slice(0,3).map(t=>`<div class="item"><b>${esc(t.type||"Transaction")}</b> · ৳ ${money(t.amount)}<p class="muted">${date(t.created_at)} · ${esc(t.status)}</p></div>`).join("")||'<div class="empty">কোনো লেনদেন নেই।</div>';
-}
-$("supportForm").addEventListener("submit",async e=>{
-  e.preventDefault();const subject=$("ticketSubject").value.trim(),messageText=$("ticketMessage").value.trim();
-  const {error}=await db.from("support_tickets").insert({user_id:currentUser.id,subject,message:messageText,status:"open"});
-  if(error){notify("Ticket তৈরি হয়নি: "+error.message,true);return;}
-  $("supportForm").reset();notify("Support ticket জমা হয়েছে।");await loadTickets();
-});
-async function loadTickets(){
-  if(!currentUser)return;const box=$("ticketsList");box.innerHTML='<div class="empty">লোড হচ্ছে…</div>';
-  const {data,error}=await db.from("support_tickets").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(100);
-  if(error){box.innerHTML=`<div class="empty">Tickets লোড হয়নি: ${esc(error.message)}</div>`;return;}
-  box.innerHTML=(data||[]).map(t=>`<div class="item"><div class="row"><b>${esc(t.subject)}</b>${statusPill(t.status)}</div><p>${esc(t.message)}</p>${t.reply?`<p><b>Support reply:</b> ${esc(t.reply)}</p>`:""}<p class="muted">${date(t.created_at)}</p></div>`).join("")||'<div class="empty">কোনো টিকিট নেই।</div>';
-}
-db.auth.onAuthStateChange((event,session)=>{if(event==="SIGNED_OUT"){currentUser=null;currentProfile=null;}});
-(async()=>{try{const {data:{session}}=await db.auth.getSession();if(session)await boot();}catch(e){notify("শুরু করা যায়নি: "+(e.message||e),true);}})();
-</script>
-</body>
-</html>
+/* URL ও Publishable Key একবারই রাখা হয়েছে। এখানে কখনো service_role key বসাবেন না। */
+const SUPABASE_URL="https://ydskgvciiwlxbonvradu.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let user=null,profile=null,mode="login";
+const $=id=>document.getElementById(id), money=n=>"৳ "+Number(n||0).toLocaleString("en-BD",{minimumFractionDigits:2,maximumFractionDigits:2}), esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const items=[["dashboard","⌂","ড্যাশবোর্ড"],["jobs","💼","কাজ খুঁজুন"],["myjobs","📨","আমার কাজ"],["create","＋","কাজ পোস্ট"],["wallet","▣","ওয়ালেট"],["deposit","↓","Deposit"],["withdraw","↗","Withdraw"],["history","↻","লেনদেন"],["support","?","সাপোর্ট"],["profile","◉","প্রোফাইল"]];
+const nav=()=>items.map(([id,ico,label])=>`<button class="nav" data-page="${id}" onclick="go('${id}')"><span>${ico}</span><span>${label}</span></button>`).join("");
+$("side").innerHTML=nav();$("bottom").innerHTML=nav();
+function go(p){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+p));document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.page===p));scrollTo({top:0,behavior:"smooth"});const f={dashboard:loadDashboard,jobs:loadJobs,myjobs:loadMyJobs,wallet:loadWallet,deposit:loadRequests,withdraw:loadRequests,history:loadHistory,support:loadSupport};if(user&&f[p])f[p]()}
+function setMode(m){mode=m;$("nameBox").classList.toggle("hidden",m!=="signup");$("authTitle").textContent=m==="login"?"অ্যাকাউন্টে লগইন করুন":"নতুন অ্যাকাউন্ট তৈরি করুন";$("authSubmit").textContent=m==="login"?"লগইন করুন":"রেজিস্ট্রেশন করুন";$("loginTab").className=m==="login"?"btn":"btn alt";$("signupTab").className=m==="signup"?"btn":"btn alt";$("authMsg").textContent=""}
+function message(id,s,ok=false){$(id).innerHTML=`<span class="${ok?"":"err"}">${esc(s)}</span>`}
+function empty(s="এখনো কোনো তথ্য নেই।"){return `<div class="empty">${esc(s)}</div>`}
+async function signOut(){await db.auth.signOut();user=null;$("portal").classList.add("hidden");$("auth").classList.remove("hidden");$("logout").style.display="none"}
+$("authForm").onsubmit=async e=>{e.preventDefault();$("authSubmit").disabled=true;let r;if(mode==="login")r=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});else r=await db.auth.signUp({email:$("email").value.trim(),password:$("password").value,options:{data:{full_name:$("fullName").value.trim(),role:"worker"}}});$("authSubmit").disabled=false;if(r.error){message("authMsg",r.error.message);return}if(mode==="signup"&&!r.data.session){message("authMsg","অ্যাকাউন্ট তৈরি হয়েছে। ইমেইল ভেরিফিকেশন চাইলে ইমেইল চেক করুন।",true);return}user=r.data.user;if(user)await boot()};
+async function boot(){$("auth").classList.add("hidden");$("portal").classList.remove("hidden");$("logout").style.display="block";let r=await db.from("profiles").select("id,full_name,role").eq("id",user.id).maybeSingle();if(r.error)alert("Profile লোড হয়নি: "+r.error.message);profile=r.data||{id:user.id,full_name:user.user_metadata?.full_name||"ব্যবহারকারী",role:"worker"};if(!r.data)alert("profiles টেবিলে আপনার প্রোফাইল পাওয়া যায়নি। ডেটাবেস ধাপে এটি ঠিক করব।");$("welcome").textContent="স্বাগতম, "+profile.full_name;$("profName").value=profile.full_name||"";$("profEmail").value=user.email||"";$("profRole").value=profile.role||"worker";$("profId").value=user.id;go("dashboard")}
+async function balance(){let r=await db.from("wallets").select("balance").eq("user_id",user.id).maybeSingle();if(r.error)console.warn(r.error.message);return Number(r.data?.balance||0)}
+function jobHtml(rows){if(!rows?.length)return empty("এখন কোনো খোলা কাজ নেই।");return rows.map(j=>`<article class="job"><div class="jobtop"><div><h3>${esc(j.title||"MicroJob Task")}</h3><div class="sub">${esc(j.description||"")}</div></div><div class="reward">${money(j.reward)}</div></div><div class="actions" style="margin-top:12px"><span class="pill">${esc(j.status||"open")}</span><button class="btn" onclick="submitProof('${esc(j.id)}')">প্রুফ জমা দিন</button></div></article>`).join("")}
+async function loadDashboard(){let b=await balance();$("dashBalance").textContent=money(b);let j=await db.from("jobs").select("id,title,description,reward,status").eq("status","open").limit(3);$("statJobs").textContent=j.error?"—":j.data.length;$("dashJobs").innerHTML=j.error?empty(j.error.message):jobHtml(j.data);let s=await db.from("submissions").select("id").eq("worker_id",user.id);$("statSubs").textContent=s.error?"—":s.data.length;let t=await db.from("transactions").select("amount,type,status").eq("user_id",user.id).eq("status","approved");let earn=(t.data||[]).filter(x=>String(x.type).toLowerCase().includes("earning")).reduce((a,x)=>a+Number(x.amount||0),0);$("statEarn").textContent=money(earn)}
+async function loadJobs(){ $("jobsList").innerHTML=empty("লোড হচ্ছে…");let r=await db.from("jobs").select("*").eq("status","open").order("created_at",{ascending:false}).limit(100);$("jobsList").innerHTML=r.error?empty("jobs টেবিল/পলিসি সমস্যা: "+r.error.message):jobHtml(r.data)}
+async function submitProof(id){let proof=prompt("কাজের প্রুফ/লিংক লিখুন:");if(!proof?.trim())return;let r=await db.from("submissions").insert({job_id:id,worker_id:user.id,proof:proof.trim(),status:"pending"});if(r.error)alert("প্রুফ জমা হয়নি: "+r.error.message);else{alert("প্রুফ জমা হয়েছে।");loadMyJobs()}}
+function table(headers,rows){if(!rows?.length)return empty();return `<div class="tablewrap"><table><thead><tr>${headers.map(x=>`<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(x=>`<td>${esc(x??"—")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
+async function loadMyJobs(){let [s,j]=await Promise.all([db.from("submissions").select("job_id,status,proof,submitted_at").eq("worker_id",user.id).order("submitted_at",{ascending:false}),db.from("jobs").select("id,title,description,reward,status").eq("client_id",user.id).order("created_at",{ascending:false})]);$("mySubs").innerHTML=s.error?empty(s.error.message):table(["Job ID","Status","Proof"],(s.data||[]).map(x=>[x.job_id,x.status,x.proof]));$("myPosted").innerHTML=j.error?empty(j.error.message):jobHtml(j.data)}
+$("createForm").onsubmit=async e=>{e.preventDefault();let r=await db.from("jobs").insert({client_id:user.id,title:$("jobTitle").value.trim(),description:$("jobDescription").value.trim(),reward:Number($("jobReward").value),status:"open"});if(r.error)message("createMsg","পোস্ট হয়নি: "+r.error.message);else{message("createMsg","কাজ পোস্ট হয়েছে; বাজেট/স্লট/কমিশন RPC পরের ধাপে যোগ করতে হবে।",true);$("createForm").reset();loadMyJobs()}};
+function txHtml(rows){if(!rows?.length)return empty("কোনো লেনদেন নেই।");return table(["তারিখ","ধরন","পরিমাণ","স্ট্যাটাস"],rows.map(x=>[x.created_at?new Date(x.created_at).toLocaleDateString("bn-BD"):"—",x.type,money(x.amount),x.status]))}
+async function loadWallet(){let b=await balance();$("walletBalance").textContent=money(b);$("withdrawBalance").textContent=money(b);let r=await db.from("transactions").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(10);$("txCount").textContent=r.error?"—":r.data.length;let e=(r.data||[]).filter(x=>String(x.type).toLowerCase().includes("earning")&&x.status==="approved").reduce((a,x)=>a+Number(x.amount||0),0);$("walletEarn").textContent=money(e);$("walletRecent").innerHTML=r.error?empty(r.error.message):txHtml(r.data)}
+async function loadHistory(){$("historyList").innerHTML=empty("লোড হচ্ছে…");let r=await db.from("transactions").select("*").eq("user_id",user.id).order("created_at",{ascending:false}).limit(200);$("historyList").innerHTML=r.error?empty(r.error.message):txHtml(r.data)}
+async function upload(file){if(!file)return null;let path=`${user.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g,"")}`;let r=await db.storage.from("payment-proofs").upload(path,file);if(r.error)throw Error("payment-proofs bucket/policy: "+r.error.message);return path}
+$("depositForm").onsubmit=async e=>{e.preventDefault();let amount=Number($("depAmount").value);if(amount<100){message("depMsg","সর্বনিম্ন Deposit ৳100");return}try{let path=await upload($("depProof").files[0]),p={user_id:user.id,request_type:"deposit",amount,payment_method:$("depMethod").value,transaction_id:$("depTrx").value.trim(),account_number:$("depAccount").value.trim(),status:"pending"};if(path)p.screenshot_path=path;let r=await db.from("payment_requests").insert(p);if(r.error)throw Error(r.error.message);message("depMsg","অনুরোধ জমা হয়েছে। অ্যাডমিন অনুমোদন না করা পর্যন্ত ব্যালেন্স যোগ হবে না।",true);$("depositForm").reset();loadRequests()}catch(err){message("depMsg","জমা হয়নি: "+err.message)}};
+$("withdrawForm").onsubmit=async e=>{e.preventDefault();let amount=Number($("wdAmount").value);if(amount<20){message("wdMsg","সর্বনিম্ন Withdraw ৳20");return}let r=await db.from("payment_requests").insert({user_id:user.id,request_type:"withdrawal",amount,payment_method:$("wdMethod").value,account_number:$("wdAccount").value.trim(),status:"pending"});if(r.error)message("wdMsg","জমা হয়নি: "+r.error.message);else{message("wdMsg","অনুরোধ জমা হয়েছে। ব্যালেন্স রিজার্ভ/কাটা নিরাপদ সার্ভার-সাইডে পরের ধাপে যোগ হবে।",true);$("withdrawForm").reset();loadRequests()}};
+async function loadRequests(){let r=await db.from("payment_requests").select("request_type,amount,payment_method,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);let h=r.error?empty(r.error.message):table(["ধরন","পরিমাণ","মাধ্যম","স্ট্যাটাস"],(r.data||[]).map(x=>[x.request_type,money(x.amount),x.payment_method,x.status]));$("depRequests").innerHTML=h;$("wdRequests").innerHTML=h;$("withdrawBalance").textContent=money(await balance())}
+$("supportForm").onsubmit=async e=>{e.preventDefault();let r=await db.from("support_tickets").insert({user_id:user.id,subject:$("supportSubject").value,message:$("supportText").value.trim(),status:"open"});if(r.error)message("supportMsg","টিকিট জমা হয়নি: "+r.error.message);else{message("supportMsg","সাপোর্ট টিকিট জমা হয়েছে।",true);$("supportForm").reset();loadSupport()}};
+async function loadSupport(){let r=await db.from("support_tickets").select("subject,message,reply,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);$("supportList").innerHTML=r.error?empty(r.error.message):(r.data||[]).length?r.data.map(x=>`<div class="card"><div class="jobtop"><h3>${esc(x.subject)}</h3><span class="pill">${esc(x.status)}</span></div><p>${esc(x.message)}</p>${x.reply?`<div class="notice"><b>উত্তর:</b><br>${esc(x.reply)}</div>`:""}<div class="sub">${esc(x.created_at?new Date(x.created_at).toLocaleString("bn-BD"):"")}</div></div>`).join(""):empty("এখনো কোনো টিকিট নেই।")}
+function copyNum(){if(navigator.clipboard)navigator.clipboard.writeText("01748021976").then(()=>alert("নম্বর কপি হয়েছে।")).catch(()=>alert("পেমেন্ট নম্বর: 01748021976"));else alert("পেমেন্ট নম্বর: 01748021976")}
+db.auth.getSession().then(({data})=>{if(data.session?.user){user=data.session.user;boot()}});
+db.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT"){user=null;$("portal").classList.add("hidden");$("auth").classList.remove("hidden")}});
+</script></body></html>
