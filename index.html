@@ -3,20 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MicroJob TaskFlex</title>
+    <title>MicroJob Platform - TaskFlex</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between">
 
-    <!-- Top Header -->
+    <!-- Auth Section (Hidden if logged in) -->
+    <div id="authContainer" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 w-full max-w-md">
+            <h2 id="authTitle" class="text-xl font-bold mb-4 text-center text-indigo-400">Login to TaskFlex</h2>
+            <div class="space-y-3">
+                <input type="email" id="authEmail" placeholder="Email Address" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
+                <input type="password" id="authPassword" placeholder="Password" class="w-full bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
+                <button onclick="handleAuth()" id="authBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-semibold text-sm">Login</button>
+                <p class="text-center text-xs text-slate-400 mt-3 cursor-pointer" onclick="toggleAuthMode()">
+                    <span id="authToggleText">Don't have an account? Register</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Header -->
     <header class="bg-slate-900 p-4 flex justify-between items-center border-b border-slate-800">
         <div class="flex items-center space-x-2">
-            <span class="font-bold text-lg">MicroJob TaskFlex</span>
+            <span class="font-bold text-lg text-indigo-400">TaskFlex</span>
         </div>
         <div class="flex items-center space-x-3">
-            <button id="modeToggleBtn" onclick="toggleMode()" class="bg-indigo-600 px-3 py-1 text-sm rounded-lg font-medium">Worker Mode</button>
-            <div id="profileIcon" class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center font-bold">U</div>
+            <button id="modeToggleBtn" onclick="toggleMode()" class="bg-indigo-600 px-3 py-1.5 text-xs rounded-xl font-medium">Worker Mode</button>
+            <button onclick="logoutUser()" class="text-xs bg-rose-600/20 text-rose-400 px-2.5 py-1.5 rounded-xl font-medium">Logout</button>
         </div>
     </header>
 
@@ -24,91 +39,121 @@
     <main class="p-4 flex-grow mb-16" id="mainContent">
         <!-- Worker View -->
         <div id="workerView">
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4">
-                <p class="text-sm text-slate-400">Available Balance</p>
-                <h2 class="text-2xl font-bold text-emerald-400" id="userBalance">৳ 0.00</h2>
-                <div class="mt-3 flex justify-between">
-                    <div>
-                        <p class="text-xs text-slate-400">Pending Review</p>
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 mb-4">
+                <p class="text-xs text-slate-400">Available Balance</p>
+                <h2 class="text-2xl font-bold text-emerald-400 mt-1" id="userBalance">৳ 0.00</h2>
+                <div class="mt-4 grid grid-cols-2 gap-2">
+                    <div class="bg-slate-800/50 p-2.5 rounded-xl border border-slate-800">
+                        <p class="text-[10px] text-slate-400">Pending Review</p>
                         <p class="text-sm font-semibold text-amber-400" id="pendingReview">৳ 0.00</p>
                     </div>
-                    <div>
-                        <p class="text-xs text-slate-400">Total Lifetime Earned</p>
+                    <div class="bg-slate-800/50 p-2.5 rounded-xl border border-slate-800">
+                        <p class="text-[10px] text-slate-400">Lifetime Earned</p>
                         <p class="text-sm font-semibold text-blue-400" id="totalEarned">৳ 0.00</p>
                     </div>
                 </div>
-                <button onclick="openCashout()" class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 py-2 rounded-lg font-semibold">Cashout</button>
             </div>
 
             <!-- Task Statistics -->
             <div class="grid grid-cols-3 gap-2 text-center mb-4">
-                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                    <p class="text-xs text-slate-400">Pending</p>
-                    <p class="text-lg font-bold" id="statPending">0</p>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <p class="text-[10px] text-slate-400">Pending</p>
+                    <p class="text-lg font-bold mt-1" id="statPending">0</p>
                 </div>
-                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                    <p class="text-xs text-slate-400">Approved</p>
-                    <p class="text-lg font-bold text-emerald-400" id="statApproved">0</p>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <p class="text-[10px] text-slate-400">Approved</p>
+                    <p class="text-lg font-bold text-emerald-400 mt-1" id="statApproved">0</p>
                 </div>
-                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                    <p class="text-xs text-slate-400">Rejected</p>
-                    <p class="text-lg font-bold text-rose-400" id="statRejected">0</p>
+                <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
+                    <p class="text-[10px] text-slate-400">Rejected</p>
+                    <p class="text-lg font-bold text-rose-400 mt-1" id="statRejected">0</p>
                 </div>
             </div>
 
             <!-- Jobs List -->
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <h3 class="font-semibold mb-3">Active Microjobs</h3>
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <h3 class="font-semibold text-sm mb-3">Available Microjobs</h3>
                 <div id="jobListContainer" class="space-y-2">
-                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg">
-                        <span>একটি কাজ সম্পন্ন করুন</span>
-                        <span class="text-emerald-400 font-bold">৳ 53</span>
+                    <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center text-sm">
+                        <span>YouTube Video Watch & Like</span>
+                        <span class="text-emerald-400 font-bold">৳ 10</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Client View (Deposit Section) -->
-        <div id="clientView" class="hidden">
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 mb-4">
-                <h3 class="font-semibold mb-3 text-lg">Deposit Funds</h3>
+        <!-- Client View (Deposit & Job Post) -->
+        <div id="clientView" class="hidden space-y-4">
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <h3 class="font-semibold text-sm mb-3 text-indigo-400">Deposit Funds (5% Fee)</h3>
                 <div class="space-y-3">
-                    <div>
-                        <label class="text-xs text-slate-400">Select Gateway</label>
-                        <select id="depositMethod" class="w-full bg-slate-800 p-2 rounded-lg mt-1 border border-slate-700">
-                            <option value="bKash">bKash</option>
-                            <option value="Nagad">Nagad</option>
-                            <option value="Upay">Upay</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400">Personal Number (Send Money)</label>
-                        <input type="text" id="personalNumber" value="01748021976" readonly class="w-full bg-slate-800 p-2 rounded-lg mt-1 text-slate-400 border border-slate-700">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400">Amount (BDT)</label>
-                        <input type="number" id="depositAmount" placeholder="Enter amount" class="w-full bg-slate-800 p-2 rounded-lg mt-1 border border-slate-700">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400">Transaction ID (TrxID)</label>
-                        <input type="text" id="depositTrxId" placeholder="Enter TrxID" class="w-full bg-slate-800 p-2 rounded-lg mt-1 border border-slate-700">
-                    </div>
-                    <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded-lg font-semibold mt-2">Submit Deposit</button>
+                    <select id="depositMethod" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
+                        <option value="bKash">bKash</option>
+                        <option value="Nagad">Nagad</option>
+                        <option value="Rocket">Rocket</option>
+                    </select>
+                    <input type="number" id="depositAmount" placeholder="Amount (BDT)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
+                    <input type="text" id="depositTrxId" placeholder="Transaction ID (TrxID)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
+                    <button onclick="submitDeposit()" class="w-full bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded-xl font-semibold text-sm">Submit Deposit</button>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                <h3 class="font-semibold text-sm mb-3 text-indigo-400">Post New Job (3% Fee)</h3>
+                <div class="space-y-3">
+                    <input type="text" id="jobTitle" placeholder="Job Title" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
+                    <input type="number" id="jobReward" placeholder="Reward per worker (BDT)" class="w-full bg-slate-800 p-2.5 rounded-xl text-sm border border-slate-700">
+                    <button onclick="submitJobPost()" class="w-full bg-emerald-600 hover:bg-emerald-700 py-2.5 rounded-xl font-semibold text-sm">Publish Job</button>
                 </div>
             </div>
         </div>
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-3">
-        <button onclick="switchTab('home')" class="text-emerald-400 font-medium text-sm">Home</button>
-        <button onclick="switchTab('jobs')" class="text-slate-400 font-medium text-sm">Jobs</button>
-        <button onclick="switchTab('wallet')" class="text-slate-400 font-medium text-sm">Wallet</button>
-        <button onclick="switchTab('settings')" class="text-slate-400 font-medium text-sm">Account</button>
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-3 text-xs">
+        <button class="text-indigo-400 font-medium">Home</button>
+        <button class="text-slate-400 font-medium">History</button>
+        <button class="text-slate-400 font-medium">Profile</button>
     </nav>
 
     <script>
+        const SUPABASE_URL = 'https://ydskgvciiwlxbonvradu.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let isRegisterMode = false;
         let isClientMode = false;
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            document.getElementById('authTitle').innerText = isRegisterMode ? "Register to TaskFlex" : "Login to TaskFlex";
+            document.getElementById('authBtn').innerText = isRegisterMode ? "Register" : "Login";
+            document.getElementById('authToggleText').innerText = isRegisterMode ? "Already have an account? Login" : "Don't have an account? Register";
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            if(!email || !password) return alert("Please fill all fields");
+
+            if(isRegisterMode) {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if(error) alert(error.message);
+                else { alert("Registration successful! You can login now."); toggleAuthMode(); }
+            } else {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if(error) alert(error.message);
+                else { document.getElementById('authContainer').style.display = 'none'; loadUserData(); }
+            }
+        }
+
+        async function loadUserData() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if(user) {
+                document.getElementById('authContainer').style.display = 'none';
+            }
+        }
+
         function toggleMode() {
             isClientMode = !isClientMode;
             const btn = document.getElementById('modeToggleBtn');
@@ -116,26 +161,48 @@
             const clientView = document.getElementById('clientView');
             if(isClientMode) {
                 btn.innerText = "Client Mode";
-                btn.className = "bg-purple-600 px-3 py-1 text-sm rounded-lg font-medium";
+                btn.className = "bg-purple-600 px-3 py-1.5 text-xs rounded-xl font-medium";
                 workerView.classList.add('hidden');
                 clientView.classList.remove('hidden');
             } else {
                 btn.innerText = "Worker Mode";
-                btn.className = "bg-indigo-600 px-3 py-1 text-sm rounded-lg font-medium";
+                btn.className = "bg-indigo-600 px-3 py-1.5 text-xs rounded-xl font-medium";
                 clientView.classList.add('hidden');
                 workerView.classList.remove('hidden');
             }
         }
-        function switchTab(tab) {
-            if(tab === 'wallet') {
-                alert("Withdraw & Deposit History sections available.");
-            }
+
+        async function submitDeposit() {
+            const method = document.getElementById('depositMethod').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const trxId = document.getElementById('depositTrxId').value;
+            if(!amount || !trxId) return alert("Please enter amount and TrxID");
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('deposits').insert([{ user_email: user.email, method, amount, trx_id: trxId, status: 'Pending' }]);
+            if(error) alert(error.message);
+            else { alert("Deposit request submitted successfully!"); }
         }
-        function submitDeposit() {
-            alert("Deposit request submitted successfully!");
+
+        async function submitJobPost() {
+            const title = document.getElementById('jobTitle').value;
+            const reward = parseFloat(document.getElementById('jobReward').value);
+            if(!title || !reward) return alert("Please fill all fields");
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { error } = await supabaseClient.from('jobs').insert([{ client_email: user.email, title, reward, status: 'Active' }]);
+            if(error) alert(error.message);
+            else { alert("Job posted successfully (3% platform fee applied)"); }
         }
-        function openCashout() {
-            alert("Opening Cashout Panel...");
+
+        async function logoutUser() {
+            await supabaseClient.auth.signOut();
+            location.reload();
+        }
+
+        window.onload = async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if(user) document.getElementById('authContainer').style.display = 'none';
         }
     </script>
 </body>
