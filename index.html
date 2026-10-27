@@ -122,7 +122,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Password</label>
-                    <input type="password" id="loginPass" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <div class="relative"><input type="password" id="loginPass" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('loginPass', this)" aria-label="পাসওয়ার্ড দেখুন/লুকান" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                 </div>
                 <button onclick="handleLogin()" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Login</button>
                 <p class="text-xs text-center text-violet-200/70 pt-1">
@@ -143,7 +143,11 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Password</label>
-                    <input type="password" id="regPass" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <div class="relative"><input type="password" id="regPass" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('regPass', this)" aria-label="পাসওয়ার্ড দেখুন/লুকান" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Confirm Password (পাসওয়ার্ড আবার লিখুন)</label>
+                    <div class="relative"><input type="password" id="regPass2" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('regPass2', this)" aria-label="পাসওয়ার্ড দেখুন/লুকান" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                 </div>
                 <button onclick="handleRegister()" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Create Account</button>
                 <p class="text-xs text-center text-violet-200/70 pt-1">
@@ -516,8 +520,13 @@
                     </select>
                     <input type="text" id="newJobTitle" placeholder="Job Title" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     <textarea id="newJobProofReq" rows="2" placeholder="Proof Requirement..." class="field w-full rounded-2xl px-3.5 py-2.5 text-xs"></textarea>
-                    <input type="number" id="newJobReward" placeholder="Reward per Worker (BDT)" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                    <input type="number" id="newJobSlots" placeholder="Total Slots" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <input type="number" id="newJobReward" oninput="updateJobFeePreview()" placeholder="Reward per Worker (BDT)" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <input type="number" id="newJobSlots" oninput="updateJobFeePreview()" placeholder="Total Slots" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
+                        <div>মোট রিওয়ার্ড (R): <span id="jobReward">৳ 0.00</span></div>
+                        <div><span class="font-bold">7% জব পোস্ট ফি</span>: <span id="jobFee" class="text-rose-300">৳ 0.00</span></div>
+                        <div>মোট কাটা হবে (R + 7%): <span id="jobTotal" class="font-bold text-amber-300">৳ 0.00</span></div>
+                    </div>
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
@@ -640,6 +649,8 @@
             const phone = document.getElementById('regPhone').value;
             const pass = document.getElementById('regPass').value;
             if (!email || !phone || !pass) { alert('সব ফিল্ড পূরণ করুন!'); return; }
+            const pass2 = document.getElementById('regPass2').value;
+            if (pass !== pass2) { alert('পাসওয়ার্ড মিলছে না! দুটো পাসওয়ার্ড একই রকম লিখুন।'); return; }
             currentUser = { name: email.split('@')[0], email: email, phone: phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             document.getElementById('authOverlay').classList.add('hidden');
@@ -653,6 +664,14 @@
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             document.getElementById('authOverlay').classList.add('hidden');
             updateUserDataUI();
+        }
+
+        function togglePassVis(id, btn) {
+            const inp = document.getElementById(id);
+            if (!inp) return;
+            const show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            btn.style.color = show ? '#F5B942' : '';
         }
 
         function handleLogout() {
@@ -776,6 +795,21 @@
             document.getElementById('depositFormContainer').classList.add('hidden');
         }
 
+        const FEE_FIELDS = ['fee', 'net_amount', 'total_cost'];
+        function isSchemaError(err) {
+            const m = ((err && (err.message || '')) + ' ' + (err && err.details || '') + ' ' + (err && err.hint || '')).toLowerCase();
+            return /column|schema|could not find|does not exist|unknown/.test(m) && /fee|net_amount|total_cost|column|schema/.test(m);
+        }
+        async function insertSafe(table, row) {
+            const first = await supabaseClient.from(table).insert([row]);
+            if (!first.error) return first;
+            if (!isSchemaError(first.error)) return first;
+            console.warn('[' + table + '] fee column missing, retrying without fee fields:', first.error.message);
+            const stripped = Object.assign({}, row);
+            FEE_FIELDS.forEach(k => { delete stripped[k]; });
+            return await supabaseClient.from(table).insert([stripped]);
+        }
+
         async function submitDeposit() {
             const amt = document.getElementById('depositAmount').value;
             const sender = document.getElementById('depositSender').value;
@@ -786,9 +820,9 @@
             const gross = parseFloat(amt);
             const fee = Math.round(gross * 5) / 100;
             const net = Math.round((gross - fee) * 100) / 100;
-            const { error } = await supabaseClient.from('deposits').insert([{
+            const { error } = await insertSafe('deposits', {
                 user_email: currentUser.email, gateway: selectedGateway, amount: gross, fee: fee, net_amount: net, sender: sender, trx: trx, status: 'Pending'
-            }]);
+            });
             if (error) { alert('ত্রুটি: ' + error.message); return; }
             alert('ডিপোজিট সাবমিট হয়েছে!\nমোট: ৳' + gross.toFixed(2) + ' | ফি (5%): ৳' + fee.toFixed(2) + ' | ব্যালেন্সে যোগ হবে: ৳' + net.toFixed(2));
             document.getElementById('depositAmount').value = '';
@@ -953,7 +987,7 @@
 
             let savedOnServer = false;
             if (supabaseClient) {
-                const { error } = await supabaseClient.from('withdrawals').insert([{ user_email: currentUser.email, amount: amount, fee: wFee, net_amount: wNet, method: method, account_number: number, status: 'Pending' }]);
+                const { error } = await insertSafe('withdrawals', { user_email: currentUser.email, amount: amount, fee: wFee, net_amount: wNet, method: method, account_number: number, status: 'Pending' });
                 savedOnServer = !error;
             }
             if (!savedOnServer) {
@@ -1070,11 +1104,15 @@
             if (!title || isNaN(reward)) { alert('সব ফিল্ড পূরণ করুন!'); return; }
             if (!supabaseClient) { alert('সার্ভারে কানেক্ট হচ্ছে না, একটু পরে আবার চেষ্টা করুন।'); return; }
 
-            const { error } = await supabaseClient.from('micro_jobs').insert([{
-                title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: selectedLocation, client_email: currentUser.email
-            }]);
+            const R = (isNaN(slots) ? 0 : slots) * reward;
+            const jobFee = Math.round(R * 7) / 100;
+            const jobTotal = Math.round((R + jobFee) * 100) / 100;
+            if (jobTotal > currentBalance) { alert('ব্যালেন্স যথেষ্ট নয়। প্রয়োজন: ৳' + jobTotal.toFixed(2) + ' (রিওয়ার্ড + 7% জব পোস্ট ফি)'); return; }
+            const { error } = await insertSafe('micro_jobs', {
+                title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: selectedLocation, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal
+            });
             if (error) { alert('ত্রুটি: ' + error.message); return; }
-            alert('জব পোস্ট সফল হয়েছে!');
+            alert('জব পোস্ট সফল হয়েছে!\nরিওয়ার্ড: ৳' + R.toFixed(2) + ' | 7% জব পোস্ট ফি: ৳' + jobFee.toFixed(2) + ' | মোট কাটা: ৳' + jobTotal.toFixed(2));
             closePostJobModal();
             fetchJobsFromDatabase();
         }
@@ -1092,6 +1130,15 @@
         }
         function closePostJobModal() { document.getElementById('postJobModal').classList.add('hidden'); }
 
+        function updateJobFeePreview() {
+            const reward = parseFloat(document.getElementById('newJobReward').value) || 0;
+            const slots = parseInt(document.getElementById('newJobSlots').value) || 0;
+            const R = reward * slots;
+            const fee = Math.round(R * 7) / 100;
+            document.getElementById('jobReward').textContent = '৳ ' + R.toFixed(2);
+            document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
+            document.getElementById('jobTotal').textContent = '৳ ' + (R + fee).toFixed(2);
+        }
         function updateFeePreview() {
             const d = parseFloat(document.getElementById('depositAmount').value) || 0;
             const dFee = Math.round(d * 5) / 100;
