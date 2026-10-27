@@ -187,19 +187,19 @@
             <div class="grid grid-cols-4 gap-2 text-center">
                 <div class="glass-card stat-chip p-2.5">
                     <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-down text-[8px] text-amber-400"></i> Money In</p>
-                    <h4 id="statMoneyIn" class="text-xs font-extrabold text-amber-300 mt-1.5">$0.00</h4>
+                    <h4 id="statMoneyIn" class="text-xs font-extrabold text-amber-300 mt-1.5">৳0.00</h4>
                 </div>
                 <div class="glass-card stat-chip p-2.5">
                     <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-up text-[8px] text-rose-300"></i> Money Out</p>
-                    <h4 id="statMoneyOut" class="text-xs font-extrabold text-rose-300 mt-1.5">$0.00</h4>
+                    <h4 id="statMoneyOut" class="text-xs font-extrabold text-rose-300 mt-1.5">৳0.00</h4>
                 </div>
                 <div class="glass-card stat-chip p-2.5">
                     <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-wallet text-[8px] text-violet-300"></i> Balance</p>
-                    <h4 id="statBalance" class="text-xs font-extrabold text-violet-300 mt-1.5">$0.00</h4>
+                    <h4 id="statBalance" class="text-xs font-extrabold text-violet-300 mt-1.5">৳0.00</h4>
                 </div>
                 <div class="glass-card stat-chip p-2.5">
                     <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-chart-line text-[8px] text-amber-300"></i> Net</p>
-                    <h4 id="statNet" class="text-xs font-extrabold text-amber-300 mt-1.5">$0.00</h4>
+                    <h4 id="statNet" class="text-xs font-extrabold text-amber-300 mt-1.5">৳0.00</h4>
                 </div>
             </div>
 
@@ -403,6 +403,10 @@
             <div class="glass-card rounded-2xl p-4">
                 <p class="text-[10px] uppercase tracking-wider text-violet-200/60 mb-1">আমার রেটিং</p>
                 <div id="ratingDisplay" class="text-sm text-white">লোড হচ্ছে...</div>
+            </div>
+            <div class="space-y-2.5">
+                <h3 class="text-sm font-bold text-white">সাম্প্রতিক অ্যাক্টিভিটি</h3>
+                <div id="recentActivityList" class="space-y-2.5"></div>
             </div>
         </div>
 
@@ -698,9 +702,11 @@
             currentBalance = totalBalance;
             document.getElementById('workerBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
-            document.getElementById('statBalance').innerText = `$${(totalBalance / 110).toFixed(2)}`;
-            document.getElementById('statMoneyIn').innerText = `$${(totalBalance / 110).toFixed(2)}`;
-            document.getElementById('statNet').innerText = `$${(totalBalance / 110).toFixed(2)}`;
+            const wdTotal = getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email).reduce((a, w) => a + parseFloat(w.amount || 0), 0);
+            document.getElementById('statBalance').innerText = `৳${totalBalance.toFixed(2)}`;
+            document.getElementById('statMoneyIn').innerText = `৳${totalBalance.toFixed(2)}`;
+            document.getElementById('statMoneyOut').innerText = `৳${wdTotal.toFixed(2)}`;
+            document.getElementById('statNet').innerText = `৳${(totalBalance - wdTotal).toFixed(2)}`;
             renderWallet();
             renderEarnings();
         }
@@ -1002,8 +1008,33 @@
             renderEarnings();
         }
 
+        function renderRecentActivity() {
+            const container = document.getElementById('recentActivityList');
+            if (!container) return;
+            if (!currentUser) { container.innerHTML = ''; return; }
+            const apps = getLocalList('taskflex_applications').filter(a => a.email === currentUser.email)
+                .map(a => ({ icon: 'fa-list-check', text: `জব আবেদন: ${a.title || ''}`, amount: a.reward, status: a.status, time: new Date(a.date).getTime() || 0 }));
+            const deps = allDeposits.map(d => ({ icon: 'fa-arrow-down', text: `ডিপোজিট (${d.gateway || ''})`, amount: d.amount, status: d.status, time: new Date(d.created_at || d.date || 0).getTime() || 0 }));
+            const wds = getLocalList('taskflex_withdrawals').filter(w => w.email === currentUser.email)
+                .map(w => ({ icon: 'fa-arrow-up', text: `উইথড্র (${w.method || ''})`, amount: w.amount, status: w.status, time: 0 }));
+            const items = apps.concat(deps, wds).sort((a, b) => b.time - a.time).slice(0, 6);
+            if (items.length === 0) {
+                container.innerHTML = `<div class="glass-card rounded-2xl p-6 text-center text-xs text-violet-200/60"><i class="fa-regular fa-clock text-amber-300/70 text-lg mb-2 block"></i>কোনো অ্যাক্টিভিটি নেই</div>`;
+                return;
+            }
+            container.innerHTML = items.map(it => `
+                <div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 min-w-0"><i class="fa-solid ${it.icon} text-amber-300 text-xs"></i><span class="text-xs text-violet-100/85 truncate">${esc(it.text)}</span></div>
+                    <div class="text-right whitespace-nowrap">
+                        <p class="text-xs font-black text-amber-300">৳${esc(parseFloat(it.amount || 0).toFixed(2))}</p>
+                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2 py-0.5 rounded-full font-bold">${esc(it.status || '')}</span>
+                    </div>
+                </div>`).join('');
+        }
+
         function renderEarnings() {
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+            renderRecentActivity();
             set('earnBalance', `৳ ${currentBalance.toFixed(2)}`);
             const mine = getLocalList('taskflex_applications').filter(a => currentUser && a.email === currentUser.email);
             set('earnApplied', String(mine.length));
