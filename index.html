@@ -353,12 +353,20 @@
 
     </div>
 
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Supabase Client (with CDN fallback so one failed script can't kill the whole site) -->
     <script>
-        const SUPABASE_URL = "https://ydskgvciiwlxbonvradu.supabase.co";
-        const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+        var SUPABASE_URL = "https://ydskgvciiwlxbonvradu.supabase.co";
+        var SUPABASE_PUBLISHABLE_KEY = "sb_publishable_W_SzBghADNkJQmA9oZyKAQ_I3sCoLDO";
+        var supabaseClient = null;
+        function __initSupabase() {
+            try {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+            } catch (e) {
+                console.error('Supabase init failed:', e);
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';s.onload=__initSupabase;document.head.appendChild(s);" onload="__initSupabase()"></script>
 
         let currentUser = null;
         let currentRole = 'worker';
@@ -368,7 +376,11 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             checkAuthStatus();
-            fetchJobsFromDatabase();
+            function tryFetchJobs(attempt) {
+                if (supabaseClient) { fetchJobsFromDatabase(); }
+                else if (attempt < 20) { setTimeout(() => tryFetchJobs(attempt + 1), 500); }
+            }
+            tryFetchJobs(0);
         });
 
         function checkAuthStatus() {
