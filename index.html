@@ -257,6 +257,17 @@
                 <div id="availableJobsList" class="space-y-3"></div>
             </div>
 
+        <!-- TAB: EARNINGS SUMMARY -->
+        <div id="tab-earnings" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">Earnings Summary</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Earned</p><h4 id="earnSummaryTotal" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Completed Jobs</p><h4 id="earnSummaryCount" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
+                <div class="glass-card rounded-2xl p-4 col-span-2"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Wallet Balance</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+            </div>
+            <div class="glass-card rounded-2xl p-4 text-xs text-violet-200/70">Total Earned is the sum of rewards from your approved or completed jobs.</div>
+        </div>
+
         <!-- TAB: HISTORY (worker earnings from approved/completed jobs) -->
         <div id="tab-history" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">Earnings History</h2>
@@ -560,6 +571,7 @@
                     <div class="glass-card rounded-3xl divide-y divide-white/10 overflow-hidden text-sm">
                         <div onclick="openAccountPage('support')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-headset text-amber-300 w-4"></i> Support</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('profile')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-user-pen text-amber-300 w-4"></i> Profile</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('earnings')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-amber-300 w-4"></i> Earnings Summary</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('history')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-clock-rotate-left text-amber-300 w-4"></i> History</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('notifications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-bell text-amber-300 w-4"></i> Notifications</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('refer')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gift text-amber-300 w-4"></i> Refer & Earn</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
@@ -600,7 +612,7 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
-        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'history', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
+        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'history', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -767,6 +779,7 @@
             if (tabId === 'notifications') loadNotifications();
             if (tabId === 'applications') renderMyApplications();
             if (tabId === 'history') renderEarningsHistory();
+            if (tabId === 'earnings') renderEarningsSummary();
         }
 
         function openAccountPage(tabId) {
@@ -975,6 +988,26 @@
             if (list) {
                 list.innerHTML = rows.length === 0 ? `<div class="text-center py-6 text-violet-200/60 text-xs">এখনো কোনো লেনদেন নেই।</div>` : rows.map(rowHtml).join('');
             }
+        }
+
+        async function renderEarningsSummary() {
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+            set('earnBalance', `৳ ${currentBalance.toFixed(2)}`);
+            if (!currentUser || !supabaseClient) { set('earnSummaryTotal', '৳ 0.00'); set('earnSummaryCount', '0'); return; }
+            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email);
+            if (appErr) { set('earnSummaryTotal', '৳ 0.00'); set('earnSummaryCount', '0'); return; }
+            const earned = (apps || []).filter(a => /^(approved|completed|done)$/i.test(String(a.status || '').trim()));
+            const ids = [...new Set(earned.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+            const jobMap = {};
+            if (ids.length) {
+                const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('id,reward').in('id', ids);
+                if (jobErr) { set('earnSummaryTotal', '৳ 0.00'); set('earnSummaryCount', '0'); return; }
+                (jobs || []).forEach(j => { jobMap[String(j.id)] = j; });
+            }
+            let total = 0;
+            earned.forEach(a => { total += parseFloat((jobMap[String(a.job_id)] || {}).reward || 0) || 0; });
+            set('earnSummaryTotal', `৳ ${total.toFixed(2)}`);
+            set('earnSummaryCount', String(earned.length));
         }
 
         async function renderEarningsHistory() {
