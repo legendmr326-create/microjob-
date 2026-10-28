@@ -1241,7 +1241,7 @@
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); setTimeout(() => document.getElementById(id).classList.remove('opacity-0'), 10); }
         function closeModal(id) { document.getElementById(id).classList.add('opacity-0'); setTimeout(() => document.getElementById(id).classList.add('hidden'), 300); }
-        const PROOF_TYPE_LABELS = { screenshot: 'Screenshot Image', message: 'Message/Chat Proof', link: 'Link/URL', other: 'Other' };
+        const PROOF_TYPE_LABELS = { screenshot: 'Screenshot Image', message: 'Message/Chat Proof', text: 'Text Report', link: 'Link/URL', other: 'Other' };
         function addProofRow() {
             const list = document.getElementById('proofReqList');
             const row = document.createElement('div');
