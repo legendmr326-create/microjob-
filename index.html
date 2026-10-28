@@ -411,12 +411,13 @@
                 <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
                     <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300"><span id="profInitial">U</span></div>
                 </div>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                     <p class="text-sm font-bold text-white truncate" id="profHeaderName">User</p>
                     <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
                 </div>
+                <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
             </div>
-            <div class="glass-card rounded-3xl p-5 space-y-3">
+            <div id="profEditPanel" class="glass-card rounded-3xl p-5 space-y-3 hidden">
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Name</label>
                     <input type="text" id="profEditName" placeholder="Your name" class="field w-full rounded-2xl px-4 py-3 text-sm">
@@ -1154,7 +1155,18 @@
             currentUser.phone = phone;
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             updateUserDataUI();
+            toggleProfileEdit(false);
             alert('Profile saved!');
+        }
+
+        function toggleProfileEdit(force) {
+            const panel = document.getElementById('profEditPanel');
+            const btn = document.getElementById('profEditToggle');
+            if (!panel) return;
+            const open = typeof force === 'boolean' ? force : panel.classList.contains('hidden');
+            if (open) renderProfileForm();
+            panel.classList.toggle('hidden', !open);
+            if (btn) btn.innerHTML = open ? '<i class="fa-solid fa-xmark text-[10px] mr-1"></i> Close' : '<i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit';
         }
 
         function nextJobStep() {
