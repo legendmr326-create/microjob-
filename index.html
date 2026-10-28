@@ -1674,6 +1674,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!title) { alert('Please fill all fields!'); return; }
             if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
             if (reward < 50) { alert('Minimum payment is ৳50 per worker'); return; }
+            if (!(currentBalance >= 50)) { alert('You need at least ৳50 in your balance to post a job'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
             const R = Math.round(reward * 100) / 100;
