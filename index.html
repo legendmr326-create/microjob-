@@ -205,10 +205,7 @@
 
                 <!-- JOB BOARD (single place where all jobs show) -->
                 <div id="jobBoard" class="space-y-3">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-base font-bold text-white" id="jobsHeaderTitle">My Posted Jobs</h2>
-                    <button onclick="openPostJobModal()" id="clientPostJobBtn" class="btn-violet text-xs font-bold px-3.5 py-1.5 rounded-xl">Post Job</button>
-                </div>
+                <h2 class="text-base font-bold text-white">Active Microjobs</h2>
                 <input type="text" id="jobSearch" oninput="applyJobFilters()" placeholder="Search jobs..." class="field w-full rounded-2xl px-4 py-3 text-sm">
                 <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
                     <button onclick="setJobCategory('all')" data-cat="all" class="cat-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border bg-amber-400 text-amber-950 border-amber-300">All</button>
@@ -245,6 +242,22 @@
                 </span>
                 <i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i>
             </button>
+
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-bold text-white">My Posted Jobs</h2>
+                    <button onclick="openPostJobModal()" class="btn-violet text-xs font-bold px-3.5 py-1.5 rounded-xl">Post Job</button>
+                </div>
+                <input type="text" id="postedSearch" oninput="applyPostedFilters()" placeholder="Search my jobs..." class="field w-full rounded-2xl px-4 py-3 text-sm">
+                <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
+                    <button onclick="setPostedCategory('all')" data-pcat="all" class="posted-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border bg-amber-400 text-amber-950 border-amber-300">All</button>
+                    <button onclick="setPostedCategory('YouTube')" data-pcat="YouTube" class="posted-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border bg-bgDark/60 text-violet-200/80 border-white/10">YouTube</button>
+                    <button onclick="setPostedCategory('Telegram')" data-pcat="Telegram" class="posted-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border bg-bgDark/60 text-violet-200/80 border-white/10">Telegram</button>
+                    <button onclick="setPostedCategory('Facebook')" data-pcat="Facebook" class="posted-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border bg-bgDark/60 text-violet-200/80 border-white/10">Facebook</button>
+                    <button onclick="setPostedCategory('Sign Up')" data-pcat="Sign Up" class="posted-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border bg-bgDark/60 text-violet-200/80 border-white/10">Sign Up</button>
+                </div>
+                <div id="postedJobsList" class="space-y-3"></div>
+            </div>
         </div>
 
         <!-- TAB: HISTORY (worker earnings from approved/completed jobs) -->
@@ -565,6 +578,7 @@
         let allJobs = [];
         let allDeposits = [];
         let jobCategory = 'all';
+        let postedCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
         const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
@@ -707,6 +721,7 @@
             if (targetNav) targetNav.className = "nav-btn flex flex-col items-center py-1.5 text-amber-300 font-bold";
             window.scrollTo(0, 0);
             if (tabId === 'notifications') loadNotifications();
+            if (tabId === 'newjob') fetchJobsFromDatabase();
             if (tabId === 'applications') renderMyApplications();
             if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); }
         }
@@ -785,6 +800,45 @@
             const { data, error } = await supabaseClient.from('micro_jobs').select('*').order('id', { ascending: false });
             allJobs = (!error && data) ? data : [];
             applyJobFilters();
+            applyPostedFilters();
+        }
+
+        function applyPostedFilters() {
+            const container = document.getElementById('postedJobsList');
+            if (!container) return;
+            const q = (document.getElementById('postedSearch')?.value || '').toLowerCase().trim();
+            const email = currentUser ? currentUser.email : null;
+            const list = allJobs.filter(j =>
+                email && j.client_email === email &&
+                (postedCategory === 'all' || j.category === postedCategory) &&
+                (!q || String(j.title || '').toLowerCase().includes(q))
+            );
+            if (list.length === 0) { container.innerHTML = `<div class="text-center py-10 text-violet-200/60 text-xs">No posted jobs yet.</div>`; return; }
+            container.innerHTML = list.map(job => `
+                <div class="glass-card rounded-2xl p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <span class="text-[10px] uppercase tracking-wider text-violet-200/60">${esc(job.category || '')}</span>
+                            <h4 class="text-sm font-bold text-white truncate">${esc(job.title)}</h4>
+                        </div>
+                        <span class="text-sm font-black text-amber-300 whitespace-nowrap">৳ ${esc(job.reward)}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2.5 text-[11px] text-violet-200/60">
+                        <span><i class="fa-solid fa-users"></i> ${esc(job.slots ?? '-')} slots</span>
+                        <span>Total: ৳ ${esc(job.total_cost ?? '-')}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setPostedCategory(cat) {
+            postedCategory = cat;
+            document.querySelectorAll('.posted-chip').forEach(btn => {
+                const active = btn.getAttribute('data-pcat') === cat;
+                btn.className = "posted-chip whitespace-nowrap px-3.5 py-1.5 rounded-full text-[11px] font-bold border transition " +
+                    (active ? "bg-amber-400 text-amber-950 border-amber-300" : "bg-bgDark/60 text-violet-200/80 border-white/10");
+            });
+            applyPostedFilters();
         }
 
         function applyJobFilters() {
