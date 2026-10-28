@@ -276,7 +276,21 @@
         <div id="tab-jobdetail" class="space-y-3.5 hidden">
             <button onclick="switchTab('dashboard')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
-            <button onclick="applyToJob()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Apply for this Job</button>
+            <button onclick="openProofPanel()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Submit <span class="font-normal text-[11px] opacity-80">সাবমিট করুন</span></button>
+            <div id="proofPanel" class="glass-card rounded-3xl p-5 space-y-3 hidden">
+                <p class="text-xs font-bold text-white">Proof required: Screenshot + Text Report</p>
+                <div>
+                    <label class="block text-[11px] font-semibold text-violet-100 mb-1">Screenshot Image <span class="text-rose-300">*</span></label>
+                    <input type="file" id="proofImgInput" accept="image/*" onchange="previewProofImage(this)" class="field w-full rounded-2xl px-3 py-2.5 text-sm">
+                    <img id="proofImgPreview" alt="" class="hidden w-full max-h-48 object-contain rounded-xl border border-white/10 mt-2">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-violet-100 mb-1">Text Report <span class="text-rose-300">*</span></label>
+                    <textarea id="proofText" rows="4" placeholder="Describe what you did" class="field w-full rounded-2xl px-4 py-3 text-sm"></textarea>
+                </div>
+                <p id="proofError" class="hidden text-[11px] font-semibold text-rose-300"></p>
+                <button type="button" id="proofSubmitBtn" onclick="submitJobWork()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Confirm Submit</button>
+            </div>
         </div>
 
         <!-- TAB: MY APPLICATIONS / MY JOBS -->
@@ -443,7 +457,7 @@
                 </button>
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-green-400 bg-emerald-400/15 px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
+                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-400/15 px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
                     <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
@@ -1015,7 +1029,7 @@
             const appList = (!appErr && apps) ? apps : [];
             box.innerHTML = data.map(j => {
                 const st = String(j.status || 'Pending');
-                const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-white/15 text-white';
+                const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
                 const mine = appList.filter(a => String(a.job_id) === String(j.id));
                 const subs = mine.length === 0
                     ? `<p class="text-[11px] text-violet-200/50">No submissions yet</p>`
@@ -1033,19 +1047,11 @@
                 return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
-                        <div class="flex items-center gap-1.5 shrink-0"><span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span><button onclick="deleteMyPostedJob(${Number(j.id)})" class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap bg-rose-400/15 text-rose-200 border border-rose-300/30">Delete</button></div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
                     </div>
                     <div class="space-y-1.5"><p class="text-[10px] uppercase tracking-wider text-violet-200/50">Submissions</p>${subs}</div>
                 </div>`;
             }).join('');
-        }
-
-        async function deleteMyPostedJob(jobId) {
-            if (!supabaseClient || !currentUser || !currentUser.email) { alert('Not connected to server.'); return; }
-            if (!confirm('এই জবটি delete করতে চান? এটি ফেরত আনা যাবে না।')) return;
-            const { error } = await supabaseClient.from('micro_jobs').delete().eq('id', jobId).eq('client_email', currentUser.email);
-            if (error) { alert('Delete failed: ' + error.message); return; }
-            await loadMyPostedJobs();
         }
 
         async function setApplicationStatus(appId, status) {
@@ -1160,10 +1166,8 @@
             if (!list || list.length === 0) { container.innerHTML = `<div class="text-center py-10 text-violet-200/60 text-xs">No jobs yet.</div>`; return; }
             container.innerHTML = list.map(job => `
                 <div onclick="openJobDetail(${Number(job.id)})" class="glass-card rounded-2xl p-4 cursor-pointer hover:border-amber-300/40 transition">
-                    ${job.thumbnail_url ? `<img src="${esc(job.thumbnail_url)}" alt="" loading="lazy" onerror="this.remove()" class="w-full h-32 object-cover rounded-xl mb-3 border border-white/10">` : ''}
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
-                            <span class="text-[10px] uppercase tracking-wider text-violet-200/60">${esc(job.category || '')}</span>
                             <h4 class="text-sm font-bold text-white truncate">${esc(job.title)}</h4>
                         </div>
                         <span class="text-sm font-black text-amber-300 whitespace-nowrap">৳ ${esc(job.reward)}</span>
@@ -1203,11 +1207,12 @@
             `;
             const already = getLocalList('taskflex_applications').some(a => a.email === (currentUser && currentUser.email) && Number(a.job_id) === Number(job.id));
             const btn = document.getElementById('applyJobBtn');
-            btn.innerText = already ? 'Already applied' : 'Apply for this job';
+            btn.innerText = already ? 'Already submitted' : 'Submit';
+            document.getElementById('proofPanel').classList.add('hidden');
+            resetProofForm();
             btn.disabled = already;
             btn.className = already ? "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60" : "btn-amber w-full font-bold py-3.5 rounded-2xl text-sm";
             switchTab('jobdetail');
-            window.scrollTo(0, 0);
         }
 
         const KYC_TABLE = 'kyc_verifications';
@@ -1459,6 +1464,107 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function openKycProfile() {
             switchTab('profile');
             setTimeout(() => { const c = document.getElementById('kycCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
+        }
+
+        let proofImageData = '';
+
+        function setProofError(msg) {
+            const e = document.getElementById('proofError');
+            if (!e) return;
+            e.textContent = msg || '';
+            e.classList.toggle('hidden', !msg);
+        }
+
+        function resetProofForm() {
+            proofImageData = '';
+            const f = document.getElementById('proofImgInput'); if (f) f.value = '';
+            const p = document.getElementById('proofImgPreview'); if (p) { p.removeAttribute('src'); p.classList.add('hidden'); }
+            const t = document.getElementById('proofText'); if (t) t.value = '';
+            setProofError('');
+        }
+
+        function openProofPanel() {
+            if (!currentUser) { alert('Please log in first.'); return; }
+            const panel = document.getElementById('proofPanel');
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Resize to max 800px wide, re-encode as JPEG, return a base64 data URL.
+        function compressImageToDataUrl(file, maxW = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('Could not read the image'));
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error('Could not decode the image'));
+                    img.onload = () => {
+                        const scale = img.width > maxW ? maxW / img.width : 1;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = Math.round(img.width * scale);
+                        canvas.height = Math.round(img.height * scale);
+                        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function previewProofImage(input) {
+            const file = input.files && input.files[0];
+            proofImageData = '';
+            const prev = document.getElementById('proofImgPreview');
+            if (!file) { prev.classList.add('hidden'); return; }
+            try {
+                proofImageData = await compressImageToDataUrl(file);
+                prev.src = proofImageData;
+                prev.classList.remove('hidden');
+                setProofError('');
+            } catch (err) {
+                prev.classList.add('hidden');
+                setProofError('Screenshot could not be processed. Try another image.');
+            }
+        }
+
+        async function submitJobWork() {
+            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!(await isKycApproved())) { alert('Please complete KYC verification first'); openKycProfile(); return; }
+            const job = allJobs.find(j => Number(j.id) === Number(currentJobId));
+            if (!job) return;
+            const apps = getLocalList('taskflex_applications');
+            if (apps.some(a => a.email === currentUser.email && Number(a.job_id) === Number(job.id))) { alert('You have already submitted this job.'); return; }
+
+            const reportText = (document.getElementById('proofText').value || '').trim();
+            if (!proofImageData && !document.getElementById('proofImgInput').files.length) { setProofError('Screenshot is required. Please attach an image.'); return; }
+            if (!proofImageData) { setProofError('Screenshot is still processing. Try again in a moment.'); return; }
+            if (!reportText) { setProofError('Text Report is required. Please write your report.'); return; }
+            setProofError('');
+
+            const btn = document.getElementById('proofSubmitBtn');
+            btn.disabled = true; btn.textContent = 'Submitting...';
+            let savedOnServer = false;
+            let serverErr = null;
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('job_applications').insert([{
+                    user_email: currentUser.email, job_id: job.id, status: 'Pending',
+                    proof_image: proofImageData, proof_text: reportText
+                }]);
+                savedOnServer = !error;
+                serverErr = error;
+            }
+            btn.disabled = false; btn.textContent = 'Confirm Submit';
+            if (!savedOnServer) {
+                setProofError('Submit failed: ' + (serverErr ? serverErr.message : 'no server connection') + '. Your work was not saved.');
+                return;
+            }
+            apps.push({ email: currentUser.email, job_id: job.id, title: job.title, reward: job.reward, status: 'Pending', date: new Date().toISOString() });
+            setLocalList('taskflex_applications', apps);
+            alert('Submitted! Status: Pending');
+            openJobDetail(job.id);
+            renderMyApplications();
+            renderEarnings();
         }
 
         async function applyToJob() {
