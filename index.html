@@ -800,6 +800,19 @@
             allDeposits.forEach(d => {
                 if (d.status === 'Approved') totalBalance += parseFloat(d.amount || 0);
             });
+            // deduct withdrawals (Pending or Paid count; Rejected returns money) and posted-job costs
+            try {
+                const [wdRes, jobRes] = await Promise.all([
+                    supabaseClient.from('withdrawals').select('amount,status').eq('user_email', currentUser.email),
+                    supabaseClient.from('micro_jobs').select('total_cost,status').eq('client_email', currentUser.email)
+                ]);
+                (wdRes.data || []).forEach(w => {
+                    if (String(w.status || 'Pending').toLowerCase() !== 'rejected') totalBalance -= parseFloat(w.amount || 0);
+                });
+                (jobRes.data || []).forEach(j => {
+                    if (String(j.status || '') !== 'Rejected') totalBalance -= parseFloat(j.total_cost || 0);
+                });
+            } catch (e) { console.warn('balance deduction fetch failed', e); }
             currentBalance = totalBalance;
             document.getElementById('workerBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
