@@ -946,7 +946,7 @@
                 container.innerHTML = `<div class="text-center py-10 text-violet-200/60 text-xs">Not connected to server.</div>`;
                 return;
             }
-            const { data, error } = await supabaseClient.from('micro_jobs').select('*').order('id', { ascending: false });
+            const { data, error } = await supabaseClient.from('micro_jobs').select('*').eq('status', 'Approved').order('id', { ascending: false });
             allJobs = (!error && data) ? data : [];
             applyJobFilters();
         }
@@ -1693,7 +1693,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const row = {
                 title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: DEFAULT_JOB_LOCATION, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
                 proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq, proof_requirements: proofRows,
-                description: description || null, thumbnail_url: thumbnailUrl
+                description: description || null, thumbnail_url: thumbnailUrl, status: 'Pending'
             };
             let { error } = await insertSafe('micro_jobs', row);
             if (error && /description|thumbnail_url/i.test(error.message || '')) {
