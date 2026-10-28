@@ -605,6 +605,10 @@
                         <label class="block text-[10px] text-violet-200/70 mb-1">Payment per worker (৳)</label>
                         <input type="number" id="newJobReward" min="50" step="any" oninput="updateJobFeePreview()" placeholder="Min ৳50 per worker" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     </div>
+                    <div>
+                        <label class="block text-[10px] text-violet-200/70 mb-1">Limit (workers)</label>
+                        <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="How many workers can take this job" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    </div>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-semibold text-violet-100">Proof Requirements</span>
@@ -614,7 +618,7 @@
                     </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
                         <div>Payment per worker: <span id="jobRewardPerWorker">৳ 0.00</span></div>
-                        <div>Total (payment): <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
+                        <div>Total (payment x limit): <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
                         <div><span class="font-bold">7% job post fee</span>: <span id="jobFee" class="text-rose-300">৳ 0.00</span></div>
                         <div>Total deducted: <span id="jobTotal" class="font-bold text-amber-300">৳ 0.00</span></div>
                     </div>
@@ -983,7 +987,7 @@
                         <span class="text-sm font-black text-amber-300 whitespace-nowrap">৳ ${esc(job.reward)}</span>
                     </div>
                     <div class="flex justify-between items-center mt-2.5 text-[11px] text-violet-200/60">
-                        <span><i class="fa-solid fa-users"></i> Unlimited workers</span>
+                        <span><i class="fa-solid fa-users"></i> ${job.limit_count ? (Math.max(0, Number(job.limit_count) - Number(job.slots || 0))) + ' of ' + esc(job.limit_count) + ' slots left' : 'Unlimited workers'}</span>
                         <span>★ ${job.rating ? esc(job.rating) : 'New'}</span>
                     </div>
                 </div>
@@ -1009,7 +1013,7 @@
                 <h3 class="text-lg font-black text-white">${esc(job.title)}</h3>
                 <div class="grid grid-cols-2 gap-2.5 text-xs">
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="font-black text-amber-300 mt-0.5">৳ ${esc(job.reward)}</p></div>
-                    <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">Unlimited</p></div>
+                    <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
                 </div>
                 ${job.description ? `<div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">What to do</p><p class="text-violet-100/85 leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
                 <div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">Proof required</p><p class="text-violet-100/85 leading-relaxed">${esc(job.proof_requirement || 'Not specified')}</p></div>
@@ -1674,12 +1678,16 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!title) { alert('Please fill all fields!'); return; }
             if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
             if (reward < 50) { alert('Minimum payment is ৳50 per worker'); return; }
+            const limitRaw = document.getElementById('newJobLimit').value;
+            const limit = parseInt(limitRaw, 10);
+            if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { alert('Limit (workers) is required and must be at least 1.'); return; }
             if (!(currentBalance >= 50)) { alert('You need at least ৳50 in your balance to post a job'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
             const R = Math.round(reward * 100) / 100;
-            const jobFee = Math.round(R * 7) / 100;
-            const jobTotal = Math.round((R + jobFee) * 100) / 100;
+            const budget = Math.round(R * limit * 100) / 100;
+            const jobFee = Math.round(budget * 7) / 100;
+            const jobTotal = Math.round((budget + jobFee) * 100) / 100;
             if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 7% job post fee)'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
             // Thumbnail is optional: if the upload fails, the job still saves without it.
@@ -1703,7 +1711,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const row = {
                 title: title, reward: reward, slots: 0, proof_requirement: proofReq, category: category, location: DEFAULT_JOB_LOCATION, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
                 proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq, proof_requirements: proofRows,
-                description: description || null, thumbnail_url: thumbnailUrl, limit_count: null, budget: null, status: 'Pending'
+                description: description || null, thumbnail_url: thumbnailUrl, limit_count: limit, budget: budget, status: 'Pending'
             };
             let { error } = await insertSafe('micro_jobs', row);
             if (error && /description|thumbnail_url|limit_count|budget/i.test(error.message || '')) {
@@ -1713,7 +1721,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 ({ error } = await insertSafe('micro_jobs', row));
             }
             if (error) { alert('Error: ' + error.message); return; }
-            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
+            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
             closePostJobModal();
             fetchJobsFromDatabase();
             renderMyTakenJobs();
@@ -1809,12 +1817,14 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 
         function updateJobFeePreview() {
             const reward = parseFloat(document.getElementById('newJobReward').value) || 0;
+            const limit = parseInt(document.getElementById('newJobLimit').value, 10) || 0;
             const R = Math.round(reward * 100) / 100;
-            const fee = Math.round(R * 7) / 100;
+            const T = Math.round(R * limit * 100) / 100;
+            const fee = Math.round(T * 7) / 100;
             document.getElementById('jobRewardPerWorker').textContent = '৳ ' + reward.toFixed(2);
-            document.getElementById('jobReward').textContent = '৳ ' + R.toFixed(2);
+            document.getElementById('jobReward').textContent = '৳ ' + T.toFixed(2);
             document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
-            document.getElementById('jobTotal').textContent = '৳ ' + (R + fee).toFixed(2);
+            document.getElementById('jobTotal').textContent = '৳ ' + (T + fee).toFixed(2);
         }
         function updateFeePreview() {
             const d = parseFloat(document.getElementById('depositAmount').value) || 0;
