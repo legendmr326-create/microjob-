@@ -263,6 +263,13 @@
                 <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Completed Jobs</p><h4 id="earnSummaryCount" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
                 <div class="glass-card rounded-2xl p-4 col-span-2"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Wallet Balance</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
             </div>
+            <div class="glass-card rounded-3xl p-5 flex items-center justify-between">
+                <span class="text-xs text-violet-200/70 font-semibold">Total Earnings</span>
+                <span id="earningsTotal" class="text-lg font-black text-amber-300">৳ 0.00</span>
+            </div>
+            <div class="glass-card rounded-3xl p-5 space-y-1">
+                <div id="earningsList"></div>
+            </div>
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div class="flex items-center justify-between pb-2">
                     <h3 class="text-sm font-bold text-white">My Job Status</h3>
@@ -448,11 +455,11 @@
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
             </div>
-            <div id="avatarPickerCard" class="glass-card rounded-3xl p-5 space-y-3">
-                <p class="text-sm font-bold text-white">Choose your avatar</p>
-                <div id="avatarPickerGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
-            </div>
             <div id="profEditPanel" class="glass-card rounded-3xl p-5 space-y-3 hidden">
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Choose your avatar</label>
+                    <div id="avatarPickerGrid" class="flex justify-between gap-1"></div>
+                </div>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Name</label>
                     <input type="text" id="profEditName" placeholder="Your name" class="field w-full rounded-2xl px-4 py-3 text-sm">
@@ -995,7 +1002,7 @@
             window.scrollTo(0, 0);
             if (tabId === 'notifications') loadNotifications();
             if (tabId === 'applications') renderMyApplications();
-            if (tabId === 'history') { renderEarningsSummary(); renderApprovedJobs(); }
+            if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); renderApprovedJobs(); }
             if (tabId === 'newjob') loadMyPostedJobs();
             if (tabId === 'profile') { loadMyKyc(); renderPersonalDetails(); }
             if (tabId === 'deposit') renderDepositHistory();
@@ -1598,6 +1605,40 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             set('earnSummaryCount', String(earned.length));
         }
 
+        async function renderEarningsHistory() {
+            const c = document.getElementById('earningsList');
+            const totalEl = document.getElementById('earningsTotal');
+            if (!c) return;
+            const setTotal = v => { if (totalEl) totalEl.innerText = '৳ ' + v.toFixed(2); };
+            if (!currentUser) { c.innerHTML = ''; setTotal(0); return; }
+            if (!supabaseClient) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Not connected to server.</div>`; return; }
+            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email).order('id', { ascending: false });
+            if (appErr) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Could not load earnings history.</div>`; return; }
+            const earned = (apps || []).filter(a => /^(approved|completed|done)$/i.test(String(a.status || '').trim()));
+            const ids = [...new Set(earned.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+            const jobMap = {};
+            if (ids.length) {
+                const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('*').in('id', ids);
+                if (jobErr) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Could not load earnings history.</div>`; return; }
+                (jobs || []).forEach(j => { jobMap[String(j.id)] = j; });
+            }
+            if (earned.length === 0) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No earnings history yet</div>`; setTotal(0); return; }
+            let total = 0;
+            const rows = earned.map(a => {
+                const j = jobMap[String(a.job_id)] || {};
+                const reward = parseFloat(j.reward || 0) || 0;
+                total += reward;
+                const dateRaw = a.created_at || a.applied_at || a.date || null;
+                const dateStr = dateRaw && !isNaN(new Date(dateRaw)) ? new Date(dateRaw).toLocaleDateString() : '-';
+                return `<div class="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 text-xs">
+                    <div class="min-w-0"><p class="font-bold text-white truncate">${esc(j.title || ('Job #' + a.job_id))}</p><p class="text-[10px] text-violet-200/60">${esc(dateStr)} · ${esc(a.status)}</p></div>
+                    <span class="font-black text-amber-300 whitespace-nowrap">৳ ${esc(reward.toFixed(2))}</span>
+                </div>`;
+            });
+            setTotal(total);
+            c.innerHTML = rows.join('');
+        }
+
         // My Job Status: every job_applications row for this worker, with a status badge (Approved green, Rejected red, Pending grey).
         async function renderApprovedJobs() {
             const c = document.getElementById('approvedJobsList');
@@ -1758,7 +1799,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const current = getAvatarChoice();
             grid.innerHTML = AVATAR_CHOICES.map(seed => {
                 const selected = current === seed;
-                return `<button type="button" onclick="selectAvatarChoice('${seed}')" title="${seed}" class="rounded-full p-[2px] ${selected ? 'logo-orb' : 'border border-violet-400/30'} aspect-square bg-cardDark"><img src="${avatarChoiceUrl(seed)}" alt="${seed}" class="w-full h-full rounded-full bg-cardDark"></button>`;
+                return `<button type="button" onclick="selectAvatarChoice('${seed}')" title="${seed}" class="rounded-full p-[2px] ${selected ? 'logo-orb' : 'border border-violet-400/30'} w-11 h-11 sm:w-14 sm:h-14 shrink-0 bg-cardDark"><img src="${avatarChoiceUrl(seed)}" alt="${seed}" class="w-full h-full rounded-full bg-cardDark"></button>`;
             }).join('');
         }
         function selectAvatarChoice(seed) {
