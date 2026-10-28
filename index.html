@@ -487,6 +487,44 @@
                 </div>
             </div>
 
+            <div id="personalCard" class="glass-card rounded-3xl p-5 space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-sm font-bold text-white">Personal Details</p>
+                        <p class="text-xs text-violet-200/70" id="personalStatus">Not added yet</p>
+                    </div>
+                    <button type="button" onclick="togglePersonalEdit()" id="personalEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
+                </div>
+                <div id="personalView" class="grid grid-cols-2 gap-3 text-sm"></div>
+                <div id="personalEditPanel" class="hidden space-y-3 pt-1">
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Father's Name</label>
+                        <input type="text" id="pdFather" placeholder="Father's full name" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Mother's Name</label>
+                        <input type="text" id="pdMother" placeholder="Mother's full name" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Date of Birth</label>
+                        <input type="date" id="pdDob" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Address</label>
+                        <input type="text" id="pdAddress" placeholder="House, road, area" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">City</label>
+                        <input type="text" id="pdCity" placeholder="City" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Country</label>
+                        <input type="text" id="pdCountry" placeholder="Country" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    </div>
+                    <button type="button" onclick="savePersonalDetails()" id="pdSaveBtn" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Save</button>
+                </div>
+            </div>
+
         </div>
 
         <!-- TAB: FAQ / HELP -->
@@ -772,7 +810,7 @@
             if (tabId === 'applications') renderMyApplications();
             if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); }
             if (tabId === 'newjob') loadMyPostedJobs();
-            if (tabId === 'profile') loadMyKyc();
+            if (tabId === 'profile') { loadMyKyc(); renderPersonalDetails(); }
         }
 
         async function loadMyPostedJobs() {
@@ -1008,6 +1046,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 myKyc = (data && data[0]) || null;
             }
             renderKycCard();
+            renderPersonalDetails();
             return myKyc;
         }
         function renderKycCard() {
@@ -1488,6 +1527,77 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera mr-1"></i> Change photo'; }
             }
+        }
+
+        const PERSONAL_FIELDS = [
+            { key: 'father', label: "Father's Name", id: 'pdFather' },
+            { key: 'mother', label: "Mother's Name", id: 'pdMother' },
+            { key: 'dob', label: 'Date of Birth', id: 'pdDob' },
+            { key: 'address', label: 'Address', id: 'pdAddress' },
+            { key: 'city', label: 'City', id: 'pdCity' },
+            { key: 'country', label: 'Country', id: 'pdCountry' }
+        ];
+        function personalLocalKey() {
+            return 'personal_details_' + String((currentUser && currentUser.email) || 'guest').toLowerCase();
+        }
+        function getPersonalDetails() {
+            // Prefer the KYC row when present, otherwise the local copy.
+            if (myKyc && myKyc.personal_details_json) {
+                try { return JSON.parse(myKyc.personal_details_json) || {}; } catch (e) {}
+            }
+            try { return JSON.parse(localStorage.getItem(personalLocalKey()) || '{}') || {}; } catch (e) { return {}; }
+        }
+        function renderPersonalDetails() {
+            const view = document.getElementById('personalView');
+            const status = document.getElementById('personalStatus');
+            if (!view) return;
+            const d = getPersonalDetails();
+            const filled = PERSONAL_FIELDS.filter(f => d[f.key]);
+            if (status) status.textContent = filled.length ? 'Saved' : 'Not added yet';
+            view.innerHTML = PERSONAL_FIELDS.map(f => {
+                const v = d[f.key] ? esc(d[f.key]) : '<span class="text-violet-200/40">-</span>';
+                return '<div><p class="text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">' + f.label + '</p><p class="text-white break-words">' + v + '</p></div>';
+            }).join('');
+        }
+        function renderPersonalForm() {
+            const d = getPersonalDetails();
+            PERSONAL_FIELDS.forEach(f => { const el = document.getElementById(f.id); if (el) el.value = d[f.key] || ''; });
+        }
+        function togglePersonalEdit(force) {
+            const panel = document.getElementById('personalEditPanel');
+            const btn = document.getElementById('personalEditToggle');
+            if (!panel) return;
+            const open = typeof force === 'boolean' ? force : panel.classList.contains('hidden');
+            if (open) renderPersonalForm();
+            panel.classList.toggle('hidden', !open);
+            if (btn) btn.innerHTML = open ? '<i class="fa-solid fa-xmark text-[10px] mr-1"></i> Close' : '<i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit';
+        }
+        async function savePersonalDetails() {
+            if (!currentUser) { alert('Please log in first.'); return; }
+            const d = {};
+            PERSONAL_FIELDS.forEach(f => { d[f.key] = (document.getElementById(f.id).value || '').trim(); });
+            if (!d.father || !d.mother || !d.dob) { alert("Please fill Father's Name, Mother's Name and Date of Birth."); return; }
+            const json = JSON.stringify(d);
+            const btn = document.getElementById('pdSaveBtn');
+            btn.disabled = true; btn.textContent = 'Saving...';
+            let savedTo = 'local';
+            try {
+                localStorage.setItem(personalLocalKey(), json);
+            } catch (e) { console.warn('Personal details localStorage save failed:', e); }
+            if (myKyc && myKyc.id && supabaseClient) {
+                const r = await supabaseClient.from(KYC_TABLE).update({ personal_details_json: json }).eq('id', myKyc.id);
+                if (r.error) {
+                    console.warn('KYC personal details save failed:', r.error);
+                } else {
+                    myKyc.personal_details_json = json;
+                    savedTo = 'kyc';
+                }
+            }
+            btn.disabled = false; btn.textContent = 'Save';
+            renderPersonalDetails();
+            togglePersonalEdit(false);
+            if (savedTo === 'local' && myKyc) alert('Saved on this device. Server save will work once the personal_details_json column is added to kyc_verifications.');
+            else alert('Personal details saved!');
         }
 
         function saveProfile() {
