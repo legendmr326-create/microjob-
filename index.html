@@ -1679,6 +1679,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
             if (!title) { alert('Please fill all fields!'); return; }
             if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
+            if (reward < JOB_MIN_COST_PER_WORKER) { alert('Cost per worker must be at least ৳' + JOB_MIN_COST_PER_WORKER + '.'); return; }
             const limitRaw = document.getElementById('newJobLimit').value;
             const limit = parseInt(limitRaw, 10);
             if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { alert('Limit (workers) is required and must be at least 1.'); return; }
@@ -1812,9 +1813,32 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             document.getElementById('jobStep2').classList.remove('hidden');
             document.getElementById('jobNextBtn').innerText = "Publish Job";
             document.getElementById('postJobModal').classList.remove('hidden');
+            applyCostPerWorkerRule();
         }
         function closePostJobModal() { document.getElementById('postJobModal').classList.add('hidden'); }
 
+        const JOB_MIN_COST_PER_WORKER = 50;
+        function applyCostPerWorkerRule() {
+            const input = document.getElementById('newJobReward');
+            const btn = document.getElementById('jobNextBtn');
+            const raw = (input.value || '').trim();
+            const cost = parseFloat(raw);
+            const hasValue = raw !== '' && !isNaN(cost);
+            // red below 50, yellow at 50 or more; neutral while the field is empty
+            let color = '';
+            if (hasValue) color = cost < JOB_MIN_COST_PER_WORKER ? '#f87171' : '#fde047';
+            input.style.color = color;
+            input.style.borderColor = color;
+            document.getElementById('jobReward').style.color = color;
+            document.getElementById('jobTotal').style.color = color;
+            // Publish is blocked below 50 (and while there is no cost entered)
+            const blocked = !hasValue || cost < JOB_MIN_COST_PER_WORKER;
+            if (btn) {
+                btn.disabled = blocked;
+                btn.style.opacity = blocked ? '0.5' : '';
+                btn.style.cursor = blocked ? 'not-allowed' : '';
+            }
+        }
         function updateJobFeePreview() {
             const reward = parseFloat(document.getElementById('newJobReward').value) || 0;
             const limit = parseInt(document.getElementById('newJobLimit').value, 10) || 0;
@@ -1824,6 +1848,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             document.getElementById('jobReward').textContent = '৳ ' + T.toFixed(2);
             document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
             document.getElementById('jobTotal').textContent = '৳ ' + (T + fee).toFixed(2);
+            applyCostPerWorkerRule();
         }
         function updateFeePreview() {
             const d = parseFloat(document.getElementById('depositAmount').value) || 0;
