@@ -1425,14 +1425,14 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!el) return;
             let rows = [];
             if (supabaseClient && currentUser) {
-                const { data } = await supabaseClient.from('withdrawals').select('amount,method,status,created_at').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(30);
+                const { data } = await supabaseClient.from('withdrawals').select('amount,net_amount,method,status,created_at').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(30);
                 rows = data || [];
             }
             if (rows.length === 0) { el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">No withdrawals yet.</div>`; return; }
             el.innerHTML = rows.map(w => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(w.method || '')}</p><p class="text-[10px] text-violet-200/60">${esc((w.created_at || '').slice(0, 10))}</p></div>
-                    <div class="text-right"><span class="font-black text-rose-300">&#2546; ${esc(parseFloat(w.amount || 0).toFixed(2))}</span><p class="text-[10px] ${esc(w.status) === 'Paid' ? 'text-emerald-300' : esc(w.status) === 'Rejected' ? 'text-rose-300' : 'text-amber-200'}">${esc(w.status || '')}</p></div>
+                    <div class="text-right"><span class="font-black text-rose-300">&#2546; ${esc(parseFloat(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100).toFixed(2))}</span><p class="text-[10px] ${esc(w.status) === 'Paid' ? 'text-emerald-300' : esc(w.status) === 'Rejected' ? 'text-rose-300' : 'text-amber-200'}">${esc(w.status || '')}</p></div>
                 </div>`).join('');
         }
 
