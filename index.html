@@ -820,9 +820,7 @@
             document.getElementById('workerBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             const wdTot = document.getElementById('wdTotalBalance');
-            const wdPen = document.getElementById('wdPendingAmt');
             if (wdTot) wdTot.innerText = `৳ ${totalBalance.toFixed(2)}`;
-            if (wdPen) wdPen.innerText = `৳ ${(window.__wdPending || 0).toFixed(2)}`;
             renderWallet();
             renderEarnings();
             renderDepositHistory();
