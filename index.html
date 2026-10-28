@@ -1197,6 +1197,7 @@
             document.getElementById('jobDetailCard').innerHTML = `
                 <span class="text-[10px] uppercase tracking-wider text-violet-200/60">${esc(job.category || '')}</span>
                 <h3 class="text-lg font-black text-white">${esc(job.title)}</h3>
+                ${job.thumbnail_url ? `<img src="${esc(job.thumbnail_url)}" alt="" class="w-full max-h-[180px] object-cover rounded-xl">` : ''}
                 <div class="grid grid-cols-2 gap-2.5 text-xs">
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="font-black text-amber-300 mt-0.5">৳ ${esc(job.reward)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
