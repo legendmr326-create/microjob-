@@ -169,8 +169,9 @@
                     <i class="fa-regular fa-bell text-base"></i>
                     <span id="notifBadge" class="hidden absolute -top-1.5 -right-1.5 bg-amber-400 text-amber-950 text-[9px] min-w-[16px] h-4 px-1 rounded-full items-center justify-center font-black"></span>
                 </button>
-                <button onclick="openModal('accountModal')" class="w-9 h-9 rounded-full logo-orb p-[2px]">
+                <button onclick="openModal('accountModal')" class="relative w-9 h-9 rounded-full logo-orb p-[2px]">
                     <img id="headerUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="Avatar" class="w-full h-full rounded-full bg-cardDark">
+                    <span id="headerVerifiedTick" title="Verified" class="hidden absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 text-bgDark text-[8px] items-center justify-center border border-bgDark"><i class="fa-solid fa-check"></i></span>
                 </button>
             </div>
         </header>
@@ -413,7 +414,7 @@
                 </button>
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-white truncate" id="profHeaderName">User</p>
+                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-400/15 px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
                     <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
@@ -776,6 +777,7 @@
             document.getElementById('modalUserAvatar').src = avatarUrl;
             document.getElementById('profInitial').innerText = String(currentUser.name || 'U').charAt(0).toUpperCase();
             renderProfileAvatar();
+            renderVerifiedTick();
             document.getElementById('profHeaderName').innerText = currentUser.name || 'User';
             document.getElementById('profHeaderEmail').innerText = currentUser.email || '';
             fetchUserBalance();
@@ -786,6 +788,7 @@
             renderEarnings();
             loadRatings();
             loadNotifications();
+            loadMyKyc();
         }
 
         function switchTab(tabId) {
@@ -1045,7 +1048,15 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             renderPersonalDetails();
             return myKyc;
         }
+        function renderVerifiedTick() {
+            const on = !!currentUser && !kycTableMissing && !kycLoadFailed && kycStatusKey() === 'approved';
+            const name = document.getElementById('profVerifiedTick');
+            if (name) name.classList.toggle('hidden', !on);
+            const hdr = document.getElementById('headerVerifiedTick');
+            if (hdr) { hdr.classList.toggle('hidden', !on); hdr.classList.toggle('flex', on); }
+        }
         function renderKycCard() {
+            renderVerifiedTick();
             const card = document.getElementById('kycCard');
             if (!card) return;
             const badge = document.getElementById('kycBadge');
