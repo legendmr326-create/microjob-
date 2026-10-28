@@ -395,8 +395,7 @@
                     </div>
                     <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount you want to receive (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                     <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                        <div>Send this amount (with 5% fee): <span id="depositGross" class="font-bold text-amber-300">৳ 0.00</span></div>
-                        <div>Admin fee (5% added on top): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
+                        <div>Send: <span id="depositGross" class="font-bold text-amber-300">৳ 0.00</span></div>
                         <div>You receive: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                     </div>
                     <input type="text" id="depositSender" placeholder="Your sending number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
@@ -1119,13 +1118,13 @@
             }
 
             const net = Math.round((parseFloat(amt) || 0) * 100) / 100;
-            const gross = Math.round(net * 1.05 * 100) / 100;
-            const fee = Math.round((gross - net) * 100) / 100;
+            const gross = net;
+            const fee = 0;
             const { error } = await insertSafe('deposits', {
                 user_email: currentUser.email, gateway: selectedGateway, amount: gross, fee: fee, net_amount: net, sender: sender, trx: trx, status: 'Pending'
             });
             if (error) { alert('Error: ' + error.message); return; }
-            alert('Deposit submitted!\nSend: ৳' + gross.toFixed(2) + ' | Fee (5%): ৳' + fee.toFixed(2) + ' | You receive: ৳' + net.toFixed(2));
+            alert('Deposit submitted!\nSend: ৳' + gross.toFixed(2) + ' | You receive: ৳' + net.toFixed(2));
             document.getElementById('depositAmount').value = '';
             document.getElementById('depositSender').value = '';
             document.getElementById('depositTrx').value = '';
@@ -2164,10 +2163,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
         function updateFeePreview() {
             const d = parseFloat(document.getElementById('depositAmount').value) || 0;
-            const dSend = Math.round(d * 1.05 * 100) / 100;
-            const dFee = Math.round((dSend - d) * 100) / 100;
-            document.getElementById('depositGross').textContent = '৳ ' + dSend.toFixed(2);
-            document.getElementById('depositFee').textContent = '৳ ' + dFee.toFixed(2);
+            document.getElementById('depositGross').textContent = '৳ ' + d.toFixed(2);
             document.getElementById('depositNet').textContent = '৳ ' + d.toFixed(2);
             const w = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const wFee = Math.round(w * 7) / 100;
