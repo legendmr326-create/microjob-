@@ -604,7 +604,7 @@
                     <div class="grid grid-cols-2 gap-2.5">
                         <div>
                             <label class="block text-[10px] text-violet-200/70 mb-1">Payment per worker (৳)</label>
-                            <input type="number" id="newJobReward" min="0" oninput="updateJobFeePreview()" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                            <input type="number" id="newJobReward" min="50" step="any" oninput="updateJobFeePreview()" placeholder="Min ৳50 per worker" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                         </div>
                         <div>
                             <label class="block text-[10px] text-violet-200/70 mb-1">Limit (workers)</label>
@@ -1688,7 +1688,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const shotsReq = proofRows.filter(r => r.types.includes('screenshot')).length;
             const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
             if (!title) { alert('Please fill all fields!'); return; }
-            if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required (must be more than 0).'); return; }
+            if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
+            if (reward < 50) { alert('Minimum payment is ৳50 per worker'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
             if (!limit || limit < 1) { alert('Limit is required (minimum 1 worker).'); return; }
