@@ -816,12 +816,12 @@
                 (jobRes.data || []).forEach(j => {
                     if (String(j.status || '') !== 'Rejected') totalBalance -= parseFloat(j.total_cost || 0);
                 });
+                window.__wdPending = 0;
+                (wdRes.data || []).forEach(w => { if (/pending/i.test(w.status || 'Pending')) window.__wdPending += parseFloat(w.amount || 0); });
             } catch (e) { console.warn('balance deduction fetch failed', e); }
             currentBalance = totalBalance;
             document.getElementById('workerBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
-            window.__wdPending = 0;
-            (wdRes.data || []).forEach(w => { if (/pending/i.test(w.status || 'Pending')) window.__wdPending += parseFloat(w.amount || 0); });
             const wdTot = document.getElementById('wdTotalBalance');
             if (wdTot) wdTot.innerText = `৳ ${totalBalance.toFixed(2)}`;
             renderWallet();
