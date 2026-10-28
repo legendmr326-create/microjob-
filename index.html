@@ -259,7 +259,7 @@
 
         <!-- TAB: HISTORY (deposits, withdrawals, earnings) -->
         <div id="tab-history" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">লেনদেনের ইতিহাস</h2>
+            <h2 class="text-base font-bold text-white">Transaction History</h2>
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div id="historyList"></div>
             </div>
@@ -267,58 +267,58 @@
 
         <!-- TAB: JOB DETAILS -->
         <div id="tab-jobdetail" class="space-y-3.5 hidden">
-            <button onclick="switchTab('jobs')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+            <button onclick="switchTab('jobs')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
-            <button onclick="applyToJob()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">এই জবে Apply করুন</button>
+            <button onclick="applyToJob()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Apply for this Job</button>
         </div>
 
         <!-- TAB: MY APPLICATIONS / MY JOBS -->
         <div id="tab-applications" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">আমার আবেদনসমূহ</h2>
+            <h2 class="text-base font-bold text-white">My Applications</h2>
             <div id="myApplicationsList" class="space-y-3"></div>
         </div>
 
         <!-- TAB: NOTIFICATIONS -->
         <div id="tab-notifications" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">নোটিফিকেশন</h2>
+            <h2 class="text-base font-bold text-white">Notifications</h2>
             <div id="notificationsList" class="space-y-2.5"></div>
         </div>
 
         <!-- TAB: EARNINGS SUMMARY -->
         <div id="tab-earnings" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">আয়ের সারাংশ</h2>
+            <h2 class="text-base font-bold text-white">Earnings Summary</h2>
             <div class="grid grid-cols-2 gap-3">
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">ব্যালেন্স</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">মোট আবেদন</p><h4 id="earnApplied" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">পেন্ডিং ডিপোজিট</p><h4 id="earnPendingDeposits" class="text-lg font-black text-amber-200 mt-1">0</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">উইথড্র রিকোয়েস্ট</p><h4 id="earnWithdrawals" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Balance</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Applied</p><h4 id="earnApplied" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending Deposits</p><h4 id="earnPendingDeposits" class="text-lg font-black text-amber-200 mt-1">0</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Withdraw Requests</p><h4 id="earnWithdrawals" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
             </div>
             <div class="glass-card rounded-2xl p-4">
-                <p class="text-[10px] uppercase tracking-wider text-violet-200/60 mb-1">আমার রেটিং</p>
-                <div id="ratingDisplay" class="text-sm text-white">লোড হচ্ছে...</div>
+                <p class="text-[10px] uppercase tracking-wider text-violet-200/60 mb-1">My Rating</p>
+                <div id="ratingDisplay" class="text-sm text-white">Loading...</div>
             </div>
             <div class="space-y-2.5">
-                <h3 class="text-sm font-bold text-white">সাম্প্রতিক অ্যাক্টিভিটি</h3>
+                <h3 class="text-sm font-bold text-white">Recent Activity</h3>
                 <div id="recentActivityList" class="space-y-2.5"></div>
             </div>
         </div>
 
         <!-- TAB: REFER & EARN -->
         <div id="tab-refer" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">রেফার করুন ও আয় করুন</h2>
+            <h2 class="text-base font-bold text-white">Refer & Earn</h2>
             <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/20 via-violet-600/25 to-transparent border border-amber-300/20">
-                <p class="text-xs text-violet-100/80">আপনার বন্ধুকে আপনার লিংক দিয়ে জয়েন করালে আপনি রেফারেল বোনাসের সুযোগ পাবেন।</p>
+                <p class="text-xs text-violet-100/80">When a friend joins using your link, you get a referral bonus.</p>
             </div>
             <div class="glass-card rounded-2xl p-4 space-y-2.5">
-                <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">আপনার রেফারেল লিংক</label>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">Your Referral Link</label>
                 <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
-                <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">লিংক কপি করুন</button>
+                <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Link</button>
             </div>
         </div>
 
         <!-- TAB: PROFILE EDIT -->
         <div id="tab-profile" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">প্রোফাইল</h2>
+            <h2 class="text-base font-bold text-white">Profile</h2>
             <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
                 <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
                     <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300"><span id="profInitial">U</span></div>
@@ -330,17 +330,17 @@
             </div>
             <div class="glass-card rounded-3xl p-5 space-y-3">
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">নাম</label>
-                    <input type="text" id="profEditName" placeholder="আপনার নাম" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Name</label>
+                    <input type="text" id="profEditName" placeholder="Your name" class="field w-full rounded-2xl px-4 py-3 text-sm">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">ফোন নম্বর</label>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Phone Number</label>
                     <input type="text" id="profEditPhone" placeholder="017xxxxxxxx" class="field w-full rounded-2xl px-4 py-3 text-sm">
                 </div>
-                <button onclick="saveProfile()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">সেভ করুন</button>
+                <button onclick="saveProfile()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Save</button>
             </div>
 
-            <h2 class="text-base font-bold text-white pt-2">ডিপোজিট ও উইথড্র</h2>
+            <h2 class="text-base font-bold text-white pt-2">Deposit & Withdraw</h2>
 
                 <div class="glass-card rounded-3xl p-5 space-y-4">
                     <div class="flex justify-between items-center pb-3 border-b border-white/10">
@@ -385,7 +385,7 @@
                         <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-orange-500/25 text-orange-200 flex items-center justify-center font-bold text-sm">উ</div>
-                                <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">উপায় ওয়ালেট</p></div>
+                                <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Wallet</p></div>
                             </div>
                             <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
                         </div>
@@ -398,7 +398,7 @@
                             <button onclick="cancelGatewaySelection()" class="text-rose-300 underline">Change</button>
                         </div>
                         <div class="bg-bgDark/70 p-2.5 rounded-xl text-[11px] text-violet-100">
-                            পেমেন্ট নম্বর (এই নম্বরে টাকা পাঠান): <span class="font-mono font-bold text-amber-300">01748021976</span> (bKash)
+                            Payment number (send money to this number): <span class="font-mono font-bold text-amber-300">01748021976</span> (bKash)
                         </div>
                         <div class="grid grid-cols-4 gap-1.5">
                             <button type="button" onclick="setQuickAmount(500)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳500</button>
@@ -408,9 +408,9 @@
                         </div>
                         <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                         <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                            <div>মোট টাকা: <span id="depositGross">৳ 0.00</span></div>
-                            <div>অ্যাডমিন ফি (5% ফি কাটা হবে): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
-                            <div>আপনার ব্যালেন্সে যোগ হবে: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
+                            <div>Total: <span id="depositGross">৳ 0.00</span></div>
+                            <div>Admin fee (5% deducted): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
+                            <div>Added to your balance: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                         </div>
                         <input type="text" id="depositSender" placeholder="Sender Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                         <input type="text" id="depositTrx" placeholder="Transaction ID (TrxID)" class="field w-full rounded-2xl px-4 py-2.5 text-xs uppercase">
@@ -418,10 +418,10 @@
                     </div>
                 </div>
                 <div class="glass-card rounded-3xl p-5 space-y-3">
-                    <h3 class="text-base font-bold text-white">উইথড্র রিকোয়েস্ট</h3>
+                    <h3 class="text-base font-bold text-white">Withdraw Request</h3>
                     <div class="flex gap-2">
-                        <input type="number" id="withdrawAmount" oninput="updateFeePreview()" placeholder="পরিমাণ (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs">
-                        <button type="button" onclick="withdrawAll()" class="bg-bgDark/70 border border-white/10 rounded-2xl px-3 text-[11px] font-bold text-amber-200 whitespace-nowrap">সব উইথড্র</button>
+                        <input type="number" id="withdrawAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs">
+                        <button type="button" onclick="withdrawAll()" class="bg-bgDark/70 border border-white/10 rounded-2xl px-3 text-[11px] font-bold text-amber-200 whitespace-nowrap">Withdraw All</button>
                     </div>
                     <select id="withdrawMethod" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                         <option value="bKash">bKash</option>
@@ -429,15 +429,15 @@
                         <option value="Rocket">Rocket</option>
                         <option value="Upay">Upay</option>
                     </select>
-                    <input type="text" id="withdrawNumber" placeholder="অ্যাকাউন্ট নম্বর" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                    <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                        <div>উইথড্র পরিমাণ: <span id="withdrawGross">৳ 0.00</span></div>
-                        <div>অ্যাডমিন ফি (5% ফি কাটা হবে): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
-                        <div>আপনি পাবেন: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
+                        <div>Withdraw amount: <span id="withdrawGross">৳ 0.00</span></div>
+                        <div>Admin fee (5% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
+                        <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                     </div>
-                    <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">উইথড্র রিকোয়েস্ট পাঠান</button>
+                    <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
                 </div>
-            <h2 class="text-base font-bold text-white pt-2">লেনদেনের ইতিহাস</h2>
+            <h2 class="text-base font-bold text-white pt-2">Transaction History</h2>
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div id="txHistoryList"></div>
             </div>
@@ -445,24 +445,33 @@
 
         <!-- TAB: FAQ / HELP -->
         <div id="tab-help" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">সাহায্য ও প্রশ্নোত্তর (FAQ)</h2>
-            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">জব কীভাবে করবো?</p><p class="text-violet-100/75">জব তালিকা থেকে একটি জব খুলুন, নির্দেশনা অনুযায়ী কাজ করুন এবং Apply করুন।</p></div>
-            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">কীভাবে টাকা যোগ করবো?</p><p class="text-violet-100/75">Profile পেজের ডিপোজিট সেকশনে গিয়ে গেটওয়ে বেছে নিন, টাকার পরিমাণ ও TrxID দিয়ে সাবমিট করুন।</p></div>
-            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">উইথড্র কতদিনে হয়?</p><p class="text-violet-100/75">উইথড্র রিকোয়েস্ট অ্যাডমিন যাচাই করার পর প্রসেস হয়।</p></div>
+            <h2 class="text-base font-bold text-white">FAQ</h2>
+            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How do I do a job?</p><p class="text-violet-100/75">Open a job from the job list, follow the instructions and tap Apply.</p></div>
+            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How do I add funds?</p><p class="text-violet-100/75">Go to the Deposit section on the Profile page, choose a gateway, then submit with the amount and TrxID.</p></div>
+            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How long does a withdrawal take?</p><p class="text-violet-100/75">Withdrawal requests are processed after admin verification.</p></div>
+        </div>
+
+        <!-- TAB: SUPPORT -->
+        <div id="tab-support" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">Support</h2>
+            <div class="glass-card rounded-3xl p-5 space-y-4 text-center">
+                <p class="text-sm text-violet-100/90">For support, contact us on Telegram</p>
+                <a href="https://t.me/jobsupport34" target="_blank" rel="noopener noreferrer" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm inline-flex items-center justify-center gap-2"><i class="fa-brands fa-telegram"></i> Open Telegram Support</a>
+            </div>
         </div>
 
         <!-- TAB: ABOUT -->
         <div id="tab-about" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">আমাদের সম্পর্কে</h2>
-            <div class="glass-card rounded-2xl p-4 text-xs leading-relaxed text-violet-100/80">Micro job TaskFlex একটি মাইক্রো-জব প্ল্যাটফর্ম, যেখানে ছোট ছোট কাজ সম্পন্ন করে আয় করা যায় এবং ব্যবসার প্রচারের জন্য জব পোস্ট করা যায়।</div>
+            <h2 class="text-base font-bold text-white">About Us</h2>
+            <div class="glass-card rounded-2xl p-4 text-xs leading-relaxed text-violet-100/80">Micro job TaskFlex is a micro-job platform where you can earn by completing small tasks, and businesses can post jobs to promote their work.</div>
         </div>
 
         <!-- TAB: TERMS & PRIVACY -->
         <div id="tab-terms" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">শর্তাবলী ও গোপনীয়তা</h2>
+            <h2 class="text-base font-bold text-white">Terms & Privacy</h2>
             <div class="glass-card rounded-2xl p-4 text-xs leading-relaxed text-violet-100/80 space-y-2">
-                <p><span class="font-bold text-white">শর্তাবলী:</span> সব তথ্য সত্য দিতে হবে। ভুয়া প্রুফ জমা দিলে আবেদন বাতিল হতে পারে।</p>
-                <p><span class="font-bold text-white">গোপনীয়তা:</span> আপনার ইমেইল, ফোন ও লেনদেনের তথ্য শুধু সেবা চালাতে ব্যবহার হবে।</p>
+                <p><span class="font-bold text-white">Terms:</span> All information must be true. Submitting fake proof may cancel your application.</p>
+                <p><span class="font-bold text-white">Privacy:</span> Your email, phone and transaction details are used only to run the service.</p>
             </div>
         </div>
 
@@ -564,14 +573,15 @@
                         </div>
                     </div>
                     <div class="glass-card rounded-3xl divide-y divide-white/10 overflow-hidden text-sm">
-                        <div onclick="openAccountPage('profile')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-user-pen text-amber-300 w-4"></i> প্রোফাইল</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('earnings')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-amber-300 w-4"></i> আয়ের সারাংশ</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('applications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-list-check text-amber-300 w-4"></i> আমার আবেদনসমূহ</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('notifications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-bell text-amber-300 w-4"></i> নোটিফিকেশন</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('refer')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gift text-amber-300 w-4"></i> রেফার ও আয় করুন</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('help')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-question text-amber-300 w-4"></i> সাহায্য (FAQ)</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('about')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-amber-300 w-4"></i> আমাদের সম্পর্কে</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openAccountPage('terms')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-amber-300 w-4"></i> শর্তাবলী ও গোপনীয়তা</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('support')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-headset text-amber-300 w-4"></i> Support</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('profile')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-user-pen text-amber-300 w-4"></i> Profile</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('earnings')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-amber-300 w-4"></i> Earnings Summary</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('applications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-list-check text-amber-300 w-4"></i> My Applications</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('notifications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-bell text-amber-300 w-4"></i> Notifications</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('refer')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gift text-amber-300 w-4"></i> Refer & Earn</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('help')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-question text-amber-300 w-4"></i> FAQ</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('about')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-amber-300 w-4"></i> About Us</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('terms')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-amber-300 w-4"></i> Terms & Privacy</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                     </div>
                     <button onclick="handleLogout()" class="w-full border border-rose-400/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-3.5 rounded-2xl transition mt-4">Logout</button>
                 </div>
@@ -606,7 +616,7 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
-        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'history', 'refer', 'profile', 'help', 'about', 'terms'];
+        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'history', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
