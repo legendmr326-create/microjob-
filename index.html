@@ -448,10 +448,9 @@
         <div id="tab-profile" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Profile</h2>
             <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
-                <button type="button" onclick="pickAvatarPhoto()" title="Change photo" class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 group">
+                <div class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
                     <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300 overflow-hidden"><span id="profInitial">U</span><img id="profAvatarImg" alt="" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></div>
-                    <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-amber-300 text-bgDark flex items-center justify-center text-[9px]"><i class="fa-solid fa-camera"></i></span>
-                </button>
+                                    </div>
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-400/15 px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
