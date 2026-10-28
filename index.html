@@ -1214,18 +1214,18 @@
             refreshProofRemoveButtons();
         }
         function refreshProofRemoveButtons() {
-            const rows = document.querySelectorAll('#proofReqList .proof-row');
-            rows.forEach((r, i) => { const b = r.querySelector('.proof-remove'); if (b) b.classList.toggle('hidden', i === 0); });
+            // every row is user-added, so every row gets its own x
+            document.querySelectorAll('#proofReqList .proof-remove').forEach(b => b.classList.remove('hidden'));
         }
         function resetProofRows() {
+            // no default row: modal opens with only the heading and + Add Proof
             document.getElementById('proofReqList').innerHTML = '';
-            addProofRow();
         }
         // Returns {rows: [{title, types: [...]}]} or {error: message}.
         function getProofRequirements() {
             const out = [];
             const rows = document.querySelectorAll('#proofReqList .proof-row');
-            if (rows.length === 0) return { error: 'Please add at least one proof requirement.' };
+            // zero rows is valid: no proof required
             for (const row of rows) {
                 const title = row.querySelector('.proof-title').value.trim();
                 const types = Array.from(row.querySelectorAll('.proof-chip input:checked')).map(i => i.value);
