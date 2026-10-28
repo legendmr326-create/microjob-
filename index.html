@@ -95,6 +95,36 @@
         .nav-btn i { transition: transform .2s ease; }
         .nav-btn:active i { transform: scale(.85); }
         .stat-chip { border-radius: 16px; }
+
+        /* ===== BLUE THEME (inner sections only: header, logo, texts above stay unchanged) ===== */
+        .glass-card {
+            background: linear-gradient(160deg, rgba(37, 99, 235, 0.28) 0%, rgba(10, 42, 102, 0.94) 60%);
+            border: 1px solid rgba(147, 197, 253, 0.25);
+        }
+        main {
+            background: linear-gradient(180deg, #0B2F73 0%, #071B45 100%);
+        }
+        main .rounded-3xl.bg-gradient-to-br {
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(29, 78, 216, 0.35) 60%, rgba(7, 27, 69, 0.2)) !important;
+            border-color: rgba(147, 197, 253, 0.35) !important;
+        }
+        .btn-amber {
+            background: linear-gradient(90deg, #60A5FA, #2563EB);
+            color: #ffffff;
+            box-shadow: 0 8px 22px -8px rgba(37, 99, 235, 0.7);
+        }
+        .btn-amber:hover { filter: brightness(1.08); }
+        .field { background: rgba(7, 27, 69, 0.75); border: 1px solid rgba(147, 197, 253, 0.3); }
+        .field:focus { border-color: #60A5FA; box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25); }
+        .field::placeholder { color: #7FA3D9; }
+        #authOverlay .glass-card, #postJobModal .glass-card, #accountModal .glass-card { background: linear-gradient(160deg, rgba(37, 99, 235, 0.28) 0%, rgba(10, 42, 102, 0.96) 60%); }
+        main .text-amber-300, main .text-amber-400, main .text-amber-200\/80, main .text-amber-200 { color: #BFDBFE; }
+        main .text-violet-200\/60, main .text-violet-200\/70, main .text-violet-200\/80, main .text-violet-100\/75, main .text-violet-100\/80, main .text-violet-100\/85 { color: #BFDBFE; }
+        main .hover\:border-amber-300\/50:hover, main .hover\:border-amber-300\/40:hover { border-color: rgba(96, 165, 250, 0.6); }
+        main .border-amber-300\/40, main .border-amber-300\/20 { border-color: rgba(96, 165, 250, 0.45) !important; }
+        #authOverlay .text-amber-400 { color: #93C5FD; }
+        #authOverlay .text-violet-200\/70 { color: #BFDBFE; }
+        #authOverlay .hover\:text-amber-300:hover { color: #93C5FD; }
     </style>
 </head>
 <body class="flex justify-center min-h-screen">
