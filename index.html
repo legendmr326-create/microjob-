@@ -320,7 +320,7 @@
                     <div onclick="selectPaymentGateway('bKash', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-300 flex items-center justify-center font-bold text-sm">৳</div>
-                            <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Agent Cashout</p></div>
+                            <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
                     </div>
@@ -328,7 +328,7 @@
                     <div onclick="selectPaymentGateway('Nagad', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-300 flex items-center justify-center font-bold text-sm">৳</div>
-                            <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Agent Cashout</p></div>
+                            <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
                     </div>
@@ -336,7 +336,7 @@
                     <div onclick="selectPaymentGateway('Rocket', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-purple-500/25 text-purple-200 flex items-center justify-center font-bold text-sm">৳</div>
-                            <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Agent Cashout</p></div>
+                            <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
                     </div>
@@ -346,7 +346,7 @@
                     <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-orange-500/25 text-orange-200 flex items-center justify-center font-bold text-sm">উ</div>
-                            <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Wallet</p></div>
+                            <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
                     </div>
@@ -359,7 +359,7 @@
                         <button onclick="cancelGatewaySelection()" class="text-rose-300 underline">Change</button>
                     </div>
                     <div class="bg-bgDark/70 p-2.5 rounded-xl text-[11px] text-violet-100">
-                        Payment number (send money to this number): <span class="font-mono font-bold text-amber-300">01748021976</span> (bKash)
+                        Send Money to this personal number: <span class="font-mono font-bold text-amber-300">01748021976</span> <span id="depositGwLabel">(bKash Personal, Send Money)</span>
                     </div>
                     <div class="grid grid-cols-4 gap-1.5">
                         <button type="button" onclick="setQuickAmount(500)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳500</button>
@@ -367,13 +367,13 @@
                         <button type="button" onclick="setQuickAmount(2000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳2000</button>
                         <button type="button" onclick="setQuickAmount(5000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳5000</button>
                     </div>
-                    <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                    <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount you want to receive (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                     <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                        <div>Total: <span id="depositGross">৳ 0.00</span></div>
-                        <div>Admin fee (5% deducted): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
-                        <div>Added to your balance: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
+                        <div>Send this amount (with 5% fee): <span id="depositGross" class="font-bold text-amber-300">৳ 0.00</span></div>
+                        <div>Admin fee (5% added on top): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
+                        <div>You receive: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                     </div>
-                    <input type="text" id="depositSender" placeholder="Sender Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                    <input type="text" id="depositSender" placeholder="Your sending number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                     <input type="text" id="depositTrx" placeholder="Transaction ID (TrxID)" class="field w-full rounded-2xl px-4 py-2.5 text-xs uppercase">
                     <button onclick="submitDeposit()" class="btn-amber w-full font-bold py-3 rounded-2xl text-xs">Submit Deposit</button>
                 </div>
@@ -896,6 +896,8 @@
         function selectPaymentGateway(gw) {
             selectedGateway = gw;
             document.getElementById('selectedGatewayTitle').innerText = `Selected: ${gw}`;
+            const info = { bKash: 'bKash Personal, Send Money', Nagad: 'Nagad Personal, Send Money', Rocket: 'Rocket Personal, Send Money', Upay: 'Upay Personal, Send Money' };
+            document.getElementById('depositGwLabel').textContent = '(' + (info[gw] || gw + ' Personal, Send Money') + ')';
             document.getElementById('depositFormContainer').classList.remove('hidden');
         }
 
@@ -925,14 +927,14 @@
             if (!amt || !sender || !trx) { alert('Please fill all boxes!'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
-            const gross = parseFloat(amt);
-            const fee = Math.round(gross * 5) / 100;
-            const net = Math.round((gross - fee) * 100) / 100;
+            const net = Math.round((parseFloat(amt) || 0) * 100) / 100;
+            const gross = Math.round(net * 1.05 * 100) / 100;
+            const fee = Math.round((gross - net) * 100) / 100;
             const { error } = await insertSafe('deposits', {
                 user_email: currentUser.email, gateway: selectedGateway, amount: gross, fee: fee, net_amount: net, sender: sender, trx: trx, status: 'Pending'
             });
             if (error) { alert('Error: ' + error.message); return; }
-            alert('Deposit submitted!\nTotal: ৳' + gross.toFixed(2) + ' | Fee (5%): ৳' + fee.toFixed(2) + ' | Added to balance: ৳' + net.toFixed(2));
+            alert('Deposit submitted!\nSend: ৳' + gross.toFixed(2) + ' | Fee (5%): ৳' + fee.toFixed(2) + ' | You receive: ৳' + net.toFixed(2));
             document.getElementById('depositAmount').value = '';
             document.getElementById('depositSender').value = '';
             document.getElementById('depositTrx').value = '';
@@ -1808,10 +1810,11 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
         function updateFeePreview() {
             const d = parseFloat(document.getElementById('depositAmount').value) || 0;
-            const dFee = Math.round(d * 5) / 100;
-            document.getElementById('depositGross').textContent = '৳ ' + d.toFixed(2);
+            const dSend = Math.round(d * 1.05 * 100) / 100;
+            const dFee = Math.round((dSend - d) * 100) / 100;
+            document.getElementById('depositGross').textContent = '৳ ' + dSend.toFixed(2);
             document.getElementById('depositFee').textContent = '৳ ' + dFee.toFixed(2);
-            document.getElementById('depositNet').textContent = '৳ ' + (d - dFee).toFixed(2);
+            document.getElementById('depositNet').textContent = '৳ ' + d.toFixed(2);
             const w = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const wFee = Math.round(w * 5) / 100;
             document.getElementById('withdrawGross').textContent = '৳ ' + w.toFixed(2);
