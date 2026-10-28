@@ -442,6 +442,16 @@
                 <button type="button" id="kycResubmitBtn" onclick="openKycForm()" class="hidden w-full font-bold py-3 rounded-2xl text-sm bg-rose-500/20 border border-rose-400/40 text-rose-100">Resubmit KYC</button>
                 <div id="kycFormPanel" class="hidden space-y-3 pt-1">
                     <div>
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Document Type</label>
+                        <select id="kycDocType" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                            <option value="">Select document</option>
+                            <option value="Passport">Passport</option>
+                            <option value="National ID (NID)">National ID (NID)</option>
+                            <option value="Driving License">Driving License</option>
+                            <option value="Voter Card">Voter Card</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Full Name</label>
                         <input type="text" id="kycName" placeholder="Your full name" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
@@ -450,8 +460,9 @@
                         <input type="text" id="kycIdNumber" placeholder="NID or ID number" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">ID Photo</label>
-                        <input type="file" id="kycPhoto" accept="image/*" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Document Photos (up to 3)</label>
+                        <input type="file" id="kycPhoto" accept="image/*" multiple onchange="previewKycPhotos()" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <div id="kycPreview" class="flex flex-wrap gap-2 pt-2"></div>
                     </div>
                     <button type="button" id="kycSubmitBtn" onclick="submitKyc()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Submit KYC</button>
                     <button type="button" onclick="closeKycForm()" class="w-full py-2.5 rounded-2xl text-sm text-violet-200/70">Cancel</button>
@@ -939,6 +950,8 @@
   status text not null default 'Pending',
   created_at timestamptz not null default now()
 );
+alter table public.kyc_verifications add column if not exists document_type text;
+alter table public.kyc_verifications add column if not exists documents_json text;
 alter table public.kyc_verifications disable row level security;
 insert into storage.buckets (id, name, public) values ('kyc', 'kyc', true) on conflict (id) do nothing;
 create policy "kyc anon upload" on storage.objects for insert to anon, authenticated with check (bucket_id = 'kyc');`;
@@ -1032,37 +1045,79 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             b.disabled = on;
             b.textContent = on ? 'Submitting...' : 'Submit KYC';
         }
+        const KYC_MAX_FILES = 3;
+        function isMissingKycColumnError(err) {
+            if (!err) return false;
+            const m = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
+            return /document_type|documents_json/.test(m) && /column|schema cache|could not find|does not exist/.test(m);
+        }
+        function previewKycPhotos() {
+            const input = document.getElementById('kycPhoto');
+            const box = document.getElementById('kycPreview');
+            box.innerHTML = '';
+            const files = Array.from(input.files || []);
+            if (files.length > KYC_MAX_FILES) {
+                alert('You can upload up to 3 photos.');
+                input.value = '';
+                return;
+            }
+            files.forEach(function (f) {
+                if (!f.type.startsWith('image/')) return;
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(f);
+                img.alt = f.name;
+                img.className = 'w-20 h-20 object-cover rounded-xl border border-violet-400/30';
+                box.appendChild(img);
+            });
+        }
         async function submitKyc() {
             if (!currentUser) { alert('Please log in first.'); return; }
+            const docType = document.getElementById('kycDocType').value;
             const name = document.getElementById('kycName').value.trim();
             const idNumber = document.getElementById('kycIdNumber').value.trim();
-            const file = document.getElementById('kycPhoto').files[0];
+            const files = Array.from(document.getElementById('kycPhoto').files || []);
+            if (!docType) { alert('Please choose a document type.'); return; }
             if (!name) { alert('Please enter your full name.'); return; }
             if (!idNumber) { alert('Please enter your NID / ID number.'); return; }
-            if (!file) { alert('Please choose your ID photo.'); return; }
-            if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
-            if (file.size > 10 * 1024 * 1024) { alert('Photo is too big. Max 10 MB.'); return; }
+            if (!files.length) { alert('Please choose at least one document photo.'); return; }
+            if (files.length > KYC_MAX_FILES) { alert('You can upload up to 3 photos.'); return; }
+            for (const f of files) {
+                if (!f.type.startsWith('image/')) { alert('Please choose image files only.'); return; }
+                if (f.size > 10 * 1024 * 1024) { alert('Each photo must be 10 MB or less.'); return; }
+            }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
             setKycBusy(true);
-            let photoUrl = null;
-            let photoNote = '';
-            try {
-                const ext = ((file.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase()) || 'jpg';
-                const path = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-                const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-                if (up.error) throw up.error;
-                const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
-                photoUrl = (pub && pub.data && pub.data.publicUrl) || null;
-                if (!photoUrl) throw new Error('no public url returned');
-            } catch (e) {
-                console.warn('KYC photo upload failed, saving without photo:', e);
-                photoUrl = null;
-                photoNote = 'Your ID photo could not be uploaded, so the KYC was saved without the photo. Please try again later.';
+            const urls = [];
+            let failed = 0;
+            for (const file of files) {
+                try {
+                    const ext = ((file.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase()) || 'jpg';
+                    const path = Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+                    const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+                    if (up.error) throw up.error;
+                    const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
+                    const url = (pub && pub.data && pub.data.publicUrl) || null;
+                    if (!url) throw new Error('no public url returned');
+                    urls.push(url);
+                } catch (e) {
+                    failed++;
+                    console.warn('KYC photo upload failed:', e);
+                }
             }
+            let photoNote = '';
+            if (!urls.length) photoNote = 'Your photos could not be uploaded, so the KYC was saved without photos. Please try again later.';
+            else if (failed) photoNote = failed + ' photo(s) could not be uploaded and were skipped.';
 
-            const row = { user_email: currentUser.email, full_name: name, id_number: idNumber, id_photo_url: photoUrl, status: 'Pending', created_at: new Date().toISOString() };
-            const { error } = await supabaseClient.from(KYC_TABLE).insert([row]);
+            const base = { user_email: currentUser.email, full_name: name, id_number: idNumber, id_photo_url: urls[0] || null, status: 'Pending', created_at: new Date().toISOString() };
+            const full = Object.assign({}, base, { document_type: docType, documents_json: JSON.stringify(urls) });
+            let { error } = await supabaseClient.from(KYC_TABLE).insert([full]);
+            if (error && isMissingKycColumnError(error)) {
+                console.warn('KYC columns document_type/documents_json are missing. Retrying without them. Run this SQL:\n' + KYC_SQL);
+                const retry = await supabaseClient.from(KYC_TABLE).insert([base]);
+                error = retry.error;
+                if (!error) photoNote = (photoNote ? photoNote + ' ' : '') + 'Document type and extra photos were not saved (database columns missing).';
+            }
             setKycBusy(false);
             if (error) {
                 if (isMissingKycTableError(error)) {
@@ -1077,7 +1132,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
             document.getElementById('kycName').value = '';
             document.getElementById('kycIdNumber').value = '';
+            document.getElementById('kycDocType').value = '';
             document.getElementById('kycPhoto').value = '';
+            document.getElementById('kycPreview').innerHTML = '';
             document.getElementById('kycFormPanel').classList.add('hidden');
             await loadMyKyc();
             alert('KYC submitted! Status: Pending review.' + (photoNote ? '\n\n' + photoNote : ''));
