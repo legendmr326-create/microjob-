@@ -407,9 +407,11 @@
         <div id="tab-profile" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Profile</h2>
             <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
-                <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
-                    <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300"><span id="profInitial">U</span></div>
-                </div>
+                <button type="button" onclick="pickAvatarPhoto()" title="Change photo" class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 group">
+                    <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300 overflow-hidden"><span id="profInitial">U</span><img id="profAvatarImg" alt="" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></div>
+                    <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-amber-300 text-bgDark flex items-center justify-center text-[9px]"><i class="fa-solid fa-camera"></i></span>
+                </button>
+                <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-bold text-white truncate" id="profHeaderName">User</p>
                     <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
@@ -425,6 +427,7 @@
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Phone Number</label>
                     <input type="text" id="profEditPhone" placeholder="017xxxxxxxx" class="field w-full rounded-2xl px-4 py-3 text-sm">
                 </div>
+                <button type="button" onclick="pickAvatarPhoto()" id="avatarChangeBtn" class="w-full border border-violet-400/30 bg-white/5 hover:bg-white/10 text-violet-100 font-bold py-2.5 rounded-2xl text-sm"><i class="fa-solid fa-camera mr-1"></i> Change photo</button>
                 <button onclick="saveProfile()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Save</button>
             </div>
 
@@ -734,10 +737,11 @@
             if (!currentUser) return;
             document.getElementById('profileName').innerText = currentUser.email;
             document.getElementById('profilePhone').innerText = currentUser.phone || currentUser.email;
-            const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentUser.name)}`;
+            const avatarUrl = currentUser.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentUser.name)}`;
             document.getElementById('headerUserAvatar').src = avatarUrl;
             document.getElementById('modalUserAvatar').src = avatarUrl;
             document.getElementById('profInitial').innerText = String(currentUser.name || 'U').charAt(0).toUpperCase();
+            renderProfileAvatar();
             document.getElementById('profHeaderName').innerText = currentUser.name || 'User';
             document.getElementById('profHeaderEmail').innerText = currentUser.email || '';
             fetchUserBalance();
@@ -1427,6 +1431,63 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const p = document.getElementById('profEditPhone');
             if (n) n.value = currentUser.name || '';
             if (p) p.value = currentUser.phone || '';
+        }
+
+        function renderProfileAvatar() {
+            const img = document.getElementById('profAvatarImg');
+            const letter = document.getElementById('profInitial');
+            if (!img || !letter) return;
+            const url = currentUser && currentUser.avatarUrl;
+            if (url) {
+                img.onerror = function () { img.classList.add('hidden'); letter.classList.remove('hidden'); };
+                img.src = url;
+                img.classList.remove('hidden');
+                letter.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                img.removeAttribute('src');
+                letter.classList.remove('hidden');
+            }
+        }
+        function pickAvatarPhoto() {
+            if (!currentUser) { alert('Please log in first.'); return; }
+            document.getElementById('avatarFileInput').click();
+        }
+        async function handleAvatarFile(input) {
+            const file = input.files && input.files[0];
+            input.value = '';
+            if (!file || !currentUser) return;
+            if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
+            if (file.size > 5 * 1024 * 1024) { alert('Photo must be 5 MB or less.'); return; }
+            if (!supabaseClient) { alert('Could not upload photo: not connected to server. Please try again shortly.'); return; }
+            const btn = document.getElementById('avatarChangeBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
+            try {
+                const emailKey = String(currentUser.email || 'user').toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 60);
+                const ext = ((file.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase()) || 'jpg';
+                const path = 'avatars/' + emailKey + '_' + Date.now() + '.' + ext;
+                const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, file, { cacheControl: '3600', upsert: true, contentType: file.type });
+                if (up.error) throw up.error;
+                const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
+                const url = (pub && pub.data && pub.data.publicUrl) || null;
+                if (!url) throw new Error('no public url returned');
+                currentUser.avatarUrl = url;
+                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+                // Also store on the user's KYC row when one exists (non-fatal if it fails).
+                try {
+                    if (myKyc && myKyc.id) {
+                        const r = await supabaseClient.from(KYC_TABLE).update({ avatar_url: url }).eq('id', myKyc.id);
+                        if (r.error) console.warn('KYC avatar_url save failed:', r.error);
+                        else myKyc.avatar_url = url;
+                    }
+                } catch (e) { console.warn('KYC avatar_url save failed:', e); }
+                updateUserDataUI();
+            } catch (e) {
+                console.warn('Avatar upload failed:', e);
+                alert('Sorry, the photo could not be uploaded. Please check your connection and try again. Your current avatar is unchanged.');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera mr-1"></i> Change photo'; }
+            }
         }
 
         function saveProfile() {
