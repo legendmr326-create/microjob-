@@ -403,7 +403,7 @@
                 <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                 <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
                     <div>Withdraw amount: <span id="withdrawGross">৳ 0.00</span></div>
-                    <div>Admin fee (5% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
+                    <div>Admin fee (7% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
                     <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                 </div>
                 <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
@@ -1493,7 +1493,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!amount || amount <= 0 || !number) { alert('Please enter amount and number!'); return; }
             if (amount < 100) { alert('Minimum withdraw amount is \u09f3 100.'); return; }
             if (amount > currentBalance) { alert('You cannot withdraw more than your balance.'); return; }
-            const wFee = Math.round(amount * 5) / 100;
+            const wFee = Math.round(amount * 7) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
 
             let savedOnServer = false;
@@ -1931,7 +1931,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             document.getElementById('depositFee').textContent = '৳ ' + dFee.toFixed(2);
             document.getElementById('depositNet').textContent = '৳ ' + d.toFixed(2);
             const w = parseFloat(document.getElementById('withdrawAmount').value) || 0;
-            const wFee = Math.round(w * 5) / 100;
+            const wFee = Math.round(w * 7) / 100;
             document.getElementById('withdrawGross').textContent = '৳ ' + w.toFixed(2);
             document.getElementById('withdrawFee').textContent = '৳ ' + wFee.toFixed(2);
             document.getElementById('withdrawNet').textContent = '৳ ' + (w - wFee).toFixed(2);
