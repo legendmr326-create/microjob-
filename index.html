@@ -522,18 +522,12 @@
                         <option value="Sign Up">Website Sign Up</option>
                     </select>
                     <input type="text" id="newJobTitle" placeholder="Job Title" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                    <textarea id="newJobProofReq" rows="2" placeholder="Proof Requirement..." class="field w-full rounded-2xl px-3.5 py-2.5 text-xs"></textarea>
-                    <input type="number" id="newJobReward" oninput="updateJobFeePreview()" placeholder="Reward per Worker (BDT)" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                    <input type="number" id="newJobSlots" oninput="updateJobFeePreview()" placeholder="Total Slots" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-[10px] text-violet-200/70 mb-1">Worker proof screenshots (count)</label>
-                            <input type="number" id="newJobScreenshots" min="1" value="1" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-semibold text-violet-100">Proof Requirements</span>
+                            <button type="button" onclick="addProofRow()" class="text-[11px] font-semibold px-3 py-1 rounded-xl bg-violet-500/20 text-violet-100 border border-violet-300/30">+ Add Proof</button>
                         </div>
-                        <div>
-                            <label class="block text-[10px] text-violet-200/70 mb-1">Message proof required (count)</label>
-                            <input type="number" id="newJobClientProofs" min="0" value="0" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                        </div>
+                        <div id="proofReqList" class="space-y-2"></div>
                     </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
                         <div>Total reward (R): <span id="jobReward">৳ 0.00</span></div>
@@ -808,7 +802,7 @@
             document.getElementById('depositFormContainer').classList.add('hidden');
         }
 
-        const FEE_FIELDS = ['fee', 'net_amount', 'total_cost', 'proof_screenshots_required', 'client_proofs_required'];
+        const FEE_FIELDS = ['fee', 'net_amount', 'total_cost', 'proof_screenshots_required', 'client_proofs_required', 'proof_requirements'];
         function isSchemaError(err) {
             const m = ((err && (err.message || '')) + ' ' + (err && err.details || '') + ' ' + (err && err.hint || '')).toLowerCase();
             return /column|schema|could not find|does not exist|unknown/.test(m) && /fee|net_amount|total_cost|proof_screenshots|client_proofs|column|schema/.test(m);
@@ -1220,10 +1214,13 @@
             const title = document.getElementById('newJobTitle').value;
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const slots = parseInt(document.getElementById('newJobSlots').value);
-            const proofReq = document.getElementById('newJobProofReq').value;
             const category = document.getElementById('newJobCategory').value;
-            const shotsReq = Math.max(1, parseInt(document.getElementById('newJobScreenshots').value) || 1);
-            const clientProofsReq = Math.max(0, parseInt(document.getElementById('newJobClientProofs').value) || 0);
+            const proofRows = getProofRequirements();
+            if (proofRows === null) { alert('Please give every proof requirement a title.'); return; }
+            if (proofRows.length === 0) { alert('Please add at least one proof requirement.'); return; }
+            const proofReq = proofRows.map(r => r.title + ' (' + PROOF_TYPE_LABELS[r.type] + ')').join('; ');
+            const shotsReq = proofRows.filter(r => r.type === 'screenshot').length;
+            const clientProofsReq = proofRows.filter(r => r.type === 'message').length;
             if (!title || isNaN(reward)) { alert('Please fill all fields!'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
@@ -1233,7 +1230,7 @@
             if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (reward + 7% job post fee)'); return; }
             const { error } = await insertSafe('micro_jobs', {
                 title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: selectedLocation, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
-                proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq
+                proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq, proof_requirements: proofRows
             });
             if (error) { alert('Error: ' + error.message); return; }
             alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2));
@@ -1244,7 +1241,44 @@
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); setTimeout(() => document.getElementById(id).classList.remove('opacity-0'), 10); }
         function closeModal(id) { document.getElementById(id).classList.add('opacity-0'); setTimeout(() => document.getElementById(id).classList.add('hidden'), 300); }
+        const PROOF_TYPE_LABELS = { screenshot: 'Screenshot Image', message: 'Message/Chat Proof', link: 'Link/URL', other: 'Other' };
+        function addProofRow() {
+            const list = document.getElementById('proofReqList');
+            const row = document.createElement('div');
+            row.className = 'proof-row flex gap-2 items-center';
+            const optionsHtml = Object.keys(PROOF_TYPE_LABELS).map(k => '<option value="' + k + '">' + PROOF_TYPE_LABELS[k] + '</option>').join('');
+            row.innerHTML = '<input type="text" class="proof-title field flex-1 min-w-0 rounded-2xl px-3.5 py-2.5 text-xs" placeholder="Proof requirement title">'
+                + '<select class="proof-type field rounded-2xl px-2.5 py-2.5 text-xs">' + optionsHtml + '</select>'
+                + '<button type="button" class="proof-remove w-8 h-8 shrink-0 rounded-xl bg-rose-500/20 text-rose-200 border border-rose-300/30 text-sm font-bold" onclick="removeProofRow(this)" aria-label="Remove proof">&times;</button>';
+            list.appendChild(row);
+            refreshProofRemoveButtons();
+        }
+        function removeProofRow(btn) {
+            const row = btn.closest('.proof-row');
+            if (row) row.remove();
+            refreshProofRemoveButtons();
+        }
+        function refreshProofRemoveButtons() {
+            const rows = document.querySelectorAll('#proofReqList .proof-row');
+            rows.forEach((r, i) => { const b = r.querySelector('.proof-remove'); if (b) b.classList.toggle('hidden', i === 0); });
+        }
+        function resetProofRows() {
+            document.getElementById('proofReqList').innerHTML = '';
+            addProofRow();
+        }
+        // Returns [{title, type}] or null if any row has an empty title.
+        function getProofRequirements() {
+            const out = [];
+            for (const row of document.querySelectorAll('#proofReqList .proof-row')) {
+                const title = row.querySelector('.proof-title').value.trim();
+                const type = row.querySelector('.proof-type').value;
+                if (!title) return null;
+                out.push({ title: title, type: type });
+            }
+            return out;
+        }
         function openPostJobModal() {
+            resetProofRows();
             currentJobStep = 1;
             document.getElementById('jobStep1').classList.remove('hidden');
             document.getElementById('jobStep2').classList.add('hidden');
