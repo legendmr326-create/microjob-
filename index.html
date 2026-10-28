@@ -160,7 +160,7 @@
         <header class="sticky top-0 z-30 bg-bgDark/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
                 <div class="logo-orb w-9 h-9 rounded-xl p-[2px]">
-                    <div class="w-full h-full rounded-[10px] bg-bgDark flex items-center justify-center font-black text-amber-400 text-sm">m</div>
+                    <div class="w-full h-full rounded-[10px] bg-bgDark flex items-center justify-center font-black text-amber-400 text-sm">M</div>
                 </div>
                 <button onclick="toggleUserRole()" id="roleBadge" class="bg-violet-500/15 border border-violet-400/30 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold text-violet-200">
                     <span id="roleLabel">Worker</span>
@@ -183,26 +183,6 @@
         <!-- MAIN CONTAINER -->
         <main class="flex-1 px-4 pt-4 pb-4 space-y-4 overflow-y-auto custom-scrollbar">
 
-            <!-- FINANCIAL METRICS OVERVIEW -->
-            <div class="grid grid-cols-4 gap-2 text-center">
-                <div class="glass-card stat-chip p-2.5">
-                    <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-down text-[8px] text-amber-400"></i> Money In</p>
-                    <h4 id="statMoneyIn" class="text-xs font-extrabold text-amber-300 mt-1.5">৳0.00</h4>
-                </div>
-                <div class="glass-card stat-chip p-2.5">
-                    <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-arrow-up text-[8px] text-rose-300"></i> Money Out</p>
-                    <h4 id="statMoneyOut" class="text-xs font-extrabold text-rose-300 mt-1.5">৳0.00</h4>
-                </div>
-                <div class="glass-card stat-chip p-2.5">
-                    <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-wallet text-[8px] text-violet-300"></i> Balance</p>
-                    <h4 id="statBalance" class="text-xs font-extrabold text-violet-300 mt-1.5">৳0.00</h4>
-                </div>
-                <div class="glass-card stat-chip p-2.5">
-                    <p class="text-[9px] uppercase tracking-wider text-violet-200/60 flex items-center justify-center gap-1"><i class="fa-solid fa-chart-line text-[8px] text-amber-300"></i> Net</p>
-                    <h4 id="statNet" class="text-xs font-extrabold text-amber-300 mt-1.5">৳0.00</h4>
-                </div>
-            </div>
-
             <!-- TAB 1: DASHBOARD / HOME -->
             <div id="tab-dashboard" class="space-y-4">
 
@@ -215,7 +195,7 @@
                                 <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Available Balance</p>
                                 <h3 id="workerBalance" class="text-3xl font-black text-white mt-1">৳ 0.00</h3>
                             </div>
-                            <button onclick="switchTab('deposits')" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
+                            <button onclick="switchTab('profile')" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
                                 <i class="fa-solid fa-wallet text-xs"></i> Cashout / Add
                             </button>
                         </div>
@@ -230,6 +210,14 @@
                     <button onclick="switchTab('jobs')" class="btn-amber w-full font-bold py-4 rounded-2xl flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-magnifying-glass"></i> Find Available Jobs
                     </button>
+
+                    <div class="glass-card rounded-3xl p-5 space-y-3">
+                        <div class="flex justify-between items-center pb-2 border-b border-white/10">
+                            <h3 class="text-base font-bold text-white">আমার পোস্ট করা জব</h3>
+                            <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Job Post</span>
+                        </div>
+                        <div id="myPostedJobsList" class="space-y-2.5"><div class="text-center py-6 text-violet-200/60 text-xs">লোড হচ্ছে...</div></div>
+                    </div>
                 </div>
 
                 <!-- Client View Box -->
@@ -241,7 +229,7 @@
                                 <p class="text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Deposit Funds Balance</p>
                                 <h3 id="clientBalance" class="text-3xl font-black text-white mt-1">৳ 0.00</h3>
                             </div>
-                            <button onclick="switchTab('deposits')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
+                            <button onclick="switchTab('profile')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
                                 <i class="fa-solid fa-plus text-xs"></i> Add Funds
                             </button>
                         </div>
@@ -269,8 +257,91 @@
                 <div id="availableJobsList" class="space-y-3"></div>
             </div>
 
-            <!-- TAB 3: DEPOSITS & GATEWAYS -->
-            <div id="tab-deposits" class="space-y-3 hidden">
+        <!-- TAB: HISTORY (deposits, withdrawals, earnings) -->
+        <div id="tab-history" class="space-y-3 hidden">
+            <h2 class="text-base font-bold text-white">লেনদেনের ইতিহাস</h2>
+            <div class="glass-card rounded-3xl p-5 space-y-1">
+                <div id="historyList"></div>
+            </div>
+        </div>
+
+        <!-- TAB: JOB DETAILS -->
+        <div id="tab-jobdetail" class="space-y-3.5 hidden">
+            <button onclick="switchTab('jobs')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
+            <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
+            <button onclick="applyToJob()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">এই জবে Apply করুন</button>
+        </div>
+
+        <!-- TAB: MY APPLICATIONS / MY JOBS -->
+        <div id="tab-applications" class="space-y-3 hidden">
+            <h2 class="text-base font-bold text-white">আমার আবেদনসমূহ</h2>
+            <div id="myApplicationsList" class="space-y-3"></div>
+        </div>
+
+        <!-- TAB: NOTIFICATIONS -->
+        <div id="tab-notifications" class="space-y-3 hidden">
+            <h2 class="text-base font-bold text-white">নোটিফিকেশন</h2>
+            <div id="notificationsList" class="space-y-2.5"></div>
+        </div>
+
+        <!-- TAB: EARNINGS SUMMARY -->
+        <div id="tab-earnings" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">আয়ের সারাংশ</h2>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">ব্যালেন্স</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">মোট আবেদন</p><h4 id="earnApplied" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">পেন্ডিং ডিপোজিট</p><h4 id="earnPendingDeposits" class="text-lg font-black text-amber-200 mt-1">0</h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">উইথড্র রিকোয়েস্ট</p><h4 id="earnWithdrawals" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
+            </div>
+            <div class="glass-card rounded-2xl p-4">
+                <p class="text-[10px] uppercase tracking-wider text-violet-200/60 mb-1">আমার রেটিং</p>
+                <div id="ratingDisplay" class="text-sm text-white">লোড হচ্ছে...</div>
+            </div>
+            <div class="space-y-2.5">
+                <h3 class="text-sm font-bold text-white">সাম্প্রতিক অ্যাক্টিভিটি</h3>
+                <div id="recentActivityList" class="space-y-2.5"></div>
+            </div>
+        </div>
+
+        <!-- TAB: REFER & EARN -->
+        <div id="tab-refer" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">রেফার করুন ও আয় করুন</h2>
+            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/20 via-violet-600/25 to-transparent border border-amber-300/20">
+                <p class="text-xs text-violet-100/80">আপনার বন্ধুকে আপনার লিংক দিয়ে জয়েন করালে আপনি রেফারেল বোনাসের সুযোগ পাবেন।</p>
+            </div>
+            <div class="glass-card rounded-2xl p-4 space-y-2.5">
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">আপনার রেফারেল লিংক</label>
+                <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
+                <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">লিংক কপি করুন</button>
+            </div>
+        </div>
+
+        <!-- TAB: PROFILE EDIT -->
+        <div id="tab-profile" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">প্রোফাইল</h2>
+            <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
+                <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
+                    <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300"><span id="profInitial">U</span></div>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-sm font-bold text-white truncate" id="profHeaderName">User</p>
+                    <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
+                </div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 space-y-3">
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">নাম</label>
+                    <input type="text" id="profEditName" placeholder="আপনার নাম" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">ফোন নম্বর</label>
+                    <input type="text" id="profEditPhone" placeholder="017xxxxxxxx" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                </div>
+                <button onclick="saveProfile()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">সেভ করুন</button>
+            </div>
+
+            <h2 class="text-base font-bold text-white pt-2">ডিপোজিট ও উইথড্র</h2>
+
                 <div class="glass-card rounded-3xl p-5 space-y-4">
                     <div class="flex justify-between items-center pb-3 border-b border-white/10">
                         <h3 class="text-base font-bold text-white">Add Funds</h3>
@@ -366,85 +437,9 @@
                     </div>
                     <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">উইথড্র রিকোয়েস্ট পাঠান</button>
                 </div>
-                <div class="glass-card rounded-3xl p-5 space-y-1">
-                    <h3 class="text-base font-bold text-white pb-2">লেনদেনের ইতিহাস</h3>
-                    <div id="txHistoryList"></div>
-                </div>
-            </div>
-
-        <!-- TAB: JOB DETAILS -->
-        <div id="tab-jobdetail" class="space-y-3.5 hidden">
-            <button onclick="switchTab('jobs')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> ফিরে যান</button>
-            <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
-            <button onclick="applyToJob()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">এই জবে Apply করুন</button>
-        </div>
-
-        <!-- TAB: MY APPLICATIONS / MY JOBS -->
-        <div id="tab-applications" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">আমার আবেদনসমূহ</h2>
-            <div id="myApplicationsList" class="space-y-3"></div>
-        </div>
-
-        <!-- TAB: NOTIFICATIONS -->
-        <div id="tab-notifications" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">নোটিফিকেশন</h2>
-            <div id="notificationsList" class="space-y-2.5"></div>
-        </div>
-
-        <!-- TAB: EARNINGS SUMMARY -->
-        <div id="tab-earnings" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">আয়ের সারাংশ</h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">ব্যালেন্স</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">মোট আবেদন</p><h4 id="earnApplied" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">পেন্ডিং ডিপোজিট</p><h4 id="earnPendingDeposits" class="text-lg font-black text-amber-200 mt-1">0</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">উইথড্র রিকোয়েস্ট</p><h4 id="earnWithdrawals" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
-            </div>
-            <div class="glass-card rounded-2xl p-4">
-                <p class="text-[10px] uppercase tracking-wider text-violet-200/60 mb-1">আমার রেটিং</p>
-                <div id="ratingDisplay" class="text-sm text-white">লোড হচ্ছে...</div>
-            </div>
-            <div class="space-y-2.5">
-                <h3 class="text-sm font-bold text-white">সাম্প্রতিক অ্যাক্টিভিটি</h3>
-                <div id="recentActivityList" class="space-y-2.5"></div>
-            </div>
-        </div>
-
-        <!-- TAB: REFER & EARN -->
-        <div id="tab-refer" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">রেফার করুন ও আয় করুন</h2>
-            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/20 via-violet-600/25 to-transparent border border-amber-300/20">
-                <p class="text-xs text-violet-100/80">আপনার বন্ধুকে আপনার লিংক দিয়ে জয়েন করালে আপনি রেফারেল বোনাসের সুযোগ পাবেন।</p>
-            </div>
-            <div class="glass-card rounded-2xl p-4 space-y-2.5">
-                <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">আপনার রেফারেল লিংক</label>
-                <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
-                <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">লিংক কপি করুন</button>
-            </div>
-        </div>
-
-        <!-- TAB: PROFILE EDIT -->
-        <div id="tab-profile" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">প্রোফাইল</h2>
-            <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
-                <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
-                    <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300"><span id="profInitial">U</span></div>
-                </div>
-                <div class="min-w-0">
-                    <p class="text-sm font-bold text-white truncate" id="profHeaderName">User</p>
-                    <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
-                </div>
-            </div>
-            <div class="glass-card rounded-3xl p-5 space-y-3">
-                <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">নাম</label>
-                    <input type="text" id="profEditName" placeholder="আপনার নাম" class="field w-full rounded-2xl px-4 py-3 text-sm">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">ফোন নম্বর</label>
-                    <input type="text" id="profEditPhone" placeholder="017xxxxxxxx" class="field w-full rounded-2xl px-4 py-3 text-sm">
-                </div>
-                <button onclick="saveProfile()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">সেভ করুন</button>
+            <h2 class="text-base font-bold text-white pt-2">লেনদেনের ইতিহাস</h2>
+            <div class="glass-card rounded-3xl p-5 space-y-1">
+                <div id="txHistoryList"></div>
             </div>
         </div>
 
@@ -452,7 +447,7 @@
         <div id="tab-help" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">সাহায্য ও প্রশ্নোত্তর (FAQ)</h2>
             <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">জব কীভাবে করবো?</p><p class="text-violet-100/75">জব তালিকা থেকে একটি জব খুলুন, নির্দেশনা অনুযায়ী কাজ করুন এবং Apply করুন।</p></div>
-            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">কীভাবে টাকা যোগ করবো?</p><p class="text-violet-100/75">Deposits ট্যাবে গিয়ে গেটওয়ে বেছে নিন, টাকার পরিমাণ ও TrxID দিয়ে সাবমিট করুন।</p></div>
+            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">কীভাবে টাকা যোগ করবো?</p><p class="text-violet-100/75">Profile পেজের ডিপোজিট সেকশনে গিয়ে গেটওয়ে বেছে নিন, টাকার পরিমাণ ও TrxID দিয়ে সাবমিট করুন।</p></div>
             <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">উইথড্র কতদিনে হয়?</p><p class="text-violet-100/75">উইথড্র রিকোয়েস্ট অ্যাডমিন যাচাই করার পর প্রসেস হয়।</p></div>
         </div>
 
@@ -477,8 +472,8 @@
         <nav class="nav-glass fixed bottom-0 w-full max-w-md grid grid-cols-4 px-3 py-2.5 text-center z-40 left-1/2 -translate-x-1/2">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center py-1.5 text-amber-300"><i class="fa-solid fa-house text-base mb-1"></i><span class="text-[10px] font-semibold">Dashboard</span></button>
             <button onclick="switchTab('jobs')" id="nav-jobs" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-briefcase text-base mb-1"></i><span class="text-[10px] font-semibold">My Jobs</span></button>
-            <button onclick="openPostJobModal()" id="nav-newjob" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-circle-plus text-base mb-1"></i><span class="text-[10px] font-semibold">New Job</span></button>
-            <button onclick="switchTab('deposits')" id="nav-deposits" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-wallet text-base mb-1"></i><span class="text-[10px] font-semibold">Deposits</span></button>
+            <button onclick="openPostJobModal()" id="nav-newjob" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-circle-plus text-base mb-1"></i><span class="text-[10px] font-semibold">Job Post</span></button>
+            <button onclick="switchTab('history')" id="nav-history" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-clock-rotate-left text-base mb-1"></i><span class="text-[10px] font-semibold">History</span></button>
         </nav>
 
         <!-- MULTI-STEP POST JOB MODAL -->
@@ -526,6 +521,16 @@
                     <textarea id="newJobProofReq" rows="2" placeholder="Proof Requirement..." class="field w-full rounded-2xl px-3.5 py-2.5 text-xs"></textarea>
                     <input type="number" id="newJobReward" oninput="updateJobFeePreview()" placeholder="Reward per Worker (BDT)" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     <input type="number" id="newJobSlots" oninput="updateJobFeePreview()" placeholder="Total Slots" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[10px] text-violet-200/70 mb-1">Worker proof screenshots (কয়টি)</label>
+                            <input type="number" id="newJobScreenshots" min="1" value="1" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-violet-200/70 mb-1">Message proof required (কয়টি)</label>
+                            <input type="number" id="newJobClientProofs" min="0" value="0" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        </div>
+                    </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
                         <div>মোট রিওয়ার্ড (R): <span id="jobReward">৳ 0.00</span></div>
                         <div><span class="font-bold">7% জব পোস্ট ফি</span>: <span id="jobFee" class="text-rose-300">৳ 0.00</span></div>
@@ -601,7 +606,7 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
-        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'deposits', 'refer', 'profile', 'help', 'about', 'terms'];
+        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'history', 'refer', 'profile', 'help', 'about', 'terms'];
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -702,11 +707,6 @@
             currentBalance = totalBalance;
             document.getElementById('workerBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
-            const wdTotal = getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email).reduce((a, w) => a + parseFloat(w.amount || 0), 0);
-            document.getElementById('statBalance').innerText = `৳${totalBalance.toFixed(2)}`;
-            document.getElementById('statMoneyIn').innerText = `৳${totalBalance.toFixed(2)}`;
-            document.getElementById('statMoneyOut').innerText = `৳${wdTotal.toFixed(2)}`;
-            document.getElementById('statNet').innerText = `৳${(totalBalance - wdTotal).toFixed(2)}`;
             renderWallet();
             renderEarnings();
         }
@@ -722,6 +722,7 @@
             document.getElementById('profHeaderName').innerText = currentUser.name || 'User';
             document.getElementById('profHeaderEmail').innerText = currentUser.email || '';
             fetchUserBalance();
+            renderMyPostedJobs();
             renderProfileForm();
             renderReferral();
             renderMyApplications();
@@ -760,7 +761,7 @@
                 const tabElem = document.getElementById('tab-' + id);
                 if (tabElem) tabElem.classList.add('hidden');
             });
-            ['dashboard', 'jobs', 'newjob', 'deposits'].forEach(id => {
+            ['dashboard', 'jobs', 'newjob', 'history'].forEach(id => {
                 const navElem = document.getElementById('nav-' + id);
                 if (navElem) navElem.className = "nav-btn flex flex-col items-center py-1.5 text-violet-200/60";
             });
@@ -771,6 +772,7 @@
             window.scrollTo(0, 0);
             if (tabId === 'notifications') loadNotifications();
             if (tabId === 'applications') renderMyApplications();
+            if (tabId === 'history') renderWallet();
         }
 
         function openAccountPage(tabId) {
@@ -801,10 +803,10 @@
             document.getElementById('depositFormContainer').classList.add('hidden');
         }
 
-        const FEE_FIELDS = ['fee', 'net_amount', 'total_cost'];
+        const FEE_FIELDS = ['fee', 'net_amount', 'total_cost', 'proof_screenshots_required', 'client_proofs_required'];
         function isSchemaError(err) {
             const m = ((err && (err.message || '')) + ' ' + (err && err.details || '') + ' ' + (err && err.hint || '')).toLowerCase();
-            return /column|schema|could not find|does not exist|unknown/.test(m) && /fee|net_amount|total_cost|column|schema/.test(m);
+            return /column|schema|could not find|does not exist|unknown/.test(m) && /fee|net_amount|total_cost|proof_screenshots|client_proofs|column|schema/.test(m);
         }
         async function insertSafe(table, row) {
             const first = await supabaseClient.from(table).insert([row]);
@@ -958,7 +960,7 @@
                 if (!error && data) items = data.map(n => n.title || n.message || n.body || '');
             }
             if (items.length === 0) {
-                items = ['স্বাগতম! Micro job TaskFlex-এ আপনাকে স্বাগতম।', 'নতুন জব দেখতে "My Jobs" ট্যাব খুলুন।', 'ডিপোজিট করতে Deposits ট্যাব ব্যবহার করুন।'];
+                items = ['স্বাগতম! Micro job TaskFlex-এ আপনাকে স্বাগতম।', 'নতুন জব দেখতে "My Jobs" ট্যাব খুলুন।', 'ডিপোজিট করতে Profile পেজ ব্যবহার করুন।'];
             }
             container.innerHTML = items.map(t => `
                 <div class="glass-card rounded-2xl p-3.5 text-xs text-violet-100/85 flex gap-3"><i class="fa-solid fa-bell text-amber-300 mt-0.5"></i><span>${esc(t)}</span></div>
@@ -967,18 +969,45 @@
 
         function renderWallet() {
             const list = document.getElementById('txHistoryList');
-            if (!list) return;
+            const histList = document.getElementById('historyList');
             const withdrawals = getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email)
                 .map(w => ({ kind: 'Withdraw', amount: w.amount, status: w.status, label: w.method }));
             const deps = allDeposits.map(d => ({ kind: 'Deposit', amount: d.amount, status: d.status, label: d.gateway }));
             const rows = deps.concat(withdrawals);
-            if (rows.length === 0) { list.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">এখনো কোনো লেনদেন নেই।</div>`; return; }
-            list.innerHTML = rows.map(r => `
+            const rowHtml = r => `
                 <div class="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 text-xs">
                     <div><p class="font-bold text-white">${esc(r.kind)} · ${esc(r.label)}</p><p class="text-[10px] text-violet-200/60">${esc(r.status)}</p></div>
                     <span class="font-black ${r.kind === 'Deposit' ? 'text-amber-300' : 'text-rose-300'}">৳ ${esc(parseFloat(r.amount || 0).toFixed(2))}</span>
-                </div>
-            `).join('');
+                </div>`;
+            if (list) {
+                list.innerHTML = rows.length === 0 ? `<div class="text-center py-6 text-violet-200/60 text-xs">এখনো কোনো লেনদেন নেই।</div>` : rows.map(rowHtml).join('');
+            }
+            if (histList) {
+                const apps = getLocalList('taskflex_applications').filter(a => currentUser && a.email === currentUser.email)
+                    .map(a => ({ kind: 'Earning', amount: a.reward, status: a.status, label: a.title }));
+                const all = rows.concat(apps);
+                histList.innerHTML = all.length === 0 ? `<div class="text-center py-6 text-violet-200/60 text-xs">এখনো কোনো লেনদেন নেই।</div>` : all.map(rowHtml).join('');
+            }
+        }
+
+        async function renderMyPostedJobs() {
+            const c = document.getElementById('myPostedJobsList');
+            if (!c) return;
+            if (!currentUser) { c.innerHTML = ''; return; }
+            if (!supabaseClient) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">সার্ভারে কানেক্ট হচ্ছে না।</div>`; return; }
+            const { data, error } = await supabaseClient.from('micro_jobs').select('*').eq('client_email', currentUser.email).order('id', { ascending: false });
+            if (error) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">জব লোড করা যায়নি।</div>`; return; }
+            const mine = data || [];
+            if (mine.length === 0) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">কোনো জব পোস্ট নেই</div>`; return; }
+            c.innerHTML = mine.map(j => {
+                const raw = String(j.status || 'Pending');
+                const st = /approv/i.test(raw) ? 'Approved' : /reject/i.test(raw) ? 'Rejected' : 'Pending';
+                const cls = st === 'Approved' ? 'bg-emerald-400/15 text-emerald-300' : st === 'Rejected' ? 'bg-rose-400/15 text-rose-300' : 'bg-amber-400/15 text-amber-300';
+                return `<div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                    <div class="min-w-0"><h4 class="text-sm font-bold text-white truncate">${esc(j.title)}</h4><p class="text-[11px] text-violet-200/60">${esc(j.category || '')} · ৳ ${esc(j.reward)} · ${esc(j.slots ?? '-')} slots</p></div>
+                    <span class="text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap ${cls}">${st}</span>
+                </div>`;
+            }).join('');
         }
 
         async function submitWithdraw() {
@@ -1132,6 +1161,8 @@
             const slots = parseInt(document.getElementById('newJobSlots').value);
             const proofReq = document.getElementById('newJobProofReq').value;
             const category = document.getElementById('newJobCategory').value;
+            const shotsReq = Math.max(1, parseInt(document.getElementById('newJobScreenshots').value) || 1);
+            const clientProofsReq = Math.max(0, parseInt(document.getElementById('newJobClientProofs').value) || 0);
             if (!title || isNaN(reward)) { alert('সব ফিল্ড পূরণ করুন!'); return; }
             if (!supabaseClient) { alert('সার্ভারে কানেক্ট হচ্ছে না, একটু পরে আবার চেষ্টা করুন।'); return; }
 
@@ -1140,12 +1171,14 @@
             const jobTotal = Math.round((R + jobFee) * 100) / 100;
             if (jobTotal > currentBalance) { alert('ব্যালেন্স যথেষ্ট নয়। প্রয়োজন: ৳' + jobTotal.toFixed(2) + ' (রিওয়ার্ড + 7% জব পোস্ট ফি)'); return; }
             const { error } = await insertSafe('micro_jobs', {
-                title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: selectedLocation, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal
+                title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: selectedLocation, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
+                proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq
             });
             if (error) { alert('ত্রুটি: ' + error.message); return; }
             alert('জব পোস্ট সফল হয়েছে!\nরিওয়ার্ড: ৳' + R.toFixed(2) + ' | 7% জব পোস্ট ফি: ৳' + jobFee.toFixed(2) + ' | মোট কাটা: ৳' + jobTotal.toFixed(2));
             closePostJobModal();
             fetchJobsFromDatabase();
+            renderMyPostedJobs();
         }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); setTimeout(() => document.getElementById(id).classList.remove('opacity-0'), 10); }
