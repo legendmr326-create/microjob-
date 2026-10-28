@@ -388,9 +388,7 @@
         <!-- TAB: WITHDRAW -->
         <div id="tab-withdraw" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Withdraw</h2>
-            <div class="grid grid-cols-2 gap-3">
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Balance</p><h4 id="wdTotalBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">In Pending</p><h4 id="wdPendingAmt" class="text-lg font-black text-violet-200 mt-1">৳ 0.00</h4></div>
+            <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Balance</p><h4 id="wdTotalBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
             </div>
             <div id="withdrawSection" class="glass-card rounded-3xl p-5 space-y-3">
                 <h3 class="text-base font-bold text-white">Withdraw Request</h3>
@@ -826,8 +824,6 @@
             (wdRes.data || []).forEach(w => { if (/pending/i.test(w.status || 'Pending')) window.__wdPending += parseFloat(w.amount || 0); });
             const wdTot = document.getElementById('wdTotalBalance');
             if (wdTot) wdTot.innerText = `৳ ${totalBalance.toFixed(2)}`;
-            const wdPen = document.getElementById('wdPendingAmt');
-            if (wdPen) wdPen.innerText = `৳ ${(window.__wdPending || 0).toFixed(2)}`;
             renderWallet();
             renderEarnings();
             renderDepositHistory();
