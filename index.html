@@ -223,6 +223,30 @@
             </div>
 
 
+        <!-- TAB: JOB POST (balance + open post form) -->
+        <div id="tab-newjob" class="space-y-3.5 hidden">
+            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-violet-500/30 via-fuchsia-600/15 to-transparent border border-violet-300/20 shadow-xl">
+                <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-400/25 blur-2xl"></div>
+                <div class="relative flex justify-between items-end gap-3">
+                    <div>
+                        <p class="text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Available Balance</p>
+                        <h3 id="clientBalance" class="text-3xl font-black text-white mt-1">৳ 0.00</h3>
+                    </div>
+                    <button onclick="switchTab('deposit')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-plus text-xs"></i> Add Funds
+                    </button>
+                </div>
+            </div>
+            <button onclick="openPostJobModal()" class="glass-card w-full rounded-2xl p-4 flex items-center gap-3 text-left">
+                <span class="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-300/30 flex items-center justify-center text-amber-300"><i class="fa-solid fa-plus"></i></span>
+                <span class="flex-1">
+                    <span class="block text-sm font-bold text-white">+ Job Post</span>
+                    <span class="block text-[11px] text-violet-200/70">Post a new job</span>
+                </span>
+                <i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i>
+            </button>
+        </div>
+
         <!-- TAB: HISTORY (worker earnings from approved/completed jobs) -->
         <div id="tab-history" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">Earnings Summary</h2>
@@ -441,7 +465,7 @@
         <!-- BOTTOM NAVIGATION BAR -->
         <nav class="nav-glass fixed bottom-0 w-full max-w-md grid grid-cols-4 px-3 py-2.5 text-center z-40 left-1/2 -translate-x-1/2">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex flex-col items-center py-1.5 text-amber-300"><i class="fa-solid fa-house text-base mb-1"></i><span class="text-[10px] font-semibold">Dashboard</span></button>
-            <button onclick="openPostJobModal()" id="nav-newjob" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-circle-plus text-base mb-1"></i><span class="text-[10px] font-semibold">Job Post</span></button>
+            <button onclick="switchTab('newjob')" id="nav-newjob" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-circle-plus text-base mb-1"></i><span class="text-[10px] font-semibold">Job Post</span></button>
             <button onclick="switchTab('history')" id="nav-history" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-chart-column text-base mb-1"></i><span class="text-[10px] font-semibold">Earnings Summary</span></button>
             <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center py-1.5 text-violet-200/60"><i class="fa-solid fa-user text-base mb-1"></i><span class="text-[10px] font-semibold">Profile</span></button>
         </nav>
@@ -452,18 +476,6 @@
                 <div class="flex justify-between items-center pb-3 border-b border-white/10">
                     <h3 class="text-base font-bold text-white">Post New Job</h3>
                     <button onclick="closePostJobModal()" class="text-violet-200/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-                </div>
-                <!-- Deposit balance (fees deduct from this) -->
-                <div class="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-violet-500/30 via-fuchsia-600/15 to-transparent border border-violet-300/20">
-                    <div class="relative flex justify-between items-end gap-3">
-                        <div>
-                            <p class="text-[10px] uppercase tracking-widest text-violet-200/80 font-semibold">Deposit Funds Balance</p>
-                            <h3 id="clientBalance" class="text-2xl font-black text-white mt-1">৳ 0.00</h3>
-                        </div>
-                        <button onclick="closePostJobModal(); switchTab('deposit')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
-                            <i class="fa-solid fa-plus text-xs"></i> Add Funds
-                        </button>
-                    </div>
                 </div>
                 <!-- Job details (only step) -->
                 <div id="jobStep2" class="space-y-2.5 text-xs">
@@ -555,7 +567,7 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
-        const ALL_TABS = ['dashboard', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
+        const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
