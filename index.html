@@ -739,26 +739,39 @@
             }
         }
 
-        function handleRegister() {
-            const email = document.getElementById('regEmail').value;
-            const phone = document.getElementById('regPhone').value;
-            const pass = document.getElementById('regPass').value;
-            if (!email || !phone || !pass) { alert('Please fill all fields!'); return; }
-            const pass2 = document.getElementById('regPass2').value;
-            if (pass !== pass2) { alert('Passwords do not match! Enter the same password twice.'); return; }
-            currentUser = { name: email.split('@')[0], email: email, phone: phone };
+        function finishAuth(user) {
+            currentUser = user;
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             document.getElementById('authOverlay').classList.add('hidden');
             updateUserDataUI();
         }
 
-        function handleLogin() {
-            const user = document.getElementById('loginUser').value;
-            if (!user) { alert('Please enter your email!'); return; }
-            currentUser = { name: user.split('@')[0], email: user, phone: user };
-            localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-            document.getElementById('authOverlay').classList.add('hidden');
-            updateUserDataUI();
+        async function handleRegister() {
+            const email = (document.getElementById('regEmail').value || '').trim().toLowerCase();
+            const phone = (document.getElementById('regPhone').value || '').trim();
+            const pass = document.getElementById('regPass').value;
+            if (!email || !phone || !pass) { alert('Please fill all fields!'); return; }
+            const pass2 = document.getElementById('regPass2').value;
+            if (pass !== pass2) { alert('Passwords do not match! Enter the same password twice.'); return; }
+            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
+            const name = email.split('@')[0];
+            const exists = await supabaseClient.from('users').select('id').eq('email', email).limit(1);
+            if (exists.error) { alert('Error: ' + exists.error.message); return; }
+            if (exists.data && exists.data.length) { alert('This email is already registered. Please login.'); return; }
+            const { error } = await supabaseClient.from('users').insert([{ name: name, email: email, phone: phone, password: pass }]);
+            if (error) { alert('Registration failed: ' + error.message); return; }
+            finishAuth({ name: name, email: email, phone: phone });
+        }
+
+        async function handleLogin() {
+            const user = (document.getElementById('loginUser').value || '').trim().toLowerCase();
+            const pass = document.getElementById('loginPass').value;
+            if (!user || !pass) { alert('Please enter your email and password!'); return; }
+            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
+            const { data, error } = await supabaseClient.from('users').select('name,email,phone').eq('email', user).eq('password', pass).limit(1);
+            if (error) { alert('Login error: ' + error.message); return; }
+            if (!data || !data.length) { alert('Wrong email or password.'); return; }
+            finishAuth({ name: data[0].name || user.split('@')[0], email: data[0].email, phone: data[0].phone || '' });
         }
 
         function togglePassVis(id, btn) {
