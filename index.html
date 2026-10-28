@@ -243,6 +243,10 @@
                 <i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i>
             </button>
 
+            <div class="glass-card rounded-3xl p-4 space-y-3">
+                <h3 class="text-sm font-bold text-white">My Posted Jobs</h3>
+                <div id="myPostedJobsList" class="space-y-2"><div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div></div>
+            </div>
         </div>
 
         <!-- TAB: HISTORY (worker earnings from approved/completed jobs) -->
@@ -707,6 +711,24 @@
             if (tabId === 'notifications') loadNotifications();
             if (tabId === 'applications') renderMyApplications();
             if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); }
+            if (tabId === 'newjob') loadMyPostedJobs();
+        }
+
+        async function loadMyPostedJobs() {
+            const box = document.getElementById('myPostedJobsList');
+            if (!box) return;
+            const email = currentUser && currentUser.email;
+            if (!supabaseClient || !email) { box.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div>`; return; }
+            const { data, error } = await supabaseClient.from('micro_jobs').select('id,title,reward,status,client_email').eq('client_email', email).order('id', { ascending: false });
+            if (error || !data || data.length === 0) { box.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div>`; return; }
+            box.innerHTML = data.map(j => {
+                const st = String(j.status || 'Pending');
+                const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
+                return `<div class="flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
+                    <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                </div>`;
+            }).join('');
         }
 
         function openAccountPage(tabId) {
