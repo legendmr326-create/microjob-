@@ -1215,12 +1215,12 @@
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const slots = parseInt(document.getElementById('newJobSlots').value);
             const category = document.getElementById('newJobCategory').value;
-            const proofRows = getProofRequirements();
-            if (proofRows === null) { alert('Please give every proof requirement a title.'); return; }
-            if (proofRows.length === 0) { alert('Please add at least one proof requirement.'); return; }
-            const proofReq = proofRows.map(r => r.title + ' (' + PROOF_TYPE_LABELS[r.type] + ')').join('; ');
-            const shotsReq = proofRows.filter(r => r.type === 'screenshot').length;
-            const clientProofsReq = proofRows.filter(r => r.type === 'message').length;
+            const check = getProofRequirements();
+            if (check.error) { alert(check.error); return; }
+            const proofRows = check.rows;
+            const proofReq = proofRows.map(r => r.title + ' (' + r.types.map(t => PROOF_TYPE_LABELS[t]).join(' + ') + ')').join('; ');
+            const shotsReq = proofRows.filter(r => r.types.includes('screenshot')).length;
+            const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
             if (!title || isNaN(reward)) { alert('Please fill all fields!'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
@@ -1245,13 +1245,26 @@
         function addProofRow() {
             const list = document.getElementById('proofReqList');
             const row = document.createElement('div');
-            row.className = 'proof-row flex gap-2 items-center';
-            const optionsHtml = Object.keys(PROOF_TYPE_LABELS).map(k => '<option value="' + k + '">' + PROOF_TYPE_LABELS[k] + '</option>').join('');
-            row.innerHTML = '<input type="text" class="proof-title field flex-1 min-w-0 rounded-2xl px-3.5 py-2.5 text-xs" placeholder="Proof requirement title">'
-                + '<select class="proof-type field rounded-2xl px-2.5 py-2.5 text-xs">' + optionsHtml + '</select>'
-                + '<button type="button" class="proof-remove w-8 h-8 shrink-0 rounded-xl bg-rose-500/20 text-rose-200 border border-rose-300/30 text-sm font-bold" onclick="removeProofRow(this)" aria-label="Remove proof">&times;</button>';
+            row.className = 'proof-row bg-white/5 border border-white/10 rounded-2xl p-2.5 space-y-2';
+            const chipsHtml = Object.keys(PROOF_TYPE_LABELS).map(k =>
+                '<label class="proof-chip cursor-pointer select-none text-[11px] px-2.5 py-1.5 rounded-xl border border-white/15 text-violet-100/80">'
+                + '<input type="checkbox" value="' + k + '" class="hidden" onchange="toggleProofChip(this)">'
+                + PROOF_TYPE_LABELS[k] + '</label>'
+            ).join('');
+            row.innerHTML = '<div class="flex gap-2 items-center">'
+                + '<input type="text" class="proof-title field flex-1 min-w-0 rounded-2xl px-3.5 py-2.5 text-xs" placeholder="Proof requirement title">'
+                + '<button type="button" class="proof-remove w-8 h-8 shrink-0 rounded-xl bg-rose-500/20 text-rose-200 border border-rose-300/30 text-sm font-bold" onclick="removeProofRow(this)" aria-label="Remove proof">&times;</button>'
+                + '</div>'
+                + '<div class="proof-types flex flex-wrap gap-1.5">' + chipsHtml + '</div>';
             list.appendChild(row);
             refreshProofRemoveButtons();
+        }
+        function toggleProofChip(input) {
+            const label = input.closest('.proof-chip');
+            const on = input.checked;
+            label.classList.toggle('bg-violet-500/30', on);
+            label.classList.toggle('border-amber-300/60', on);
+            label.classList.toggle('text-white', on);
         }
         function removeProofRow(btn) {
             const row = btn.closest('.proof-row');
@@ -1266,16 +1279,19 @@
             document.getElementById('proofReqList').innerHTML = '';
             addProofRow();
         }
-        // Returns [{title, type}] or null if any row has an empty title.
+        // Returns {rows: [{title, types: [...]}]} or {error: message}.
         function getProofRequirements() {
             const out = [];
-            for (const row of document.querySelectorAll('#proofReqList .proof-row')) {
+            const rows = document.querySelectorAll('#proofReqList .proof-row');
+            if (rows.length === 0) return { error: 'Please add at least one proof requirement.' };
+            for (const row of rows) {
                 const title = row.querySelector('.proof-title').value.trim();
-                const type = row.querySelector('.proof-type').value;
-                if (!title) return null;
-                out.push({ title: title, type: type });
+                const types = Array.from(row.querySelectorAll('.proof-chip input:checked')).map(i => i.value);
+                if (!title) return { error: 'Please give every proof requirement a title.' };
+                if (types.length === 0) return { error: 'Please tick at least one proof type for "' + title + '".' };
+                out.push({ title: title, types: types });
             }
-            return out;
+            return { rows: out };
         }
         function openPostJobModal() {
             resetProofRows();
