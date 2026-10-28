@@ -223,31 +223,8 @@
                 <div id="availableJobsList" class="space-y-3"></div>
             </div>
 
-                <!-- REFERRAL BONUS (full width, Supabase-backed) -->
-                <section id="referralBonusSection" class="w-full space-y-3">
-                    <h2 class="text-base font-bold text-white">Referral Bonus</h2>
-                    <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/25 via-violet-600/25 to-transparent border border-amber-300/25 shadow-xl">
-                        <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Today's Bonus</p>
-                        <h3 class="text-3xl font-black text-white mt-1">৳200.00</h3>
-                        <p class="text-xs text-violet-100/80 mt-1">Check in once every 24 hours to claim ৳200.</p>
-                        <button id="dailyClaimBtn" onclick="claimDailyBonus()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm mt-3">Claim ৳200</button>
-                        <p class="text-[11px] text-violet-200/70 mt-2">Next check-in: <span id="claimCountdown" class="font-bold text-amber-200">--:--:--</span></p>
-                        <p class="text-[11px] text-violet-200/70 mt-1">Total claimed: <span id="claimTotal" class="font-bold text-amber-200">৳ 0.00</span> &middot; Referred users: <span id="referredCount" class="font-bold text-amber-200">0</span></p>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                        <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 1</p><p class="text-xs text-violet-100/85 mt-1">Share your referral link. You earn ৳200 for every friend who registers with it.</p></div>
-                        <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 2</p><p class="text-xs text-violet-100/85 mt-1">Claim the daily ৳200 once per 24 hours from this section.</p></div>
-                        <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 3</p><p class="text-xs text-violet-100/85 mt-1">The weekly leaderboard resets every Monday and ranks users by referrals.</p></div>
-                    </div>
-                    <div class="glass-card rounded-3xl p-5 space-y-4">
-                        <h3 class="text-sm font-bold text-white">Weekly Leaderboard</h3>
-                        <div id="podiumWrap" class="grid grid-cols-3 gap-2 items-end"></div>
-                        <div id="leaderboardList" class="space-y-2"></div>
-                    </div>
-                </section>
 
             </div>
-
 
         <!-- TAB: JOB POST (balance + open post form) -->
         <div id="tab-newjob" class="space-y-3.5 hidden">
@@ -317,13 +294,25 @@
         <!-- TAB: REFER & EARN -->
         <div id="tab-refer" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Refer & Earn</h2>
-            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/20 via-violet-600/25 to-transparent border border-amber-300/20">
-                <p class="text-xs text-violet-100/80">When a friend joins using your link, you get a referral bonus.</p>
-            </div>
             <div class="glass-card rounded-2xl p-4 space-y-2.5">
-                <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">Your Referral Link</label>
+                <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">YOUR REFERRAL LINK</label>
                 <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
                 <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Link</button>
+            </div>
+            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/25 via-violet-600/25 to-transparent border border-amber-300/25 shadow-xl">
+                <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Referral Bonus</p>
+                <h3 class="text-2xl font-black text-white mt-1">প্রতি রেফারে ১০ টাকা (KYC ভেরিফিকেশনের পর)</h3>
+                <p class="text-xs text-violet-100/80 mt-1">You earn ৳10 for every valid referral after your friend completes KYC verification.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 1</p><p class="text-xs text-violet-100/85 mt-1">Share your referral link. Each friend who signs up with it counts as a referral.</p></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 2</p><p class="text-xs text-violet-100/85 mt-1">You earn ৳10 per valid referral, only after your friend completes KYC verification.</p></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 3</p><p class="text-xs text-violet-100/85 mt-1">The weekly leaderboard resets every Monday and ranks users by referrals.</p></div>
+            </div>
+            <div class="glass-card rounded-3xl p-5 space-y-4">
+                <h3 class="text-sm font-bold text-white">Weekly Leaderboard</h3>
+                <div id="podiumWrap" class="grid grid-cols-3 gap-2 items-end"></div>
+                <div id="leaderboardList" class="space-y-2"></div>
             </div>
         </div>
 
@@ -448,9 +437,10 @@
         <div id="tab-profile" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Profile</h2>
             <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
-                <div class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
+                <button type="button" onclick="pickAvatarPhoto()" title="Change photo" class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 group">
                     <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300 overflow-hidden"><span id="profInitial">U</span><img id="profAvatarImg" alt="" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></div>
-                                    </div>
+                    <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-amber-300 text-bgDark flex items-center justify-center text-[9px]"><i class="fa-solid fa-camera"></i></span>
+                </button>
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-400/15 px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
