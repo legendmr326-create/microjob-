@@ -95,7 +95,7 @@
         .nav-btn i { transition: transform .2s ease; }
         .nav-btn:active i { transform: scale(.85); }
         .stat-chip { border-radius: 16px; }
-            /* Mobile (<=768px): single column, no sideways scroll. Desktop unchanged. */
+        /* Mobile (<=768px): single column, no sideways scroll. Desktop unchanged. */
         @media (max-width: 768px) {
             html, body { max-width: 100%; overflow-x: hidden; }
             main, main > div, #tab-profile, #tab-withdraw, #profEditPanel, #personalView { min-width: 0; max-width: 100%; }
@@ -222,6 +222,29 @@
                 </div>
                 <div id="availableJobsList" class="space-y-3"></div>
             </div>
+
+                <!-- REFERRAL BONUS (full width, Supabase-backed) -->
+                <section id="referralBonusSection" class="w-full space-y-3">
+                    <h2 class="text-base font-bold text-white">Referral Bonus</h2>
+                    <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/25 via-violet-600/25 to-transparent border border-amber-300/25 shadow-xl">
+                        <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Today's Bonus</p>
+                        <h3 class="text-3xl font-black text-white mt-1">৳200.00</h3>
+                        <p class="text-xs text-violet-100/80 mt-1">Check in once every 24 hours to claim ৳200.</p>
+                        <button id="dailyClaimBtn" onclick="claimDailyBonus()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm mt-3">Claim ৳200</button>
+                        <p class="text-[11px] text-violet-200/70 mt-2">Next check-in: <span id="claimCountdown" class="font-bold text-amber-200">--:--:--</span></p>
+                        <p class="text-[11px] text-violet-200/70 mt-1">Total claimed: <span id="claimTotal" class="font-bold text-amber-200">৳ 0.00</span> &middot; Referred users: <span id="referredCount" class="font-bold text-amber-200">0</span></p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 1</p><p class="text-xs text-violet-100/85 mt-1">Share your referral link. You earn ৳200 for every friend who registers with it.</p></div>
+                        <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 2</p><p class="text-xs text-violet-100/85 mt-1">Claim the daily ৳200 once per 24 hours from this section.</p></div>
+                        <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 3</p><p class="text-xs text-violet-100/85 mt-1">The weekly leaderboard resets every Monday and ranks users by referrals.</p></div>
+                    </div>
+                    <div class="glass-card rounded-3xl p-5 space-y-4">
+                        <h3 class="text-sm font-bold text-white">Weekly Leaderboard</h3>
+                        <div id="podiumWrap" class="grid grid-cols-3 gap-2 items-end"></div>
+                        <div id="leaderboardList" class="space-y-2"></div>
+                    </div>
+                </section>
 
             </div>
 
@@ -634,7 +657,7 @@
                     </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-3 text-[12px] text-violet-100 space-y-1">
                         <div>Net Amount: <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
-                        <div>Admin Fee (10%): <span id="jobFee" class="font-bold text-amber-300">৳ 0.00</span></div>
+                        <div>System Fee (7.00%): <span id="jobFee" class="font-bold text-amber-300">৳ 0.00</span></div>
                         <div class="pt-1 border-t border-white/10 flex justify-between items-baseline">
                             <span class="font-bold text-white">Total Payable</span>
                             <span id="jobTotal" class="font-black text-lg text-amber-300">৳ 0.00</span>
@@ -726,9 +749,10 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            captureRefParam();
             checkAuthStatus();
             function tryFetchJobs(attempt) {
-                if (supabaseClient) { fetchJobsFromDatabase(); }
+                if (supabaseClient) { fetchJobsFromDatabase(); loadLeaderboard(); }
                 else if (attempt < 20) { setTimeout(() => tryFetchJobs(attempt + 1), 500); }
             }
             tryFetchJobs(0);
@@ -764,6 +788,7 @@
             if (pass !== pass2) { alert('Passwords do not match! Enter the same password twice.'); return; }
             currentUser = { name: email.split('@')[0], email: email, phone: phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+            registerReferralSignup(email);
             document.getElementById('authOverlay').classList.add('hidden');
             updateUserDataUI();
         }
@@ -775,6 +800,108 @@
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             document.getElementById('authOverlay').classList.add('hidden');
             updateUserDataUI();
+        }
+
+        // ---- Referral Bonus (Supabase) ----
+        const DAILY_BONUS = 200;
+        window.__bonusRow = null;
+        function captureRefParam() {
+            try {
+                const r = new URLSearchParams(location.search).get('ref');
+                if (r && r.includes('@')) localStorage.setItem('taskflex_ref', r.trim().toLowerCase());
+            } catch (e) {}
+        }
+        async function registerReferralSignup(email) {
+            const ref = localStorage.getItem('taskflex_ref');
+            const referee = String(email || '').trim().toLowerCase();
+            if (!ref || !referee || ref === referee || !supabaseClient) return;
+            try {
+                const ex = await supabaseClient.from('referrals').select('id').eq('referee_email', referee).limit(1);
+                if (ex.data && ex.data.length) { localStorage.removeItem('taskflex_ref'); return; }
+                const ins = await supabaseClient.from('referrals').insert([{ referrer_email: ref, referee_email: referee }]);
+                if (ins.error) console.warn('referral insert failed', ins.error);
+                else localStorage.removeItem('taskflex_ref');
+            } catch (e) { console.warn('referral error', e); }
+        }
+        function todayKey() {
+            const d = new Date();
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+        function msUntilMidnight() {
+            const n = new Date();
+            return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n;
+        }
+        function fmtCountdown(ms) {
+            const s = Math.max(0, Math.floor(ms / 1000));
+            const p = v => String(v).padStart(2, '0');
+            return p(Math.floor(s / 3600)) + ':' + p(Math.floor((s % 3600) / 60)) + ':' + p(s % 60);
+        }
+        function renderDailyState() {
+            const btn = document.getElementById('dailyClaimBtn');
+            const row = window.__bonusRow;
+            const claimedToday = !!(row && row.last_claim_date === todayKey());
+            if (btn) {
+                btn.disabled = claimedToday || !currentUser;
+                btn.style.opacity = btn.disabled ? '0.5' : '1';
+                btn.innerText = !currentUser ? 'Log in to claim' : (claimedToday ? 'Claimed today' : 'Claim ৳200');
+            }
+            const tot = document.getElementById('claimTotal');
+            if (tot) tot.innerText = '৳ ' + Number((row && row.total_bonus) || 0).toFixed(2);
+            clearInterval(window.__countdownTimer);
+            const cd = document.getElementById('claimCountdown');
+            if (!cd) return;
+            if (!claimedToday) { cd.innerText = 'available now'; return; }
+            const tick = () => { cd.innerText = fmtCountdown(msUntilMidnight()); if (todayKey() !== (window.__bonusRow && window.__bonusRow.last_claim_date)) { clearInterval(window.__countdownTimer); renderDailyState(); } };
+            tick();
+            window.__countdownTimer = setInterval(tick, 1000);
+        }
+        async function loadReferralSection() {
+            if (!currentUser || !supabaseClient) { renderDailyState(); return; }
+            const email = String(currentUser.email).trim().toLowerCase();
+            try {
+                const [claimRes, refRes] = await Promise.all([
+                    supabaseClient.from('bonus_claims').select('*').eq('email', email).maybeSingle(),
+                    supabaseClient.from('referrals').select('id', { count: 'exact', head: true }).eq('referrer_email', email)
+                ]);
+                window.__bonusRow = claimRes.data || null;
+                const rc = document.getElementById('referredCount');
+                if (rc) rc.innerText = refRes.count || 0;
+            } catch (e) { console.warn('referral load failed', e); }
+            renderDailyState();
+            loadLeaderboard();
+        }
+        async function claimDailyBonus() {
+            if (!currentUser || !supabaseClient) { alert('Log in and wait for the server connection first.'); return; }
+            const email = String(currentUser.email).trim().toLowerCase();
+            const today = todayKey();
+            const cur = await supabaseClient.from('bonus_claims').select('*').eq('email', email).maybeSingle();
+            if (cur.error) { alert('Could not check your claim. Please try again.'); return; }
+            if (cur.data && cur.data.last_claim_date === today) { window.__bonusRow = cur.data; renderDailyState(); return; }
+            const newTotal = (cur.data ? Number(cur.data.total_bonus || 0) : 0) + DAILY_BONUS;
+            const up = await supabaseClient.from('bonus_claims').upsert([{ email: email, last_claim_date: today, total_bonus: newTotal }], { onConflict: 'email' }).select().maybeSingle();
+            if (up.error) { alert('Claim failed: ' + up.error.message); return; }
+            window.__bonusRow = up.data || { email: email, last_claim_date: today, total_bonus: newTotal };
+            renderDailyState();
+            alert('৳200 bonus claimed!');
+        }
+        function maskEmail(e) {
+            const parts = String(e || '').split('@');
+            return (parts[0] || '').slice(0, 3) + '***' + (parts[1] ? '@' + parts[1] : '');
+        }
+        async function loadLeaderboard() {
+            const podium = document.getElementById('podiumWrap');
+            const list = document.getElementById('leaderboardList');
+            if (!podium || !list || !supabaseClient) return;
+            const { data, error } = await supabaseClient.from('weekly_leaderboard').select('*').order('referrals', { ascending: false }).limit(10);
+            if (error) { list.innerHTML = '<p class="text-xs text-violet-200/70">Leaderboard unavailable right now.</p>'; podium.innerHTML = ''; return; }
+            const rows = data || [];
+            const slot = (r, rank, h) => {
+                if (!r) return '<div class="rounded-2xl p-3 text-center bg-bgDark/50 border border-white/5"><p class="text-[11px] text-violet-200/60">#' + rank + '</p><p class="text-xs text-violet-200/50 mt-1">No user yet</p></div>';
+                return '<div class="rounded-2xl p-3 text-center bg-gradient-to-b from-amber-400/25 to-violet-600/20 border border-amber-300/25" style="min-height:' + h + 'px"><p class="text-lg font-black text-amber-300">#' + rank + '</p><p class="text-[11px] text-white font-semibold truncate mt-1">' + esc(maskEmail(r.email)) + '</p><p class="text-[11px] text-amber-200 mt-1">' + esc(r.referrals) + ' referrals</p></div>';
+            };
+            podium.innerHTML = slot(rows[1], 2, 90) + slot(rows[0], 1, 115) + slot(rows[2], 3, 80);
+            if (!rows.length) { list.innerHTML = '<p class="text-xs text-violet-200/70">No referrals this week yet.</p>'; return; }
+            list.innerHTML = rows.map((r, i) => '<div class="flex justify-between items-center text-xs bg-bgDark/40 rounded-xl px-3 py-2"><span class="text-violet-100">#' + (i + 1) + ' ' + esc(maskEmail(r.email)) + '</span><span class="font-bold text-amber-300">' + esc(r.referrals) + ' referrals</span></div>').join('');
         }
 
         function togglePassVis(id, btn) {
@@ -847,6 +974,7 @@
             document.getElementById('profHeaderName').innerText = currentUser.name || 'User';
             document.getElementById('profHeaderEmail').innerText = currentUser.email || '';
             fetchUserBalance();
+            loadReferralSection();
             renderMyTakenJobs();
             renderProfileForm();
             renderReferral();
@@ -1575,7 +1703,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function renderReferral() {
             const el = document.getElementById('referralLink');
             if (!el || !currentUser) return;
-            el.value = `${location.origin}${location.pathname}?ref=${refCode(currentUser.email)}`;
+            el.value = `${location.origin}${location.pathname}?ref=${encodeURIComponent(String(currentUser.email).trim().toLowerCase())}`;
         }
 
         function copyReferral() {
@@ -1772,9 +1900,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 
             const R = Math.round(reward * 100) / 100;
             const budget = Math.round(R * limit * 100) / 100;
-            const jobFee = Math.round(budget * 10) / 100;
+            const jobFee = Math.round(budget * 7) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
-            if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
+            if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 7% job post fee)'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
             // Thumbnail is optional: if the upload fails, the job still saves without it.
             let thumbnailUrl = null;
@@ -1807,7 +1935,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 ({ error } = await insertSafe('micro_jobs', row));
             }
             if (error) { alert('Error: ' + error.message); return; }
-            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
+            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
             closePostJobModal();
             fetchJobsFromDatabase();
             renderMyTakenJobs();
@@ -1929,7 +2057,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const limit = parseInt(document.getElementById('newJobLimit').value, 10) || 0;
             const R = Math.round(reward * 100) / 100;
             const T = Math.round(R * limit * 100) / 100;
-            const fee = Math.round(T * 10) / 100;
+            const fee = Math.round(T * 7) / 100;
             document.getElementById('jobReward').textContent = '৳ ' + T.toFixed(2);
             document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
             document.getElementById('jobTotal').textContent = '৳ ' + (T + fee).toFixed(2);
