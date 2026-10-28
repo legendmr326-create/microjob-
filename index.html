@@ -1558,7 +1558,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             el.innerHTML = rows.map(d => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}</p></div>
-                    <div class="text-right"><span class="font-black text-amber-300">&#2546; ${esc(parseFloat(d.amount || 0).toFixed(2))}</span><p class="text-[10px] font-bold text-white">${esc(d.status || 'Pending')}</p></div>
+                    <div class="text-right"><span class="font-black text-white">&#2546; ${esc(parseFloat(d.amount || 0).toFixed(2))}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(d.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(d.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(d.status || 'Pending')}</p></div>
                 </div>`).join('');
         }
 
@@ -1574,7 +1574,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             el.innerHTML = rows.map(w => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(w.method || '')}</p><p class="text-[10px] text-violet-200/60">${esc((w.created_at || '').slice(0, 10))}</p></div>
-                    <div class="text-right"><span class="font-black text-rose-300">&#2546; ${esc(parseFloat(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100).toFixed(2))}</span><p class="text-[10px] font-bold text-white">${esc(w.status || 'Pending')}</p></div>
+                    <div class="text-right"><span class="font-black text-white">&#2546; ${esc(parseFloat(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100).toFixed(2))}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(w.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(w.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(w.status || 'Pending')}</p></div>
                 </div>`).join('');
         }
 
