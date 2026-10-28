@@ -304,6 +304,7 @@
                 <h3 class="text-2xl font-black text-white mt-1">প্রতি রেফারে ১০ টাকা (KYC ভেরিফিকেশনের পর)</h3>
                 <p class="text-xs text-violet-100/80 mt-1">You earn ৳10 for every valid referral after your friend completes KYC verification.</p>
             </div>
+            <p class="text-xs text-amber-200/90 font-semibold px-1">রেফার করা বন্ধু KYC ভেরিফিকেশন সম্পন্ন করলে স্বয়ংক্রিয়ভাবে ১০ টাকা ব্যালেন্সে যোগ হবে</p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 1</p><p class="text-xs text-violet-100/85 mt-1">Share your referral link. Each friend who signs up with it counts as a referral.</p></div>
                 <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 2</p><p class="text-xs text-violet-100/85 mt-1">You earn ৳10 per valid referral, only after your friend completes KYC verification.</p></div>
@@ -1250,9 +1251,25 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 kycTableMissing = false;
                 myKyc = (data && data[0]) || null;
             }
+            if (kycStatusKey() === 'approved') { try { await payReferralBonusIfDue(); } catch (e) { console.warn('referral bonus', e); } }
             renderKycCard();
             renderPersonalDetails();
             return myKyc;
+        }
+        // Auto ৳10 referral bonus: runs once, when the referred user's own KYC is Approved.
+        // Claims the referral row first (bonus_paid false -> true), then credits the referrer as an Approved deposit.
+        async function payReferralBonusIfDue() {
+            if (!supabaseClient || !currentUser || !currentUser.email) return;
+            const referee = String(currentUser.email).trim().toLowerCase();
+            const { data: refs, error } = await supabaseClient.from('referrals').select('id,referrer_email').eq('referee_email', referee).eq('bonus_paid', false).limit(1);
+            if (error || !refs || !refs.length) return;
+            const ref = refs[0];
+            const { data: claimed, error: claimErr } = await supabaseClient.from('referrals').update({ bonus_paid: true }).eq('id', ref.id).eq('bonus_paid', false).select('id');
+            if (claimErr || !claimed || !claimed.length) return;
+            const { error: credErr } = await insertSafe('deposits', {
+                user_email: ref.referrer_email, gateway: 'Referral Bonus', amount: 10, fee: 0, net_amount: 10, sender: 'referral', trx: 'REF-' + ref.id, status: 'Approved'
+            });
+            if (credErr) { console.warn('referral credit failed', credErr); await supabaseClient.from('referrals').update({ bonus_paid: false }).eq('id', ref.id); }
         }
         function renderVerifiedTick() {
             const on = !!currentUser && !kycTableMissing && !kycLoadFailed && kycStatusKey() === 'approved';
