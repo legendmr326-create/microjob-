@@ -233,7 +233,7 @@
                     <div class="glass-card rounded-3xl p-5 space-y-3">
                         <div class="flex justify-between items-center pb-2 border-b border-white/10">
                             <h3 class="text-base font-bold text-white">My Taken Jobs</h3>
-                            <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">My Jobs</span>
+                            <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Jobs</span>
                         </div>
                         <div id="myTakenJobsList" class="space-y-2.5"><div class="text-center py-6 text-violet-200/60 text-xs">Loading...</div></div>
                     </div>
@@ -1015,30 +1015,37 @@
         async function renderMyTakenJobs() {
             const c = document.getElementById('myTakenJobsList');
             if (!c) return;
-            if (!currentUser) { c.innerHTML = ''; return; }
-            if (!supabaseClient) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Not connected to server.</div>`; return; }
-            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email).order('id', { ascending: false });
-            if (appErr) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Could not load jobs.</div>`; return; }
-            const taken = apps || [];
-            if (taken.length === 0) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs taken yet</div>`; return; }
-            const ids = [...new Set(taken.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
-            const jobMap = {};
-            if (ids.length) {
-                const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('*').in('id', ids);
-                if (jobErr) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Could not load jobs.</div>`; return; }
-                (jobs || []).forEach(j => { jobMap[String(j.id)] = j; });
-            }
-            c.innerHTML = taken.map(a => {
-                const j = jobMap[String(a.job_id)] || {};
-                const raw = String(a.status || 'Pending');
-                const st = /approv|complet|done/i.test(raw) ? 'Approved' : /reject/i.test(raw) ? 'Rejected' : 'Pending';
-                const cls = st === 'Approved' ? 'bg-emerald-400/15 text-emerald-300' : st === 'Rejected' ? 'bg-rose-400/15 text-rose-300' : 'bg-amber-400/15 text-amber-300';
-                const label = st === 'Approved' ? 'Completed' : st;
-                return `<div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
+            const EMPTY = `<div class="text-center py-6 text-violet-200/60 text-xs">Jobs you post will appear here</div>`;
+            if (!currentUser || !supabaseClient) { c.innerHTML = EMPTY; return; }
+            try {
+                // Query 1: this user's applications only (no join)
+                const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email).order('id', { ascending: false });
+                if (appErr) { console.error('job_applications query failed:', appErr); c.innerHTML = EMPTY; return; }
+                const taken = apps || [];
+                if (taken.length === 0) { c.innerHTML = EMPTY; return; }
+                // Query 2: related micro_jobs by id, merged in JS
+                const ids = [...new Set(taken.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+                const jobMap = {};
+                if (ids.length) {
+                    const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('*').in('id', ids);
+                    if (jobErr) { console.error('micro_jobs query failed:', jobErr); }
+                    else (jobs || []).forEach(j => { jobMap[String(j.id)] = j; });
+                }
+                c.innerHTML = taken.map(a => {
+                    const j = jobMap[String(a.job_id)] || {};
+                    const raw = String(a.status || 'Pending');
+                    const st = /approv|complet|done/i.test(raw) ? 'Approved' : /reject/i.test(raw) ? 'Rejected' : 'Pending';
+                    const cls = st === 'Approved' ? 'bg-emerald-400/15 text-emerald-300' : st === 'Rejected' ? 'bg-rose-400/15 text-rose-300' : 'bg-amber-400/15 text-amber-300';
+                    const label = st === 'Approved' ? 'Completed' : st;
+                    return `<div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
                     <div class="min-w-0"><h4 class="text-sm font-bold text-white truncate">${esc(j.title || ('Job #' + a.job_id))}</h4><p class="text-[11px] text-violet-200/60">${esc(j.category || '')} · ৳ ${esc(j.reward ?? '-')}</p></div>
                     <span class="text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap ${cls}">${label}</span>
                 </div>`;
-            }).join('');
+                }).join('');
+            } catch (e) {
+                console.error('renderMyTakenJobs failed:', e);
+                c.innerHTML = EMPTY;
+            }
         }
 
         async function submitWithdraw() {
