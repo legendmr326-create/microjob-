@@ -1490,6 +1490,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const method = document.getElementById('withdrawMethod').value;
             const number = document.getElementById('withdrawNumber').value.trim();
             if (!amount || amount <= 0 || !number) { alert('Please enter amount and number!'); return; }
+            if (amount < 100) { alert('Minimum withdraw amount is \u09f3 100.'); return; }
             if (amount > currentBalance) { alert('You cannot withdraw more than your balance.'); return; }
             const wFee = Math.round(amount * 5) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
