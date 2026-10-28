@@ -952,6 +952,16 @@
             if (!amt || !sender || !trx) { alert('Please fill all boxes!'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
+            // KYC gate: job cannot be posted without admin-approved KYC
+            if (supabaseClient && currentUser) {
+                const { data: kycRows, error: kycErr } = await supabaseClient.from('kyc_verifications').select('status').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(1);
+                const kycOk = !kycErr && kycRows && kycRows.length > 0 && kycRows[0].status === 'Approved';
+                if (!kycOk) {
+                    alert('KYC verification required. Please complete KYC (Profile → KYC) and wait for admin approval before posting a job.');
+                    return;
+                }
+            }
+
             const net = Math.round((parseFloat(amt) || 0) * 100) / 100;
             const gross = Math.round(net * 1.05 * 100) / 100;
             const fee = Math.round((gross - net) * 100) / 100;
