@@ -313,6 +313,112 @@
         </div>
 
         <!-- TAB: PROFILE EDIT -->
+        <!-- TAB: DEPOSIT -->
+        <div id="tab-deposit" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">Deposit</h2>
+
+        <div id="depositSection" class="glass-card rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                    <h3 class="text-base font-bold text-white">Add Funds</h3>
+                    <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Instant & Manual</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-1.5 bg-bgDark/70 p-1.5 rounded-2xl border border-white/5 text-xs font-bold text-center">
+                    <button onclick="filterGateways('all')" id="gwTab-all" class="py-2.5 rounded-xl bg-amber-400 text-amber-950 transition">All</button>
+                    <button onclick="filterGateways('instant')" id="gwTab-instant" class="hidden py-2.5 rounded-xl text-violet-200/70 transition">Instant</button>
+                    <button onclick="filterGateways('manual')" id="gwTab-manual" class="py-2.5 rounded-xl text-violet-200/70 transition">Manual</button>
+                </div>
+
+                <div class="space-y-2.5">
+                    <!-- bKash -->
+                    <div onclick="selectPaymentGateway('bKash', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-300 flex items-center justify-center font-bold text-sm">৳</div>
+                            <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Agent Cashout</p></div>
+                        </div>
+                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
+                    </div>
+                    <!-- Nagad -->
+                    <div onclick="selectPaymentGateway('Nagad', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-300 flex items-center justify-center font-bold text-sm">৳</div>
+                            <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Agent Cashout</p></div>
+                        </div>
+                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
+                    </div>
+                    <!-- Rocket -->
+                    <div onclick="selectPaymentGateway('Rocket', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/25 text-purple-200 flex items-center justify-center font-bold text-sm">৳</div>
+                            <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Agent Cashout</p></div>
+                        </div>
+                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
+                    </div>
+
+
+                    <!-- Upay -->
+                    <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-orange-500/25 text-orange-200 flex items-center justify-center font-bold text-sm">উ</div>
+                            <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Wallet</p></div>
+                        </div>
+                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
+                    </div>
+                </div>
+
+                <!-- Deposit Input Form -->
+                <div id="depositFormContainer" class="glass-card p-4 rounded-2xl space-y-3 hidden border border-amber-300/40">
+                    <div class="flex justify-between items-center text-xs">
+                        <h4 id="selectedGatewayTitle" class="font-bold text-amber-300">Selected: bKash</h4>
+                        <button onclick="cancelGatewaySelection()" class="text-rose-300 underline">Change</button>
+                    </div>
+                    <div class="bg-bgDark/70 p-2.5 rounded-xl text-[11px] text-violet-100">
+                        Payment number (send money to this number): <span class="font-mono font-bold text-amber-300">01748021976</span> (bKash)
+                    </div>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button type="button" onclick="setQuickAmount(500)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳500</button>
+                        <button type="button" onclick="setQuickAmount(1000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳1000</button>
+                        <button type="button" onclick="setQuickAmount(2000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳2000</button>
+                        <button type="button" onclick="setQuickAmount(5000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳5000</button>
+                    </div>
+                    <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                    <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
+                        <div>Total: <span id="depositGross">৳ 0.00</span></div>
+                        <div>Admin fee (5% deducted): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
+                        <div>Added to your balance: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
+                    </div>
+                    <input type="text" id="depositSender" placeholder="Sender Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                    <input type="text" id="depositTrx" placeholder="Transaction ID (TrxID)" class="field w-full rounded-2xl px-4 py-2.5 text-xs uppercase">
+                    <button onclick="submitDeposit()" class="btn-amber w-full font-bold py-3 rounded-2xl text-xs">Submit Deposit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: WITHDRAW -->
+        <div id="tab-withdraw" class="space-y-3.5 hidden">
+            <h2 class="text-base font-bold text-white">Withdraw</h2>
+            <div id="withdrawSection" class="glass-card rounded-3xl p-5 space-y-3">
+                <h3 class="text-base font-bold text-white">Withdraw Request</h3>
+                <div class="flex gap-2">
+                    <input type="number" id="withdrawAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs">
+                    <button type="button" onclick="withdrawAll()" class="bg-bgDark/70 border border-white/10 rounded-2xl px-3 text-[11px] font-bold text-amber-200 whitespace-nowrap">Withdraw All</button>
+                </div>
+                <select id="withdrawMethod" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <option value="bKash">bKash</option>
+                    <option value="Nagad">Nagad</option>
+                    <option value="Rocket">Rocket</option>
+                    <option value="Upay">Upay</option>
+                </select>
+                <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
+                    <div>Withdraw amount: <span id="withdrawGross">৳ 0.00</span></div>
+                    <div>Admin fee (5% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
+                    <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
+                </div>
+                <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
+            </div>
+        </div>
+
         <div id="tab-profile" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Profile</h2>
             <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
@@ -336,103 +442,6 @@
                 <button onclick="saveProfile()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Save</button>
             </div>
 
-            <h2 class="text-base font-bold text-white pt-2">Deposit & Withdraw</h2>
-
-                <div id="depositSection" class="glass-card rounded-3xl p-5 space-y-4">
-                    <div class="flex justify-between items-center pb-3 border-b border-white/10">
-                        <h3 class="text-base font-bold text-white">Add Funds</h3>
-                        <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Instant & Manual</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-1.5 bg-bgDark/70 p-1.5 rounded-2xl border border-white/5 text-xs font-bold text-center">
-                        <button onclick="filterGateways('all')" id="gwTab-all" class="py-2.5 rounded-xl bg-amber-400 text-amber-950 transition">All</button>
-                        <button onclick="filterGateways('instant')" id="gwTab-instant" class="hidden py-2.5 rounded-xl text-violet-200/70 transition">Instant</button>
-                        <button onclick="filterGateways('manual')" id="gwTab-manual" class="py-2.5 rounded-xl text-violet-200/70 transition">Manual</button>
-                    </div>
-
-                    <div class="space-y-2.5">
-                        <!-- bKash -->
-                        <div onclick="selectPaymentGateway('bKash', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-300 flex items-center justify-center font-bold text-sm">৳</div>
-                                <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Agent Cashout</p></div>
-                            </div>
-                            <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                        </div>
-                        <!-- Nagad -->
-                        <div onclick="selectPaymentGateway('Nagad', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-300 flex items-center justify-center font-bold text-sm">৳</div>
-                                <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Agent Cashout</p></div>
-                            </div>
-                            <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                        </div>
-                        <!-- Rocket -->
-                        <div onclick="selectPaymentGateway('Rocket', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-purple-500/25 text-purple-200 flex items-center justify-center font-bold text-sm">৳</div>
-                                <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Agent Cashout</p></div>
-                            </div>
-                            <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                        </div>
-
-
-                        <!-- Upay -->
-                        <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-orange-500/25 text-orange-200 flex items-center justify-center font-bold text-sm">উ</div>
-                                <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Wallet</p></div>
-                            </div>
-                            <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                        </div>
-                    </div>
-
-                    <!-- Deposit Input Form -->
-                    <div id="depositFormContainer" class="glass-card p-4 rounded-2xl space-y-3 hidden border border-amber-300/40">
-                        <div class="flex justify-between items-center text-xs">
-                            <h4 id="selectedGatewayTitle" class="font-bold text-amber-300">Selected: bKash</h4>
-                            <button onclick="cancelGatewaySelection()" class="text-rose-300 underline">Change</button>
-                        </div>
-                        <div class="bg-bgDark/70 p-2.5 rounded-xl text-[11px] text-violet-100">
-                            Payment number (send money to this number): <span class="font-mono font-bold text-amber-300">01748021976</span> (bKash)
-                        </div>
-                        <div class="grid grid-cols-4 gap-1.5">
-                            <button type="button" onclick="setQuickAmount(500)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳500</button>
-                            <button type="button" onclick="setQuickAmount(1000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳1000</button>
-                            <button type="button" onclick="setQuickAmount(2000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳2000</button>
-                            <button type="button" onclick="setQuickAmount(5000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳5000</button>
-                        </div>
-                        <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
-                        <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                            <div>Total: <span id="depositGross">৳ 0.00</span></div>
-                            <div>Admin fee (5% deducted): <span id="depositFee" class="text-rose-300">৳ 0.00</span></div>
-                            <div>Added to your balance: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
-                        </div>
-                        <input type="text" id="depositSender" placeholder="Sender Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
-                        <input type="text" id="depositTrx" placeholder="Transaction ID (TrxID)" class="field w-full rounded-2xl px-4 py-2.5 text-xs uppercase">
-                        <button onclick="submitDeposit()" class="btn-amber w-full font-bold py-3 rounded-2xl text-xs">Submit Deposit</button>
-                    </div>
-                </div>
-                <div id="withdrawSection" class="glass-card rounded-3xl p-5 space-y-3">
-                    <h3 class="text-base font-bold text-white">Withdraw Request</h3>
-                    <div class="flex gap-2">
-                        <input type="number" id="withdrawAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs">
-                        <button type="button" onclick="withdrawAll()" class="bg-bgDark/70 border border-white/10 rounded-2xl px-3 text-[11px] font-bold text-amber-200 whitespace-nowrap">Withdraw All</button>
-                    </div>
-                    <select id="withdrawMethod" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                        <option value="bKash">bKash</option>
-                        <option value="Nagad">Nagad</option>
-                        <option value="Rocket">Rocket</option>
-                        <option value="Upay">Upay</option>
-                    </select>
-                    <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
-                    <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                        <div>Withdraw amount: <span id="withdrawGross">৳ 0.00</span></div>
-                        <div>Admin fee (5% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
-                        <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
-                    </div>
-                    <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
-                </div>
             <h2 class="text-base font-bold text-white pt-2">Transaction History</h2>
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div id="txHistoryList"></div>
@@ -443,7 +452,7 @@
         <div id="tab-help" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">FAQ</h2>
             <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How do I do a job?</p><p class="text-violet-100/75">Open a job from the job list, follow the instructions and tap Apply.</p></div>
-            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How do I add funds?</p><p class="text-violet-100/75">Go to the Deposit section on the Profile page, choose a gateway, then submit with the amount and TrxID.</p></div>
+            <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How do I add funds?</p><p class="text-violet-100/75">Go to the Deposit page from the Account & Settings menu, choose a gateway, then submit with the amount and TrxID.</p></div>
             <div class="glass-card rounded-2xl p-4 text-xs space-y-1.5"><p class="font-bold text-white">How long does a withdrawal take?</p><p class="text-violet-100/75">Withdrawal requests are processed after admin verification.</p></div>
         </div>
 
@@ -573,8 +582,8 @@
                         <div onclick="openAccountPage('profile')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-user-pen text-amber-300 w-4"></i> Profile</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('earnings')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-amber-300 w-4"></i> Earnings Summary</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('notifications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-bell text-amber-300 w-4"></i> Notifications</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openFundsSection('depositSection')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-arrow-down text-amber-300 w-4"></i> Deposit</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
-                        <div onclick="openFundsSection('withdrawSection')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-arrow-up text-amber-300 w-4"></i> Withdraw</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('deposit')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-arrow-down text-amber-300 w-4"></i> Deposit</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
+                        <div onclick="openAccountPage('withdraw')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-arrow-up text-amber-300 w-4"></i> Withdraw</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('refer')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gift text-amber-300 w-4"></i> Refer & Earn</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('help')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-question text-amber-300 w-4"></i> FAQ</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('about')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-amber-300 w-4"></i> About Us</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
@@ -613,7 +622,7 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
-        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'history', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
+        const ALL_TABS = ['dashboard', 'jobs', 'jobdetail', 'applications', 'notifications', 'earnings', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -786,13 +795,6 @@
         function openAccountPage(tabId) {
             closeModal('accountModal');
             switchTab(tabId);
-        }
-
-        function openFundsSection(sectionId) {
-            closeModal('accountModal');
-            switchTab('profile');
-            const el = document.getElementById(sectionId);
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function filterGateways(type) {
