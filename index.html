@@ -378,6 +378,11 @@
                     <button onclick="submitDeposit()" class="btn-amber w-full font-bold py-3 rounded-2xl text-xs">Submit Deposit</button>
                 </div>
             </div>
+
+            <div class="glass-card rounded-3xl p-5 space-y-2">
+                <h3 class="text-sm font-bold text-white">Deposit History</h3>
+                <div id="depositHistoryList" class="divide-y divide-white/5"></div>
+            </div>
         </div>
 
         <!-- TAB: WITHDRAW -->
@@ -402,6 +407,11 @@
                     <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                 </div>
                 <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
+            </div>
+
+            <div class="glass-card rounded-3xl p-5 space-y-2">
+                <h3 class="text-sm font-bold text-white">Withdraw History</h3>
+                <div id="withdrawHistoryList" class="divide-y divide-white/5"></div>
             </div>
         </div>
 
@@ -739,39 +749,26 @@
             }
         }
 
-        function finishAuth(user) {
-            currentUser = user;
+        function handleRegister() {
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const pass = document.getElementById('regPass').value;
+            if (!email || !phone || !pass) { alert('Please fill all fields!'); return; }
+            const pass2 = document.getElementById('regPass2').value;
+            if (pass !== pass2) { alert('Passwords do not match! Enter the same password twice.'); return; }
+            currentUser = { name: email.split('@')[0], email: email, phone: phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             document.getElementById('authOverlay').classList.add('hidden');
             updateUserDataUI();
         }
 
-        async function handleRegister() {
-            const email = (document.getElementById('regEmail').value || '').trim().toLowerCase();
-            const phone = (document.getElementById('regPhone').value || '').trim();
-            const pass = document.getElementById('regPass').value;
-            if (!email || !phone || !pass) { alert('Please fill all fields!'); return; }
-            const pass2 = document.getElementById('regPass2').value;
-            if (pass !== pass2) { alert('Passwords do not match! Enter the same password twice.'); return; }
-            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
-            const name = email.split('@')[0];
-            const exists = await supabaseClient.from('users').select('id').eq('email', email).limit(1);
-            if (exists.error) { alert('Error: ' + exists.error.message); return; }
-            if (exists.data && exists.data.length) { alert('This email is already registered. Please login.'); return; }
-            const { error } = await supabaseClient.from('users').insert([{ name: name, email: email, phone: phone, password: pass }]);
-            if (error) { alert('Registration failed: ' + error.message); return; }
-            finishAuth({ name: name, email: email, phone: phone });
-        }
-
-        async function handleLogin() {
-            const user = (document.getElementById('loginUser').value || '').trim().toLowerCase();
-            const pass = document.getElementById('loginPass').value;
-            if (!user || !pass) { alert('Please enter your email and password!'); return; }
-            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
-            const { data, error } = await supabaseClient.from('users').select('name,email,phone').eq('email', user).eq('password', pass).limit(1);
-            if (error) { alert('Login error: ' + error.message); return; }
-            if (!data || !data.length) { alert('Wrong email or password.'); return; }
-            finishAuth({ name: data[0].name || user.split('@')[0], email: data[0].email, phone: data[0].phone || '' });
+        function handleLogin() {
+            const user = document.getElementById('loginUser').value;
+            if (!user) { alert('Please enter your email!'); return; }
+            currentUser = { name: user.split('@')[0], email: user, phone: user };
+            localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+            document.getElementById('authOverlay').classList.add('hidden');
+            updateUserDataUI();
         }
 
         function togglePassVis(id, btn) {
@@ -808,6 +805,8 @@
             document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
             renderWallet();
             renderEarnings();
+            renderDepositHistory();
+            renderWithdrawHistory();
         }
 
         function updateUserDataUI() {
@@ -852,6 +851,8 @@
             if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); }
             if (tabId === 'newjob') loadMyPostedJobs();
             if (tabId === 'profile') { loadMyKyc(); renderPersonalDetails(); }
+            if (tabId === 'deposit') renderDepositHistory();
+            if (tabId === 'withdraw') renderWithdrawHistory();
         }
 
         async function loadMyPostedJobs() {
@@ -1371,6 +1372,38 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
         }
 
+        async function renderDepositHistory() {
+            const el = document.getElementById('depositHistoryList');
+            if (!el) return;
+            let rows = [];
+            if (supabaseClient && currentUser) {
+                const { data } = await supabaseClient.from('deposits').select('amount,gateway,status,created_at').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(30);
+                rows = data || [];
+            }
+            if (rows.length === 0) { el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">No deposits yet.</div>`; return; }
+            el.innerHTML = rows.map(d => `
+                <div class="flex items-center justify-between py-2.5 text-xs">
+                    <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}</p></div>
+                    <div class="text-right"><span class="font-black text-amber-300">&#2546; ${esc(parseFloat(d.amount || 0).toFixed(2))}</span><p class="text-[10px] ${esc(d.status) === 'Approved' ? 'text-emerald-300' : esc(d.status) === 'Rejected' ? 'text-rose-300' : 'text-amber-200'}">${esc(d.status || '')}</p></div>
+                </div>`).join('');
+        }
+
+        async function renderWithdrawHistory() {
+            const el = document.getElementById('withdrawHistoryList');
+            if (!el) return;
+            let rows = [];
+            if (supabaseClient && currentUser) {
+                const { data } = await supabaseClient.from('withdrawals').select('amount,method,status,created_at').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(30);
+                rows = data || [];
+            }
+            if (rows.length === 0) { el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">No withdrawals yet.</div>`; return; }
+            el.innerHTML = rows.map(w => `
+                <div class="flex items-center justify-between py-2.5 text-xs">
+                    <div><p class="font-bold text-white">${esc(w.method || '')}</p><p class="text-[10px] text-violet-200/60">${esc((w.created_at || '').slice(0, 10))}</p></div>
+                    <div class="text-right"><span class="font-black text-rose-300">&#2546; ${esc(parseFloat(w.amount || 0).toFixed(2))}</span><p class="text-[10px] ${esc(w.status) === 'Paid' ? 'text-emerald-300' : esc(w.status) === 'Rejected' ? 'text-rose-300' : 'text-amber-200'}">${esc(w.status || '')}</p></div>
+                </div>`).join('');
+        }
+
         async function renderEarningsSummary() {
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
             set('earnBalance', `৳ ${currentBalance.toFixed(2)}`);
@@ -1453,6 +1486,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             document.getElementById('withdrawNumber').value = '';
             renderWallet();
             renderEarnings();
+            renderDepositHistory();
+            renderWithdrawHistory();
         }
 
         function renderRecentActivity() {
