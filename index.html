@@ -602,12 +602,12 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] text-violet-200/70 mb-1">Payment per worker (৳)</label>
-                        <input type="number" id="newJobReward" min="50" step="any" oninput="updateJobFeePreview()" placeholder="Min ৳50 per worker" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        <label class="block text-[10px] text-violet-200/70 mb-1">Cost per Worker (৳)</label>
+                        <input type="number" id="newJobReward" min="0" step="any" oninput="updateJobFeePreview()" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-violet-200/70 mb-1">Limit (workers)</label>
-                        <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="How many workers can take this job" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
+                        <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="e.g. 10" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     </div>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
@@ -616,11 +616,14 @@
                         </div>
                         <div id="proofReqList" class="space-y-2"></div>
                     </div>
-                    <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                        <div>Payment per worker: <span id="jobRewardPerWorker">৳ 0.00</span></div>
-                        <div>Total (payment x limit): <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
-                        <div><span class="font-bold">7% job post fee</span>: <span id="jobFee" class="text-rose-300">৳ 0.00</span></div>
-                        <div>Total deducted: <span id="jobTotal" class="font-bold text-amber-300">৳ 0.00</span></div>
+                    <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-3 text-[12px] text-violet-100 space-y-1">
+                        <div>Net Amount: <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
+                        <div>System Fee (7.00%): <span id="jobFee" class="font-bold text-rose-400">৳ 0.00</span></div>
+                        <div class="pt-1 border-t border-white/10 flex justify-between items-baseline">
+                            <span class="font-bold text-white">Total Payable</span>
+                            <span id="jobTotal" class="font-black text-lg text-amber-300">৳ 0.00</span>
+                        </div>
+                        <div id="jobMinMsg" class="text-[11px] text-rose-400">Minimum order value is ৳50.00</div>
                     </div>
                 </div>
 
@@ -1677,7 +1680,6 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
             if (!title) { alert('Please fill all fields!'); return; }
             if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
-            if (reward < 50) { alert('Minimum payment is ৳50 per worker'); return; }
             const limitRaw = document.getElementById('newJobLimit').value;
             const limit = parseInt(limitRaw, 10);
             if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { alert('Limit (workers) is required and must be at least 1.'); return; }
@@ -1688,6 +1690,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const budget = Math.round(R * limit * 100) / 100;
             const jobFee = Math.round(budget * 7) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
+            if (jobTotal < 50) { alert('Minimum order value is ৳50.00'); return; }
             if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 7% job post fee)'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
             // Thumbnail is optional: if the upload fails, the job still saves without it.
@@ -1821,7 +1824,6 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const R = Math.round(reward * 100) / 100;
             const T = Math.round(R * limit * 100) / 100;
             const fee = Math.round(T * 7) / 100;
-            document.getElementById('jobRewardPerWorker').textContent = '৳ ' + reward.toFixed(2);
             document.getElementById('jobReward').textContent = '৳ ' + T.toFixed(2);
             document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
             document.getElementById('jobTotal').textContent = '৳ ' + (T + fee).toFixed(2);
