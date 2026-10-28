@@ -963,6 +963,7 @@
             const sender = document.getElementById('depositSender').value;
             const trx = document.getElementById('depositTrx').value;
             if (!amt || !sender || !trx) { alert('Please fill all boxes!'); return; }
+            if (parseFloat(amt) < 50) { alert('Minimum deposit amount is \u09f3 50.'); return; }
             if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
 
             // KYC gate: job cannot be posted without admin-approved KYC
