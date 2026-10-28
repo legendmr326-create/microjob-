@@ -168,7 +168,7 @@
                 <button onclick="alert('No new messages')" class="text-violet-200/80 relative"><i class="fa-regular fa-comment-dots text-base"></i></button>
                 <button onclick="openAccountPage('notifications')" class="text-violet-200/80 relative">
                     <i class="fa-regular fa-bell text-base"></i>
-                    <span class="absolute -top-1.5 -right-1.5 bg-amber-400 text-amber-950 text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-black">6</span>
+                    <span id="notifBadge" class="hidden absolute -top-1.5 -right-1.5 bg-amber-400 text-amber-950 text-[9px] min-w-[16px] h-4 px-1 rounded-full items-center justify-center font-black"></span>
                 </button>
                 <button onclick="openModal('accountModal')" class="w-9 h-9 rounded-full logo-orb p-[2px]">
                     <img id="headerUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="Avatar" class="w-full h-full rounded-full bg-cardDark">
@@ -881,14 +881,36 @@
             `).join('');
         }
 
+        function updateNotifBadge(count) {
+            const badge = document.getElementById('notifBadge');
+            if (!badge) return;
+            const n = Number(count) || 0;
+            if (n <= 0) {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+                badge.innerText = '';
+                return;
+            }
+            badge.innerText = n > 99 ? '99+' : String(n);
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+        }
+
         async function loadNotifications() {
             const container = document.getElementById('notificationsList');
             if (!container) return;
             let items = [];
+            let total = 0;
             if (supabaseClient) {
                 const { data, error } = await supabaseClient.from('notifications').select('*').order('id', { ascending: false }).limit(20);
-                if (!error && data) items = data.map(n => n.title || n.message || n.body || '');
+                if (!error && data) {
+                    items = data.map(n => n.title || n.message || n.body || '');
+                    total = data.length;
+                }
+                const cnt = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true });
+                if (!cnt.error && typeof cnt.count === 'number') total = cnt.count;
             }
+            updateNotifBadge(total);
             if (items.length === 0) {
                 items = ['Welcome! Welcome to Micro job TaskFlex.', 'To see new jobs, open the Dashboard.', 'To deposit, use the Deposit page in the Account & Settings menu.'];
             }
