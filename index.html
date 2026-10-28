@@ -498,28 +498,24 @@
                 <div id="personalView" class="grid grid-cols-2 gap-3 text-sm"></div>
                 <div id="personalEditPanel" class="hidden space-y-3 pt-1">
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Father's Name</label>
-                        <input type="text" id="pdFather" placeholder="Father's full name" class="field w-full rounded-2xl px-4 py-3 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Mother's Name</label>
-                        <input type="text" id="pdMother" placeholder="Mother's full name" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Full Name</label>
+                        <input type="text" id="pdFullName" placeholder="Your full name" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Date of Birth</label>
-                        <input type="date" id="pdDob" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <input type="date" id="pdDob" placeholder="" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Address</label>
                         <input type="text" id="pdAddress" placeholder="House, road, area" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">City</label>
-                        <input type="text" id="pdCity" placeholder="City" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Post Code</label>
+                        <input type="text" id="pdPostCode" placeholder="Post code" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Country</label>
-                        <input type="text" id="pdCountry" placeholder="Country" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">City</label>
+                        <input type="text" id="pdCity" placeholder="City" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <button type="button" onclick="savePersonalDetails()" id="pdSaveBtn" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Save</button>
                 </div>
@@ -1530,12 +1526,11 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
 
         const PERSONAL_FIELDS = [
-            { key: 'father', label: "Father's Name", id: 'pdFather' },
-            { key: 'mother', label: "Mother's Name", id: 'pdMother' },
+            { key: 'fullName', label: 'Full Name', id: 'pdFullName' },
             { key: 'dob', label: 'Date of Birth', id: 'pdDob' },
             { key: 'address', label: 'Address', id: 'pdAddress' },
-            { key: 'city', label: 'City', id: 'pdCity' },
-            { key: 'country', label: 'Country', id: 'pdCountry' }
+            { key: 'postCode', label: 'Post Code', id: 'pdPostCode' },
+            { key: 'city', label: 'City', id: 'pdCity' }
         ];
         function personalLocalKey() {
             return 'personal_details_' + String((currentUser && currentUser.email) || 'guest').toLowerCase();
@@ -1576,7 +1571,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!currentUser) { alert('Please log in first.'); return; }
             const d = {};
             PERSONAL_FIELDS.forEach(f => { d[f.key] = (document.getElementById(f.id).value || '').trim(); });
-            if (!d.father || !d.mother || !d.dob) { alert("Please fill Father's Name, Mother's Name and Date of Birth."); return; }
+            if (!d.fullName || !d.dob) { alert('Please fill Full Name and Date of Birth.'); return; }
             const json = JSON.stringify(d);
             const btn = document.getElementById('pdSaveBtn');
             btn.disabled = true; btn.textContent = 'Saving...';
