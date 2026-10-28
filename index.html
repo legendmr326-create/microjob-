@@ -459,6 +459,10 @@
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
             </div>
+            <div id="avatarPickerCard" class="glass-card rounded-3xl p-5 space-y-3">
+                <p class="text-sm font-bold text-white">Choose your avatar</p>
+                <div id="avatarPickerGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-3"></div>
+            </div>
             <div id="profEditPanel" class="glass-card rounded-3xl p-5 space-y-3 hidden">
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Name</label>
@@ -965,11 +969,12 @@
             if (!currentUser) return;
             document.getElementById('profileName').innerText = currentUser.email;
             document.getElementById('profilePhone').innerText = currentUser.phone || currentUser.email;
-            const avatarUrl = currentUser.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(currentUser.name)}`;
+            const avatarUrl = getAvatarUrl();
             document.getElementById('headerUserAvatar').src = avatarUrl;
             document.getElementById('modalUserAvatar').src = avatarUrl;
             document.getElementById('profInitial').innerText = String(currentUser.name || 'U').charAt(0).toUpperCase();
             renderProfileAvatar();
+            renderAvatarPicker();
             renderVerifiedTick();
             document.getElementById('profHeaderName').innerText = currentUser.name || 'User';
             document.getElementById('profHeaderEmail').innerText = currentUser.email || '';
@@ -1726,11 +1731,56 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (p) p.value = currentUser.phone || '';
         }
 
+        // ---- Avatar picker (DiceBear choices, stored in localStorage) ----
+        const AVATAR_CHOICES = ['Felix', 'Aneka', 'Mia', 'Leo', 'Zoe', 'Max'];
+        function avatarChoiceUrl(seed) {
+            return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+        }
+        function getAvatarChoice() {
+            return localStorage.getItem('taskflex_avatar_choice') || '';
+        }
+        function getAvatarUrl() {
+            const choice = getAvatarChoice();
+            if (choice) return avatarChoiceUrl(choice);
+            if (currentUser && currentUser.avatarUrl) return currentUser.avatarUrl;
+            return avatarChoiceUrl(currentUser && currentUser.name ? currentUser.name : 'User');
+        }
+        function renderAvatarPicker() {
+            const grid = document.getElementById('avatarPickerGrid');
+            if (!grid) return;
+            const current = getAvatarChoice();
+            grid.innerHTML = AVATAR_CHOICES.map(seed => {
+                const selected = current === seed;
+                return `<button type="button" onclick="selectAvatarChoice('${seed}')" title="${seed}" class="rounded-full p-[2px] ${selected ? 'logo-orb' : 'border border-violet-400/30'} aspect-square bg-cardDark"><img src="${avatarChoiceUrl(seed)}" alt="${seed}" class="w-full h-full rounded-full bg-cardDark"></button>`;
+            }).join('');
+        }
+        function selectAvatarChoice(seed) {
+            if (!AVATAR_CHOICES.includes(seed)) return;
+            localStorage.setItem('taskflex_avatar_choice', seed);
+            applyAvatarToUI();
+            renderAvatarPicker();
+        }
+        function applyAvatarToUI() {
+            const url = getAvatarUrl();
+            const h = document.getElementById('headerUserAvatar');
+            const m = document.getElementById('modalUserAvatar');
+            if (h) h.src = url;
+            if (m) m.src = url;
+            const img = document.getElementById('profAvatarImg');
+            const letter = document.getElementById('profInitial');
+            if (img && letter) {
+                img.onerror = function () { img.classList.add('hidden'); letter.classList.remove('hidden'); };
+                img.src = url;
+                img.classList.remove('hidden');
+                letter.classList.add('hidden');
+            }
+        }
+
         function renderProfileAvatar() {
             const img = document.getElementById('profAvatarImg');
             const letter = document.getElementById('profInitial');
             if (!img || !letter) return;
-            const url = currentUser && currentUser.avatarUrl;
+            const url = getAvatarChoice() ? getAvatarUrl() : (currentUser && currentUser.avatarUrl);
             if (url) {
                 img.onerror = function () { img.classList.add('hidden'); letter.classList.remove('hidden'); };
                 img.src = url;
