@@ -270,6 +270,13 @@
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div id="earningsList"></div>
             </div>
+            <div class="glass-card rounded-3xl p-5 space-y-1">
+                <div class="flex items-center justify-between pb-2">
+                    <h3 class="text-sm font-bold text-white">My Job Status</h3>
+                    <span id="approvedJobsCount" class="text-[10px] text-violet-200/70 font-semibold">0</span>
+                </div>
+                <div id="approvedJobsList"></div>
+            </div>
         </div>
 
         <!-- TAB: JOB DETAILS -->
@@ -996,7 +1003,7 @@
             window.scrollTo(0, 0);
             if (tabId === 'notifications') loadNotifications();
             if (tabId === 'applications') renderMyApplications();
-            if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); }
+            if (tabId === 'history') { renderEarningsSummary(); renderEarningsHistory(); renderApprovedJobs(); }
             if (tabId === 'newjob') loadMyPostedJobs();
             if (tabId === 'profile') { loadMyKyc(); renderPersonalDetails(); }
             if (tabId === 'deposit') renderDepositHistory();
@@ -1631,6 +1638,42 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             });
             setTotal(total);
             c.innerHTML = rows.join('');
+        }
+
+        // My Job Status: every job_applications row for this worker, with a status badge (Approved green, Rejected red, Pending grey).
+        async function renderApprovedJobs() {
+            const c = document.getElementById('approvedJobsList');
+            const cnt = document.getElementById('approvedJobsCount');
+            if (!c) return;
+            const setCount = v => { if (cnt) cnt.innerText = String(v); };
+            if (!currentUser || !supabaseClient) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No job submissions yet</div>`; setCount(0); return; }
+            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email).order('id', { ascending: false });
+            if (appErr) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Could not load job status.</div>`; setCount(0); return; }
+            const all = apps || [];
+            setCount(all.length);
+            if (all.length === 0) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No job submissions yet</div>`; return; }
+            const ids = [...new Set(all.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+            const jobMap = {};
+            if (ids.length) {
+                const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('id,title,reward,client_email').in('id', ids);
+                if (jobErr) { c.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">Could not load job status.</div>`; return; }
+                (jobs || []).forEach(j => { jobMap[String(j.id)] = j; });
+            }
+            c.innerHTML = all.map(a => {
+                const j = jobMap[String(a.job_id)] || {};
+                const amount = parseFloat(j.reward || 0) || 0;
+                const dateRaw = a.created_at || a.applied_at || a.date || null;
+                const dateStr = dateRaw && !isNaN(new Date(dateRaw)) ? new Date(dateRaw).toLocaleDateString() : '-';
+                const st = String(a.status || '').trim();
+                let label, badge;
+                if (/^approved$/i.test(st)) { label = 'Approved'; badge = 'bg-emerald-400/20 text-emerald-300 border-emerald-300/40'; }
+                else if (/^rejected$/i.test(st)) { label = 'Rejected'; badge = 'bg-rose-400/20 text-rose-300 border-rose-300/40'; }
+                else { label = 'Pending'; badge = 'bg-slate-400/20 text-slate-300 border-slate-300/40'; }
+                return `<div class="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 text-xs gap-2">
+                    <div class="min-w-0"><p class="font-bold text-white truncate">${esc(j.title || ('Job #' + a.job_id))}</p><p class="text-[10px] text-violet-200/60 truncate">Employer: ${esc(j.client_email || '-')}</p><p class="text-[10px] text-violet-200/60">${esc(dateStr)}</p></div>
+                    <div class="text-right whitespace-nowrap"><span class="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold border ${badge}">${label}</span><p class="font-black text-amber-300 mt-1">৳ ${esc(amount.toFixed(2))}</p></div>
+                </div>`;
+            }).join('');
         }
 
         // My Taken Jobs card removed from Dashboard; kept as a no-op so existing callers don't break.
