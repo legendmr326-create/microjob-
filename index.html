@@ -1939,8 +1939,6 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             document.getElementById('depositNet').textContent = '৳ ' + d.toFixed(2);
             const w = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const wFee = Math.round(w * 7) / 100;
-            const wPen = document.getElementById('wdPendingAmt');
-            if (wPen) wPen.innerText = '৳ ' + ((window.__wdPending || 0) + w).toFixed(2);
             document.getElementById('withdrawGross').textContent = '৳ ' + w.toFixed(2);
             document.getElementById('withdrawFee').textContent = '৳ ' + wFee.toFixed(2);
             document.getElementById('withdrawNet').textContent = '৳ ' + (w - wFee).toFixed(2);
