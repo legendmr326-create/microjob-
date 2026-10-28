@@ -162,10 +162,6 @@
                 <div class="logo-orb w-9 h-9 rounded-xl p-[2px]">
                     <div class="w-full h-full rounded-[10px] bg-bgDark flex items-center justify-center font-black text-amber-400 text-sm">M</div>
                 </div>
-                <button onclick="toggleUserRole()" id="roleBadge" class="bg-violet-500/15 border border-violet-400/30 px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold text-violet-200">
-                    <span id="roleLabel">Worker</span>
-                    <i class="fa-solid fa-repeat text-[10px] text-amber-400"></i>
-                </button>
             </div>
 
             <div class="flex items-center gap-3.5">
@@ -207,19 +203,7 @@
                     </div>
                 </div>
 
-                <div id="clientDashboard" class="space-y-3.5 hidden">
-                    <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-violet-500/30 via-fuchsia-600/15 to-transparent border border-violet-300/20 shadow-xl">
-                        <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-400/25 blur-2xl"></div>
-                        <div class="relative flex justify-between items-end gap-3">
-                            <div>
-                                <p class="text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Deposit Funds Balance</p>
-                                <h3 id="clientBalance" class="text-3xl font-black text-white mt-1">৳ 0.00</h3>
-                            </div>
-                            <button onclick="switchTab('deposit')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-solid fa-plus text-xs"></i> Add Funds
-                            </button>
-                        </div>
-                    </div>
+                <div id="clientDashboard" class="space-y-3.5">
                     <button onclick="openPostJobModal()" class="btn-violet w-full font-bold py-4 rounded-2xl flex items-center justify-center gap-2 text-sm">
                         <i class="fa-solid fa-plus-circle"></i> Post New Job
                     </button>
@@ -228,8 +212,8 @@
                 <!-- JOB BOARD (single place where all jobs show) -->
                 <div id="jobBoard" class="space-y-3">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-base font-bold text-white" id="jobsHeaderTitle">Active Microjobs</h2>
-                    <button onclick="openPostJobModal()" id="clientPostJobBtn" class="hidden btn-violet text-xs font-bold px-3.5 py-1.5 rounded-xl">Post Job</button>
+                    <h2 class="text-base font-bold text-white" id="jobsHeaderTitle">My Posted Jobs</h2>
+                    <button onclick="openPostJobModal()" id="clientPostJobBtn" class="btn-violet text-xs font-bold px-3.5 py-1.5 rounded-xl">Post Job</button>
                 </div>
                 <input type="text" id="jobSearch" oninput="applyJobFilters()" placeholder="Search jobs..." class="field w-full rounded-2xl px-4 py-3 text-sm">
                 <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1">
@@ -475,6 +459,18 @@
                     <h3 class="text-base font-bold text-white">Post New Job</h3>
                     <button onclick="closePostJobModal()" class="text-violet-200/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
+                <!-- Deposit balance (fees deduct from this) -->
+                <div class="relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br from-violet-500/30 via-fuchsia-600/15 to-transparent border border-violet-300/20">
+                    <div class="relative flex justify-between items-end gap-3">
+                        <div>
+                            <p class="text-[10px] uppercase tracking-widest text-violet-200/80 font-semibold">Deposit Funds Balance</p>
+                            <h3 id="clientBalance" class="text-2xl font-black text-white mt-1">৳ 0.00</h3>
+                        </div>
+                        <button onclick="closePostJobModal(); switchTab('deposit')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-solid fa-plus text-xs"></i> Add Funds
+                        </button>
+                    </div>
+                </div>
                 <!-- Job details (only step) -->
                 <div id="jobStep2" class="space-y-2.5 text-xs">
                     <p class="font-semibold text-violet-100">Category & Details</p>
@@ -558,7 +554,6 @@
 
     <script>
         let currentUser = null;
-        let currentRole = 'worker';
         let selectedGateway = 'bKash';
         const DEFAULT_JOB_LOCATION = 'International';
         let allJobs = [];
@@ -689,31 +684,6 @@
             renderEarnings();
             loadRatings();
             loadNotifications();
-        }
-
-        function toggleUserRole() {
-            const roleLabel = document.getElementById('roleLabel');
-            const workerDashboard = document.getElementById('workerDashboard');
-            const clientDashboard = document.getElementById('clientDashboard');
-            const clientPostJobBtn = document.getElementById('clientPostJobBtn');
-            const jobsHeaderTitle = document.getElementById('jobsHeaderTitle');
-
-            if (currentRole === 'worker') {
-                currentRole = 'client';
-                roleLabel.innerText = "Client";
-                workerDashboard.classList.add('hidden');
-                clientDashboard.classList.remove('hidden');
-                clientPostJobBtn.classList.remove('hidden');
-                jobsHeaderTitle.innerText = "My Posted Jobs";
-            } else {
-                currentRole = 'worker';
-                roleLabel.innerText = "Worker";
-                clientDashboard.classList.add('hidden');
-                workerDashboard.classList.remove('hidden');
-                clientPostJobBtn.classList.add('hidden');
-                jobsHeaderTitle.innerText = "Active Microjobs";
-            }
-            fetchJobsFromDatabase();
         }
 
         function switchTab(tabId) {
