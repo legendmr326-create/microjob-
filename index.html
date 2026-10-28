@@ -718,17 +718,45 @@
             const box = document.getElementById('myPostedJobsList');
             if (!box) return;
             const email = currentUser && currentUser.email;
-            if (!supabaseClient || !email) { box.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div>`; return; }
+            const empty = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div>`;
+            if (!supabaseClient || !email) { box.innerHTML = empty; return; }
             const { data, error } = await supabaseClient.from('micro_jobs').select('id,title,reward,status,client_email').eq('client_email', email).order('id', { ascending: false });
-            if (error || !data || data.length === 0) { box.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div>`; return; }
+            if (error || !data || data.length === 0) { box.innerHTML = empty; return; }
+            const ids = data.map(j => j.id);
+            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('id,job_id,user_email,status').in('job_id', ids).order('id', { ascending: false });
+            const appList = (!appErr && apps) ? apps : [];
             box.innerHTML = data.map(j => {
                 const st = String(j.status || 'Pending');
                 const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
-                return `<div class="flex items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-3">
-                    <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                const mine = appList.filter(a => String(a.job_id) === String(j.id));
+                const subs = mine.length === 0
+                    ? `<p class="text-[11px] text-violet-200/50">No submissions yet</p>`
+                    : mine.map(a => {
+                        const as = String(a.status || 'Applied');
+                        const isApproved = /^approved$/i.test(as), isRejected = /^rejected$/i.test(as);
+                        const badge = isApproved ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-400/15 text-emerald-200">Approved</span>'
+                            : isRejected ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-400/15 text-rose-200">Rejected</span>'
+                            : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-400/15 text-amber-200">Pending</span>';
+                        const actions = (!isApproved && !isRejected)
+                            ? `<div class="flex gap-2 mt-2"><button onclick="setApplicationStatus(${Number(a.id)}, 'Approved')" class="flex-1 text-[11px] font-bold py-1.5 rounded-xl bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Approve</button><button onclick="setApplicationStatus(${Number(a.id)}, 'Rejected')" class="flex-1 text-[11px] font-bold py-1.5 rounded-xl bg-rose-400/20 text-rose-200 border border-rose-300/30">Reject</button></div>`
+                            : '';
+                        return `<div class="bg-black/20 border border-white/10 rounded-xl p-2.5"><div class="flex items-center justify-between gap-2"><p class="text-[11px] text-violet-100 truncate min-w-0">${esc(a.user_email || 'worker')}</p>${badge}</div>${actions}</div>`;
+                    }).join('');
+                return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                    </div>
+                    <div class="space-y-1.5"><p class="text-[10px] uppercase tracking-wider text-violet-200/50">Submissions</p>${subs}</div>
                 </div>`;
             }).join('');
+        }
+
+        async function setApplicationStatus(appId, status) {
+            if (!supabaseClient) { alert('Not connected to server.'); return; }
+            const { error } = await supabaseClient.from('job_applications').update({ status: status }).eq('id', appId);
+            if (error) { alert('Update failed: ' + error.message); return; }
+            await loadMyPostedJobs();
         }
 
         function openAccountPage(tabId) {
