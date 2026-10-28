@@ -1015,7 +1015,7 @@
             const appList = (!appErr && apps) ? apps : [];
             box.innerHTML = data.map(j => {
                 const st = String(j.status || 'Pending');
-                const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
+                const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-white/15 text-white';
                 const mine = appList.filter(a => String(a.job_id) === String(j.id));
                 const subs = mine.length === 0
                     ? `<p class="text-[11px] text-violet-200/50">No submissions yet</p>`
@@ -1033,11 +1033,19 @@
                 return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                        <div class="flex items-center gap-1.5 shrink-0"><span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span><button onclick="deleteMyPostedJob(${Number(j.id)})" class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap bg-rose-400/15 text-rose-200 border border-rose-300/30">Delete</button></div>
                     </div>
                     <div class="space-y-1.5"><p class="text-[10px] uppercase tracking-wider text-violet-200/50">Submissions</p>${subs}</div>
                 </div>`;
             }).join('');
+        }
+
+        async function deleteMyPostedJob(jobId) {
+            if (!supabaseClient || !currentUser || !currentUser.email) { alert('Not connected to server.'); return; }
+            if (!confirm('এই জবটি delete করতে চান? এটি ফেরত আনা যাবে না।')) return;
+            const { error } = await supabaseClient.from('micro_jobs').delete().eq('id', jobId).eq('client_email', currentUser.email);
+            if (error) { alert('Delete failed: ' + error.message); return; }
+            await loadMyPostedJobs();
         }
 
         async function setApplicationStatus(appId, status) {
@@ -1199,6 +1207,7 @@
             btn.disabled = already;
             btn.className = already ? "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60" : "btn-amber w-full font-bold py-3.5 rounded-2xl text-sm";
             switchTab('jobdetail');
+            window.scrollTo(0, 0);
         }
 
         const KYC_TABLE = 'kyc_verifications';
