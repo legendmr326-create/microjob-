@@ -583,6 +583,24 @@
                         <option value="Sign Up">Website Sign Up</option>
                     </select>
                     <input type="text" id="newJobTitle" placeholder="Job Title" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-semibold text-violet-100">Description</span>
+                        <textarea id="newJobDescription" rows="4" placeholder="What the worker must do, step by step" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs resize-y"></textarea>
+                    </div>
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-semibold text-violet-100">Job Thumbnail <span class="text-violet-200/50 font-normal">(optional, 1 image)</span></span>
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-14 h-14 shrink-0 rounded-xl bg-bgDark/70 border border-white/10 overflow-hidden flex items-center justify-center">
+                                <img id="newJobThumbPreview" alt="" class="hidden w-full h-full object-cover">
+                                <i id="newJobThumbIcon" class="fa-regular fa-image text-violet-200/40"></i>
+                            </div>
+                            <label class="flex-1 cursor-pointer text-center text-[11px] font-semibold px-3 py-2.5 rounded-2xl bg-violet-500/20 text-violet-100 border border-violet-300/30">
+                                <i class="fa-solid fa-upload mr-1"></i> Choose image
+                                <input type="file" id="newJobThumbInput" accept="image/*" class="hidden" onchange="previewJobThumb(this)">
+                            </label>
+                            <button type="button" id="newJobThumbClear" onclick="clearJobThumb()" class="hidden text-[11px] font-semibold px-2.5 py-2 rounded-xl bg-rose-500/20 text-rose-200 border border-rose-300/30"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-[11px] font-semibold text-violet-100">Proof Requirements</span>
@@ -948,6 +966,7 @@
             if (!list || list.length === 0) { container.innerHTML = `<div class="text-center py-10 text-violet-200/60 text-xs">No jobs yet.</div>`; return; }
             container.innerHTML = list.map(job => `
                 <div onclick="openJobDetail(${Number(job.id)})" class="glass-card rounded-2xl p-4 cursor-pointer hover:border-amber-300/40 transition">
+                    ${job.thumbnail_url ? `<img src="${esc(job.thumbnail_url)}" alt="" loading="lazy" onerror="this.remove()" class="w-full h-32 object-cover rounded-xl mb-3 border border-white/10">` : ''}
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
                             <span class="text-[10px] uppercase tracking-wider text-violet-200/60">${esc(job.category || '')}</span>
@@ -984,6 +1003,7 @@
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="font-black text-amber-300 mt-0.5">৳ ${esc(job.reward)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Total slots</p><p class="font-black text-white mt-0.5">${esc(job.slots ?? '-')}</p></div>
                 </div>
+                ${job.description ? `<div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">What to do</p><p class="text-violet-100/85 leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
                 <div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">Proof required</p><p class="text-violet-100/85 leading-relaxed">${esc(job.proof_requirement || 'Not specified')}</p></div>
                 <div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">Location</p><p class="text-violet-100/85">${esc(job.location || 'International')}</p></div>
             `;
@@ -1651,12 +1671,39 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const jobFee = Math.round(R * 7) / 100;
             const jobTotal = Math.round((R + jobFee) * 100) / 100;
             if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (reward + 7% job post fee)'); return; }
-            const { error } = await insertSafe('micro_jobs', {
+            const description = (document.getElementById('newJobDescription').value || '').trim();
+            // Thumbnail is optional: if the upload fails, the job still saves without it.
+            let thumbnailUrl = null;
+            let thumbFailed = false;
+            const thumbFile = jobThumbFile;
+            if (thumbFile) {
+                try {
+                    const path = 'thumbnails/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ((thumbFile.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg');
+                    const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
+                    if (up.error) throw up.error;
+                    const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
+                    thumbnailUrl = (pub && pub.data && pub.data.publicUrl) || null;
+                    if (!thumbnailUrl) throw new Error('no public url returned');
+                } catch (e) {
+                    console.warn('Job thumbnail upload failed, saving without it:', e);
+                    thumbnailUrl = null;
+                    thumbFailed = true;
+                }
+            }
+            const row = {
                 title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: DEFAULT_JOB_LOCATION, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
-                proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq, proof_requirements: proofRows
-            });
+                proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq, proof_requirements: proofRows,
+                description: description || null, thumbnail_url: thumbnailUrl
+            };
+            let { error } = await insertSafe('micro_jobs', row);
+            if (error && /description|thumbnail_url/i.test(error.message || '')) {
+                // columns not added yet: save the job without the two new fields
+                console.warn('micro_jobs description/thumbnail_url column missing, retrying without them:', error.message);
+                delete row.description; delete row.thumbnail_url;
+                ({ error } = await insertSafe('micro_jobs', row));
+            }
             if (error) { alert('Error: ' + error.message); return; }
-            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2));
+            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
             closePostJobModal();
             fetchJobsFromDatabase();
             renderMyTakenJobs();
@@ -1716,8 +1763,34 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
             return { rows: out };
         }
+        let jobThumbFile = null;
+        function previewJobThumb(input) {
+            const file = input.files && input.files[0];
+            input.value = '';
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
+            if (file.size > 5 * 1024 * 1024) { alert('Thumbnail must be 5 MB or less.'); return; }
+            jobThumbFile = file;
+            const img = document.getElementById('newJobThumbPreview');
+            img.src = URL.createObjectURL(file);
+            img.classList.remove('hidden');
+            document.getElementById('newJobThumbIcon').classList.add('hidden');
+            document.getElementById('newJobThumbClear').classList.remove('hidden');
+        }
+        function clearJobThumb() {
+            jobThumbFile = null;
+            const img = document.getElementById('newJobThumbPreview');
+            if (img) { img.classList.add('hidden'); img.removeAttribute('src'); }
+            const icon = document.getElementById('newJobThumbIcon');
+            if (icon) icon.classList.remove('hidden');
+            const x = document.getElementById('newJobThumbClear');
+            if (x) x.classList.add('hidden');
+        }
         function openPostJobModal() {
             resetProofRows();
+            clearJobThumb();
+            const d = document.getElementById('newJobDescription');
+            if (d) d.value = '';
             document.getElementById('jobStep2').classList.remove('hidden');
             document.getElementById('jobNextBtn').innerText = "Publish Job";
             document.getElementById('postJobModal').classList.remove('hidden');
