@@ -487,33 +487,8 @@
                     <h3 class="text-base font-bold text-white">Post New Job</h3>
                     <button onclick="closePostJobModal()" class="text-violet-200/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
-                <!-- Step Indicators (1, 2, 3, 4) -->
-                <div class="grid grid-cols-4 gap-1.5 text-center text-xs font-bold">
-                    <div id="jobStepIndicator1" class="py-2 rounded-xl bg-amber-400 text-amber-950">1</div>
-                    <div id="jobStepIndicator2" class="py-2 rounded-xl bg-bgDark/70 text-violet-200/60 border border-white/10">2</div>
-                    <div id="jobStepIndicator3" class="py-2 rounded-xl bg-bgDark/70 text-violet-200/60 border border-white/10">3</div>
-                    <div id="jobStepIndicator4" class="py-2 rounded-xl bg-bgDark/70 text-violet-200/60 border border-white/10">4</div>
-                </div>
-
-                <!-- STEP 1: Location -->
-                <div id="jobStep1" class="space-y-3 text-xs">
-                    <p class="font-semibold text-violet-100">Location: Choose where you want to target workers</p>
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div onclick="selectJobLocation('International')" id="locInternational" class="glass-card p-3.5 rounded-2xl border-2 border-amber-400 text-center cursor-pointer">
-                            <i class="fa-solid fa-globe text-amber-300 text-lg mb-1.5"></i>
-                            <p class="font-bold text-white">International</p>
-                            <span class="text-[10px] text-violet-200/60">Available to all countries</span>
-                        </div>
-                        <div onclick="selectJobLocation('Specific')" id="locSpecific" class="glass-card p-3.5 rounded-2xl border border-white/10 text-center cursor-pointer opacity-70">
-                            <i class="fa-solid fa-location-dot text-violet-300 text-lg mb-1.5"></i>
-                            <p class="font-bold text-white">Specific Countries</p>
-                            <span class="text-[10px] text-violet-200/60">Select specific zones</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- STEP 2: Category & Details -->
-                <div id="jobStep2" class="space-y-2.5 text-xs hidden">
+                <!-- Job details (only step) -->
+                <div id="jobStep2" class="space-y-2.5 text-xs">
                     <p class="font-semibold text-violet-100">Category & Details</p>
                     <select id="newJobCategory" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                         <option value="YouTube">YouTube Video Watch & Like</option>
@@ -537,7 +512,6 @@
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
-                    <button onclick="prevJobStep()" id="jobPrevBtn" class="w-1/3 bg-bgDark/70 border border-white/10 text-violet-100 font-bold py-2.5 rounded-2xl text-xs hidden">Back</button>
                     <button onclick="nextJobStep()" id="jobNextBtn" class="btn-violet w-full font-bold py-2.5 rounded-2xl text-xs">Next</button>
                 </div>
             </div>
@@ -598,8 +572,7 @@
         let currentUser = null;
         let currentRole = 'worker';
         let selectedGateway = 'bKash';
-        let currentJobStep = 1;
-        let selectedLocation = 'International';
+        const DEFAULT_JOB_LOCATION = 'International';
         let allJobs = [];
         let allDeposits = [];
         let jobCategory = 'all';
@@ -1175,39 +1148,8 @@
             alert('Profile saved!');
         }
 
-        function selectJobLocation(loc) {
-            selectedLocation = loc;
-            if (loc === 'International') {
-                document.getElementById('locInternational').className = "glass-card p-3.5 rounded-2xl border-2 border-amber-400 text-center cursor-pointer";
-                document.getElementById('locSpecific').className = "glass-card p-3.5 rounded-2xl border border-white/10 text-center cursor-pointer opacity-70";
-            } else {
-                document.getElementById('locSpecific').className = "glass-card p-3.5 rounded-2xl border-2 border-amber-400 text-center cursor-pointer";
-                document.getElementById('locInternational').className = "glass-card p-3.5 rounded-2xl border border-white/10 text-center cursor-pointer opacity-70";
-            }
-        }
-
         function nextJobStep() {
-            if (currentJobStep === 1) {
-                currentJobStep = 2;
-                document.getElementById('jobStep1').classList.add('hidden');
-                document.getElementById('jobStep2').classList.remove('hidden');
-                document.getElementById('jobStepIndicator2').className = "py-2 rounded-xl bg-amber-400 text-amber-950";
-                document.getElementById('jobPrevBtn').classList.remove('hidden');
-                document.getElementById('jobNextBtn').innerText = "Publish Job";
-            } else if (currentJobStep === 2) {
-                submitNewJob();
-            }
-        }
-
-        function prevJobStep() {
-            if (currentJobStep === 2) {
-                currentJobStep = 1;
-                document.getElementById('jobStep2').classList.add('hidden');
-                document.getElementById('jobStep1').classList.remove('hidden');
-                document.getElementById('jobStepIndicator2').className = "py-2 rounded-xl bg-bgDark/70 text-violet-200/60 border border-white/10";
-                document.getElementById('jobPrevBtn').classList.add('hidden');
-                document.getElementById('jobNextBtn').innerText = "Next";
-            }
+            submitNewJob();
         }
 
         async function submitNewJob() {
@@ -1229,7 +1171,7 @@
             const jobTotal = Math.round((R + jobFee) * 100) / 100;
             if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (reward + 7% job post fee)'); return; }
             const { error } = await insertSafe('micro_jobs', {
-                title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: selectedLocation, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
+                title: title, reward: reward, slots: slots, proof_requirement: proofReq, category: category, location: DEFAULT_JOB_LOCATION, client_email: currentUser.email, fee: jobFee, total_cost: jobTotal,
                 proof_screenshots_required: shotsReq, client_proofs_required: clientProofsReq, proof_requirements: proofRows
             });
             if (error) { alert('Error: ' + error.message); return; }
@@ -1295,12 +1237,8 @@
         }
         function openPostJobModal() {
             resetProofRows();
-            currentJobStep = 1;
-            document.getElementById('jobStep1').classList.remove('hidden');
-            document.getElementById('jobStep2').classList.add('hidden');
-            document.getElementById('jobStepIndicator2').className = "py-2 rounded-xl bg-bgDark/70 text-violet-200/60 border border-white/10";
-            document.getElementById('jobPrevBtn').classList.add('hidden');
-            document.getElementById('jobNextBtn').innerText = "Next";
+            document.getElementById('jobStep2').classList.remove('hidden');
+            document.getElementById('jobNextBtn').innerText = "Publish Job";
             document.getElementById('postJobModal').classList.remove('hidden');
         }
         function closePostJobModal() { document.getElementById('postJobModal').classList.add('hidden'); }
