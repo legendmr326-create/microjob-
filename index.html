@@ -224,9 +224,9 @@
                 <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;background:#141a3a;padding:28px 30px;overflow-y:auto;">
                     <div class="flex items-center justify-between mb-10">
                         <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg"></i></div></div>
-                        <button type="button" onclick="toggleAuthMenu()" class="text-violet-100 text-2xl p-2"><i class="fa-solid fa-xmark"></i></button>
+                        <button type="button" onclick="closeAuthMenu()" aria-label="Close menu" class="auth-menu-close text-violet-100 text-2xl p-2"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="space-y-6 font-black text-3xl text-white">
+                    <div class="auth-menu-items space-y-6 font-black text-3xl text-white">
                         <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Home</button>
                         <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Withdraw</button>
                         <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">History</button>
@@ -236,7 +236,7 @@
                         <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('login');" class="block text-left w-full">Login</button>
                         <button type="button" onclick="toggleAuthMenu(); openForgotPassword();" class="block text-left w-full">Reset Password</button>
                     </div>
-                    <p class="mt-12 text-xs text-violet-200/50">&copy;2026 Micro job TaskFlex</p>
+                    <p class="auth-menu-footer mt-12 text-xs text-violet-200/50">&copy;2026 Micro job TaskFlex</p>
                 </div>
                 <section class="landing-copy" aria-label="TaskFlex introduction">
                     <h2 class="landing-title font-black"><span>Best Microjob &amp;</span><span>Freelancing Site To</span><span class="hero-title">Make Money Online</span></h2>
@@ -3438,6 +3438,12 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] .referral-count-card, body.theme-light .referral-count-card { background: #EDEAF5 !important; }
     html[data-theme-effective="light"] #forgotPasswordCard .field, html[data-theme-effective="light"] #verifyEmailCard input, html[data-theme-effective="light"] #tab-refer input,
     body.theme-light #forgotPasswordCard .field, body.theme-light #verifyEmailCard input, body.theme-light #tab-refer input { background-color: #F5F3FA !important; }
+    html[data-theme-effective="light"] #authMenu, body.theme-light #authMenu { background: #E4E1EE !important; color: #211A32 !important; border-left: 1px solid rgba(76,62,105,.14); }
+    html[data-theme-effective="light"] #authMenu .auth-menu-items, body.theme-light #authMenu .auth-menu-items { color: #211A32 !important; }
+    html[data-theme-effective="light"] #authMenu .auth-menu-items button, body.theme-light #authMenu .auth-menu-items button { color: #211A32 !important; }
+    html[data-theme-effective="light"] #authMenu .auth-menu-close, body.theme-light #authMenu .auth-menu-close { color: #302A3D !important; }
+    html[data-theme-effective="light"] #authMenu .auth-menu-footer, body.theme-light #authMenu .auth-menu-footer { color: #655C77 !important; }
+    html[data-theme-effective="light"] #authMenu .logo-orb > div, body.theme-light #authMenu .logo-orb > div { background: #EEEBF5 !important; color: #302A3D !important; }
 </style>
 <script>
     (function () {
