@@ -189,8 +189,8 @@
         .balance-value { font-variant-numeric: tabular-nums lining-nums; font-weight: 600 !important; letter-spacing: -.045em; text-shadow: 0 1px 18px rgba(252,217,122,.12); }
         .balance-value .money-symbol { font-size: .53em; vertical-align: .12em; }
         .balance-value .money-decimal { font-size: .66em; }
-        /* Center the signup form without changing the landing or other auth screens. */
-        #authOverlay:has(#registerCard:not(.hidden)) { align-items: center; justify-content: center; }
+        /* Center the signup form in the viewport without changing auth logic. */
+        #authOverlay:has(#registerCard:not(.hidden)) { min-height: 100svh; display: flex; flex-direction: column; align-items: center !important; justify-content: center !important; }
         #authOverlay:has(#registerCard:not(.hidden)) #landingHero { display: none; }
         #authOverlay:has(#registerCard:not(.hidden)) #registerCard { width: 100%; max-width: 28rem; margin-block: auto; }
     </style>
