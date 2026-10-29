@@ -113,6 +113,23 @@
         }
         .field:focus { border-color: #F5B942; box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.18); }
         .field::placeholder { color: #8B7FB0; }
+        .kyc-capture-card { background: rgba(16, 10, 34, .55); border: 1px solid rgba(196,181,253,.2); color: #F5F3FF; transition: border-color .2s, background .2s, transform .2s; }
+        .kyc-capture-card:hover { border-color: rgba(245,185,66,.65); }
+        .kyc-capture-frame { border: 2px dashed rgba(196,181,253,.48); background: rgba(139,92,246,.08); color: rgba(221,214,254,.75); }
+        .kyc-capture-card.is-captured { border-color: rgba(34,197,94,.55); }
+        .kyc-capture-card.is-captured .kyc-capture-frame { border-color: rgba(34,197,94,.6); }
+        .kyc-photo-input { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        .kyc-inline-error { color: #fda4af; }
+        html[data-theme-effective="light"] .kyc-capture-card, body.theme-light .kyc-capture-card { background: #fff; color: #282237; border-color: #d7d0e1; box-shadow: 0 3px 12px rgba(39,26,66,.05); }
+        html[data-theme-effective="light"] .kyc-capture-frame, body.theme-light .kyc-capture-frame { background: #f7f4fb; border-color: #a79ab9; color: #655b72; }
+        html[data-theme-effective="light"] .kyc-capture-card.is-captured, body.theme-light .kyc-capture-card.is-captured { border-color: #55a976; }
+        html[data-theme-effective="light"] .kyc-capture-card.is-captured .kyc-capture-frame, body.theme-light .kyc-capture-card.is-captured .kyc-capture-frame { border-color: #55a976; }
+        html[data-theme-effective="light"] .kyc-inline-error, body.theme-light .kyc-inline-error { color: #b4233d; }
+        .auth-recovery-link { color: #FCD97A; }
+        .auth-recovery-muted { color: rgba(221,214,254,.72); }
+        html[data-theme-effective="light"] .auth-recovery-link, body.theme-light .auth-recovery-link { color: #805000; }
+        html[data-theme-effective="light"] .auth-recovery-muted, body.theme-light .auth-recovery-muted { color: #554C62; }
+        html[data-theme-effective="light"] #forgotPasswordCard .field, body.theme-light #forgotPasswordCard .field { color: #282237; background: #FFFFFF; border-color: #CFC8DB; }
         html[data-theme-effective="light"] #verifyEmailCard, body.theme-light #verifyEmailCard { background: linear-gradient(160deg, #F4EFFF, #FFFFFF 65%) !important; border-color: #D8CDEB !important; }
         html[data-theme-effective="light"] #verifyEmailCard h3, body.theme-light #verifyEmailCard h3 { color: #282237 !important; }
         html[data-theme-effective="light"] #verifyEmailCard p, body.theme-light #verifyEmailCard p { color: #554C62 !important; }
@@ -213,7 +230,7 @@
                         <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Live Support</button>
                         <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('register');" class="block text-left w-full">Register</button>
                         <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('login');" class="block text-left w-full">Login</button>
-                        <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('login');" class="block text-left w-full">Reset Password</button>
+                        <button type="button" onclick="toggleAuthMenu(); openForgotPassword();" class="block text-left w-full">Reset Password</button>
                     </div>
                     <p class="mt-12 text-xs text-violet-200/50">&copy;2026 Micro job TaskFlex</p>
                 </div>
@@ -248,10 +265,33 @@
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Password</label>
                     <div class="relative"><input type="password" id="loginPass" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('loginPass', this)" aria-label="Show/hide password" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                 </div>
+                <div class="text-right -mt-2"><a href="#" onclick="openForgotPassword(); return false;" class="auth-recovery-link text-xs font-bold hover:underline">Forgot password?</a></div>
                 <button onclick="handleLogin()" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Login</button>
                 <p class="text-xs text-center text-violet-200/70 pt-1">
                     Don't have an account? <a href="#" onclick="toggleAuthForm('register')" class="text-amber-400 font-bold hover:underline">Register Now</a>
                 </p>
+            </div>
+
+            <!-- FORGOT PASSWORD CARD -->
+            <div id="forgotPasswordCard" class="glass-card w-full p-6 rounded-3xl space-y-4 hidden">
+                <h3 class="text-lg font-bold text-white text-center">Reset Password</h3>
+                <p id="forgotPasswordIntro" class="auth-recovery-muted text-sm text-center">Enter your account email to receive a 6-digit code.</p>
+                <div id="forgotEmailStep" class="space-y-3">
+                    <label for="forgotPasswordEmail" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Email Address</label>
+                    <input type="email" id="forgotPasswordEmail" autocomplete="email" placeholder="user@gmail.com" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <button type="button" id="forgotSendCodeButton" onclick="sendPasswordResetCode()" class="btn-amber w-full font-bold py-3 rounded-2xl">Send Code</button>
+                </div>
+                <div id="forgotOtpStep" class="hidden space-y-4">
+                    <div id="forgotCheckEmail" role="status" class="rounded-2xl border border-amber-300/25 bg-amber-400/10 p-3 text-sm text-amber-100">Check your email for a 6-digit code.</div>
+                    <p id="forgotEmailDisplay" class="auth-recovery-muted text-xs text-center"></p>
+                    <div><label for="forgotPasswordToken" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">6-digit code</label><input type="text" id="forgotPasswordToken" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" class="field w-full rounded-2xl px-4 py-3 text-center text-lg tracking-[0.35em]"></div>
+                    <div><label for="forgotNewPassword" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">New password</label><input type="password" id="forgotNewPassword" autocomplete="new-password" placeholder="At least 6 characters" class="field w-full rounded-2xl px-4 py-3 text-sm"></div>
+                    <div><label for="forgotConfirmPassword" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Confirm password</label><input type="password" id="forgotConfirmPassword" autocomplete="new-password" placeholder="Enter your new password again" class="field w-full rounded-2xl px-4 py-3 text-sm"></div>
+                    <button type="button" id="forgotUpdatePasswordButton" onclick="completePasswordReset()" class="btn-amber w-full font-bold py-3 rounded-2xl">Verify Code &amp; Update Password</button>
+                    <button type="button" id="forgotResendButton" onclick="resendPasswordResetCode()" disabled class="w-full py-2 text-sm font-semibold auth-recovery-muted disabled:opacity-60">Resend code in 30s</button>
+                </div>
+                <p id="forgotPasswordMessage" role="status" class="hidden text-sm text-center"></p>
+                <button type="button" onclick="toggleAuthForm('login')" class="w-full py-2 text-sm font-semibold auth-recovery-muted hover:text-amber-300">Back to Login</button>
             </div>
 
             <!-- REGISTER CARD -->
@@ -643,28 +683,82 @@
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">NID / ID Number</label>
                         <input type="text" id="kycIdNumber" placeholder="NID or ID number" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Front side of ID <span class="text-rose-300">*</span></label>
-                        <div class="flex items-center gap-3">
-                            <input type="file" id="kycFront" accept="image/*" onchange="previewKycPhoto('kycFront','kycFrontThumb')" class="field flex-1 min-w-0 rounded-2xl px-3 py-2.5 text-sm">
-                            <img id="kycFrontThumb" alt="" class="hidden w-14 h-14 flex-shrink-0 object-cover rounded-xl border border-white/10">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">Verification photos <span class="text-rose-300">*</span></p>
+                            <span id="kycPhotoProgress" class="text-[11px] font-semibold text-violet-200/70">0 of 3 photos done</span>
+                        </div>
+                        <p id="kycPhotoError" class="text-xs kyc-inline-error" role="alert">All three photos are required. Capture each photo to continue.</p>
+                        <div class="space-y-3">
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-semibold">Front side of ID</label>
+                                <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3">
+                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="kyc-photo-input" aria-label="Capture front side of ID">
+                                    <button type="button" onclick="document.getElementById('kycFront').click()" class="w-full text-left">
+                                        <div class="flex items-center gap-3">
+                                            <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
+                                                <img id="kycFrontThumb" alt="Front side of ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
+                                                <i id="kycFrontGuide" class="fa-regular fa-id-card text-2xl"></i>
+                                                <span id="kycFrontCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-sm font-bold">Tap to capture</p>
+                                                <p class="mt-1 text-xs opacity-70">Place your ID inside the frame</p>
+                                                <p class="mt-1 text-[11px] opacity-60">Make sure all text is readable</p>
+                                            </div>
+                                            <i class="fa-solid fa-camera text-lg text-amber-400"></i>
+                                        </div>
+                                    </button>
+                                    <div id="kycFrontActions" class="hidden mt-2 text-right"><button type="button" onclick="document.getElementById('kycFront').click()" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-rotate mr-1"></i>Retake</button></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-semibold">Back side of ID</label>
+                                <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3">
+                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" class="kyc-photo-input" aria-label="Capture back side of ID">
+                                    <button type="button" onclick="document.getElementById('kycBack').click()" class="w-full text-left">
+                                        <div class="flex items-center gap-3">
+                                            <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
+                                                <img id="kycBackThumb" alt="Back side of ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
+                                                <i id="kycBackGuide" class="fa-regular fa-id-card text-2xl"></i>
+                                                <span id="kycBackCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-sm font-bold">Tap to capture</p>
+                                                <p class="mt-1 text-xs opacity-70">Place your ID inside the frame</p>
+                                                <p class="mt-1 text-[11px] opacity-60">Avoid glare, keep all text readable</p>
+                                            </div>
+                                            <i class="fa-solid fa-camera text-lg text-amber-400"></i>
+                                        </div>
+                                    </button>
+                                    <div id="kycBackActions" class="hidden mt-2 text-right"><button type="button" onclick="document.getElementById('kycBack').click()" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-rotate mr-1"></i>Retake</button></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="block text-xs font-semibold">Selfie holding the ID</label>
+                                <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3">
+                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" class="kyc-photo-input" aria-label="Capture selfie holding your ID">
+                                    <button type="button" onclick="document.getElementById('kycSelfie').click()" class="w-full text-left">
+                                        <div class="flex items-center gap-3">
+                                            <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
+                                                <img id="kycSelfieThumb" alt="Selfie holding ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
+                                                <i id="kycSelfieGuide" class="fa-regular fa-user text-2xl"></i>
+                                                <span id="kycSelfieCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-sm font-bold">Tap to take selfie</p>
+                                                <p class="mt-1 text-xs opacity-70">Hold your ID beside your face</p>
+                                                <p class="mt-1 text-[11px] opacity-60">Keep your face and ID clear</p>
+                                            </div>
+                                            <i class="fa-solid fa-camera text-lg text-amber-400"></i>
+                                        </div>
+                                    </button>
+                                    <div id="kycSelfieActions" class="hidden mt-2 text-right"><button type="button" onclick="document.getElementById('kycSelfie').click()" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-rotate mr-1"></i>Retake</button></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Back side of ID <span class="text-rose-300">*</span></label>
-                        <div class="flex items-center gap-3">
-                            <input type="file" id="kycBack" accept="image/*" onchange="previewKycPhoto('kycBack','kycBackThumb')" class="field flex-1 min-w-0 rounded-2xl px-3 py-2.5 text-sm">
-                            <img id="kycBackThumb" alt="" class="hidden w-14 h-14 flex-shrink-0 object-cover rounded-xl border border-white/10">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Selfie holding the ID <span class="text-rose-300">*</span></label>
-                        <div class="flex items-center gap-3">
-                            <input type="file" id="kycSelfie" accept="image/*" onchange="previewKycPhoto('kycSelfie','kycSelfieThumb')" class="field flex-1 min-w-0 rounded-2xl px-3 py-2.5 text-sm">
-                            <img id="kycSelfieThumb" alt="" class="hidden w-14 h-14 flex-shrink-0 object-cover rounded-xl border border-white/10">
-                        </div>
-                    </div>
-                    <button type="button" id="kycSubmitBtn" onclick="submitKyc()" disabled class="btn-amber w-full font-bold py-3 rounded-2xl text-sm disabled:opacity-40 disabled:cursor-not-allowed">Choose all 3 photos to submit</button>
+                    <button type="button" id="kycSubmitBtn" onclick="submitKyc()" disabled class="btn-amber w-full font-bold py-3 rounded-2xl text-sm disabled:opacity-40 disabled:cursor-not-allowed">Complete all 3 photos to submit</button>
                     <button type="button" onclick="closeKycForm()" class="w-full py-2.5 rounded-2xl text-sm text-violet-200/70">Cancel</button>
                 </div>
             </div>
@@ -911,6 +1005,9 @@
         let pendingSignup = null;
         let resendSignupAt = 0;
         let resendSignupTimer = null;
+        let passwordResetEmail = '';
+        let passwordResetResendAt = 0;
+        let passwordResetResendTimer = null;
         const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support', 'settings'];
 
         function esc(s) {
@@ -960,14 +1057,104 @@
             }
         }
 
-        function toggleAuthForm(form) {
-            if (form === 'register') {
-                document.getElementById('loginCard').classList.add('hidden');
-                document.getElementById('registerCard').classList.remove('hidden');
-            } else {
-                document.getElementById('registerCard').classList.add('hidden');
-                document.getElementById('loginCard').classList.remove('hidden');
+        function openForgotPassword() {
+            toggleAuthForm('forgot');
+            const loginEmail = document.getElementById('loginUser').value.trim().toLowerCase();
+            if (loginEmail.includes('@')) document.getElementById('forgotPasswordEmail').value = loginEmail;
+        }
+
+        function showPasswordResetMessage(message, isError) {
+            const node = document.getElementById('forgotPasswordMessage');
+            node.textContent = message;
+            node.classList.remove('hidden', 'text-rose-300', 'text-emerald-300');
+            node.classList.add(isError ? 'text-rose-300' : 'text-emerald-300');
+        }
+
+        function startPasswordResetCooldown() {
+            passwordResetResendAt = Date.now() + 30000;
+            const button = document.getElementById('forgotResendButton');
+            if (passwordResetResendTimer) clearInterval(passwordResetResendTimer);
+            const update = () => {
+                const seconds = Math.max(0, Math.ceil((passwordResetResendAt - Date.now()) / 1000));
+                button.disabled = seconds > 0;
+                button.textContent = seconds > 0 ? `Resend code in ${seconds}s` : 'Resend code';
+                if (!seconds && passwordResetResendTimer) { clearInterval(passwordResetResendTimer); passwordResetResendTimer = null; }
+            };
+            update();
+            passwordResetResendTimer = setInterval(update, 250);
+        }
+
+        async function sendPasswordResetCode(isResend) {
+            const emailInput = document.getElementById('forgotPasswordEmail');
+            const email = (isResend ? passwordResetEmail : emailInput.value).trim().toLowerCase();
+            if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) { showPasswordResetMessage('Enter a valid email address.', true); return; }
+            const client = await waitForSupabase();
+            if (!client) { showPasswordResetMessage('Connection unavailable. Please refresh and try again.', true); return; }
+            const button = document.getElementById(isResend ? 'forgotResendButton' : 'forgotSendCodeButton');
+            if (button) button.disabled = true;
+            try {
+                const { error } = await client.auth.resetPasswordForEmail(email);
+                if (error) throw error;
+                passwordResetEmail = email;
+                document.getElementById('forgotPasswordEmail').value = email;
+                document.getElementById('forgotEmailStep').classList.add('hidden');
+                document.getElementById('forgotOtpStep').classList.remove('hidden');
+                document.getElementById('forgotEmailDisplay').textContent = email;
+                document.getElementById('forgotPasswordIntro').textContent = 'Enter the code from your email and choose a new password.';
+                document.getElementById('forgotPasswordMessage').classList.add('hidden');
+                startPasswordResetCooldown();
+                if (isResend) showPasswordResetMessage('A new code has been sent.', false);
+            } catch (error) {
+                showPasswordResetMessage(error.message || 'Could not send the reset code. Please try again.', true);
+                if (button) button.disabled = false;
             }
+        }
+
+        function resendPasswordResetCode() {
+            if (Date.now() < passwordResetResendAt) return;
+            sendPasswordResetCode(true);
+        }
+
+        async function completePasswordReset() {
+            const token = document.getElementById('forgotPasswordToken').value.trim();
+            const password = document.getElementById('forgotNewPassword').value;
+            const confirmation = document.getElementById('forgotConfirmPassword').value;
+            if (!/^\\d{6}$/.test(token)) { showPasswordResetMessage('Enter the 6-digit code from your email.', true); return; }
+            if (password.length < 6) { showPasswordResetMessage('Your new password must be at least 6 characters.', true); return; }
+            if (password !== confirmation) { showPasswordResetMessage('Passwords do not match.', true); return; }
+            const client = await waitForSupabase();
+            if (!client) { showPasswordResetMessage('Connection unavailable. Please refresh and try again.', true); return; }
+            const button = document.getElementById('forgotUpdatePasswordButton');
+            button.disabled = true;
+            button.textContent = 'Verifying...';
+            try {
+                const { error: verifyError } = await client.auth.verifyOtp({ email: passwordResetEmail, token, type: 'recovery' });
+                if (verifyError) throw verifyError;
+                const { error: updateError } = await client.auth.updateUser({ password });
+                if (updateError) throw updateError;
+                document.getElementById('forgotEmailStep').classList.add('hidden');
+                document.getElementById('forgotOtpStep').classList.add('hidden');
+                document.getElementById('forgotPasswordIntro').textContent = 'Your password has been reset successfully.';
+                showPasswordResetMessage('Password updated. You can now log in with your new password.', false);
+                document.getElementById('forgotPasswordEmail').value = '';
+                document.getElementById('forgotPasswordToken').value = '';
+                document.getElementById('forgotNewPassword').value = '';
+                document.getElementById('forgotConfirmPassword').value = '';
+                passwordResetEmail = '';
+            } catch (error) {
+                showPasswordResetMessage(error.message || 'Could not verify the code. Check it and try again.', true);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Verify Code & Update Password';
+            }
+        }
+
+        function toggleAuthForm(form) {
+            ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            if (form === 'register') document.getElementById('registerCard').classList.remove('hidden');
+            else if (form === 'forgot') document.getElementById('forgotPasswordCard').classList.remove('hidden');
+            else if (form === 'verify') document.getElementById('verifyEmailCard').classList.remove('hidden');
+            else document.getElementById('loginCard').classList.remove('hidden');
         }
 
         async function handleRegister() {
@@ -1925,37 +2112,76 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const m = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
             return /document_type|documents_json/.test(m) && /column|schema cache|could not find|does not exist/.test(m);
         }
-        function previewKycPhoto(inputId, thumbId) {
-            const f = document.getElementById(inputId).files[0];
-            const t = document.getElementById(thumbId);
-            if (f && !f.type.startsWith('image/')) {
+        function previewKycPhoto(inputId) {
+            const slot = KYC_PHOTO_SLOTS.find(item => item.inputId === inputId);
+            const input = document.getElementById(inputId);
+            let chosen = input.files[0];
+            const thumb = document.getElementById(inputId + 'Thumb');
+            if (chosen && !chosen.type.startsWith('image/')) {
                 niceAlert('Please choose an image file.');
-                document.getElementById(inputId).value = '';
+                input.value = '';
+                chosen = null;
             }
-            const chosen = document.getElementById(inputId).files[0];
-            if (!chosen) { t.classList.add('hidden'); t.removeAttribute('src'); }
-            else { t.src = URL.createObjectURL(chosen); t.classList.remove('hidden'); }
+            const card = document.getElementById(inputId + 'Card');
+            const guide = document.getElementById(inputId + 'Guide');
+            const check = document.getElementById(inputId + 'Check');
+            const actions = document.getElementById(inputId + 'Actions');
+            if (thumb.dataset.objectUrl) URL.revokeObjectURL(thumb.dataset.objectUrl);
+            if (!chosen) {
+                thumb.classList.add('hidden'); thumb.removeAttribute('src'); delete thumb.dataset.objectUrl;
+                guide.classList.remove('hidden'); check.classList.add('hidden'); check.classList.remove('flex');
+                actions.classList.add('hidden'); card.classList.remove('is-captured');
+            } else {
+                const objectUrl = URL.createObjectURL(chosen);
+                thumb.src = objectUrl; thumb.dataset.objectUrl = objectUrl; thumb.classList.remove('hidden');
+                guide.classList.add('hidden'); check.classList.remove('hidden'); check.classList.add('flex');
+                actions.classList.remove('hidden'); card.classList.add('is-captured');
+            }
             updateKycSubmitState();
         }
-        function updateKycSubmitState() {
-            const b = document.getElementById('kycSubmitBtn');
-            if (!b) return;
-            const all = KYC_PHOTO_SLOTS.every(s => document.getElementById(s.inputId).files.length > 0);
-            b.disabled = !all;
-            b.textContent = all ? 'Submit KYC' : 'Choose all 3 photos to submit';
+        function updateKycSubmitState(showError) {
+            const button = document.getElementById('kycSubmitBtn');
+            if (!button) return;
+            const completed = KYC_PHOTO_SLOTS.filter(slot => document.getElementById(slot.inputId).files.length > 0).length;
+            const ready = completed === KYC_PHOTO_SLOTS.length;
+            button.disabled = !ready;
+            button.textContent = ready ? 'Submit KYC' : 'Complete all 3 photos to submit';
+            const progress = document.getElementById('kycPhotoProgress');
+            if (progress) progress.textContent = completed + ' of 3 photos done';
+            const error = document.getElementById('kycPhotoError');
+            if (error) error.classList.toggle('hidden', !(showError && !ready));
         }
         function resetKycPhotos() {
-            KYC_PHOTO_SLOTS.forEach(s => {
-                document.getElementById(s.inputId).value = '';
-                const t = document.getElementById(s.inputId + 'Thumb');
-                if (t) { t.classList.add('hidden'); t.removeAttribute('src'); }
+            KYC_PHOTO_SLOTS.forEach(slot => {
+                const input = document.getElementById(slot.inputId);
+                input.value = '';
+                previewKycPhoto(slot.inputId);
             });
-            updateKycSubmitState();
+            updateKycSubmitState(false);
         }
         function setKycBusy(on) {
-            const b = document.getElementById('kycSubmitBtn');
-            if (on) { b.disabled = true; b.textContent = 'Submitting...'; }
-            else { updateKycSubmitState(); }
+            const button = document.getElementById('kycSubmitBtn');
+            if (on) { button.disabled = true; button.textContent = 'Submitting...'; }
+            else updateKycSubmitState(false);
+        }
+        function compressKycPhoto(file) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                const sourceUrl = URL.createObjectURL(file);
+                image.onload = () => {
+                    URL.revokeObjectURL(sourceUrl);
+                    const scale = Math.min(1, 1280 / Math.max(image.naturalWidth, image.naturalHeight));
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+                    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+                    const context = canvas.getContext('2d');
+                    if (!context) { reject(new Error('Could not process this photo.')); return; }
+                    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not compress this photo.')), 'image/jpeg', 0.8);
+                };
+                image.onerror = () => { URL.revokeObjectURL(sourceUrl); reject(new Error('Could not read this photo.')); };
+                image.src = sourceUrl;
+            });
         }
         async function submitKyc() {
             if (!currentUser) { niceAlert('Please log in first.'); return; }
@@ -1966,10 +2192,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!name) { niceAlert('Please enter your full name.'); return; }
             if (!idNumber) { niceAlert('Please enter your NID / ID number.'); return; }
             const slots = KYC_PHOTO_SLOTS.map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0] }));
-            if (slots.some(s => !s.file)) { niceAlert('Please choose all 3 photos: Front side of ID, Back side of ID, Selfie holding the ID.'); updateKycSubmitState(); return; }
+            if (slots.some(s => !s.file)) { updateKycSubmitState(true); document.getElementById('kycPhotoError').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
             for (const s of slots) {
                 if (!s.file.type.startsWith('image/')) { niceAlert(s.label + ': please choose an image file.'); return; }
-                if (s.file.size > 10 * 1024 * 1024) { niceAlert(s.label + ': photo must be 10 MB or less.'); return; }
             }
             if (!supabaseClient) { niceAlert('Not connected to server, please try again shortly.'); return; }
 
@@ -1978,9 +2203,10 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const docs = [];
             for (const s of slots) {
                 try {
-                    const ext = ((s.file.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase()) || 'jpg';
-                    const path = Date.now() + '_' + s.type + '_' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-                    const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, s.file, { cacheControl: '3600', upsert: false, contentType: s.file.type });
+                    const compressed = await compressKycPhoto(s.file);
+                    const photoFile = new File([compressed], s.type + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+                    const path = Date.now() + '_' + s.type + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+                    const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, photoFile, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
                     if (up.error) throw up.error;
                     const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
                     const url = (pub && pub.data && pub.data.publicUrl) || null;
