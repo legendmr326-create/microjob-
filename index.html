@@ -482,13 +482,15 @@
                     <input type="text" id="referralCodeDisplay" readonly class="field w-full rounded-2xl px-4 py-3 text-sm font-black tracking-widest text-center" placeholder="Loading code...">
                     <button onclick="copyReferralCode()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Code</button>
                 </div>
-                <div class="referral-count-card glass-card rounded-2xl p-4 flex flex-col items-center justify-center min-h-[132px]" aria-live="polite">
-                    <span class="text-xs font-semibold uppercase tracking-wider">Total Referrals</span>
-                    <span id="referredCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
-                </div>
-                <div class="referral-count-card glass-card rounded-2xl p-4 flex flex-col items-center justify-center min-h-[132px]" aria-live="polite">
-                    <span class="text-xs font-semibold uppercase tracking-wider">Successful Referrals</span>
-                    <span id="successfulReferralCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
+                <div class="referral-count-card glass-card rounded-2xl p-4 grid grid-cols-2 gap-3 text-center" aria-live="polite">
+                    <div class="flex flex-col items-center justify-center">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Referrals</span>
+                        <span id="referredCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center border-l border-violet-300/20 pl-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider">Successful Referrals</span>
+                        <span id="successfulReferralCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
+                    </div>
                 </div>
             </div>
             <div class="relative overflow-hidden rounded-3xl p-5 referral-bonus-card border border-amber-300/25 shadow-xl">
@@ -1435,15 +1437,15 @@
                 const rc = document.getElementById('referredCount');
                 if (rc) rc.innerText = referrals.length;
                 let successfulCount = 0;
-                if (referrals.length && Object.prototype.hasOwnProperty.call(referrals[0], 'status')) {
-                    successfulCount = referrals.filter(r => ['success', 'successful', 'completed', 'complete'].includes(String(r.status || '').trim().toLowerCase())).length;
-                } else if (referrals.length) {
+                if (referrals.length) {
                     const refereeEmails = [...new Set(referrals.map(r => String(r.referee_email || r.referred_email || '').trim().toLowerCase()).filter(Boolean))];
                     if (refereeEmails.length) {
-                        const referredUsers = await supabaseClient.from('users').select('email').in('email', refereeEmails);
-                        if (referredUsers.error) throw referredUsers.error;
-                        const existingEmails = new Set((referredUsers.data || []).map(r => String(r.email || '').trim().toLowerCase()));
-                        successfulCount = refereeEmails.filter(email => existingEmails.has(email)).length;
+                        const approvedKyc = await supabaseClient.from('kyc_verifications').select('user_email, status').in('user_email', refereeEmails);
+                        if (approvedKyc.error) throw approvedKyc.error;
+                        const approvedEmails = new Set((approvedKyc.data || [])
+                            .filter(k => String(k.status || '').trim().toLowerCase() === 'approved')
+                            .map(k => String(k.user_email || '').trim().toLowerCase()));
+                        successfulCount = refereeEmails.filter(email => approvedEmails.has(email)).length;
                     }
                 }
                 const successfulEl = document.getElementById('successfulReferralCount');
