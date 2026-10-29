@@ -262,8 +262,8 @@
             <div id="loginCard" class="glass-card w-full p-6 rounded-3xl space-y-4 hidden">
                 <h3 class="text-lg font-bold text-white text-center">Account Login</h3>
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Email or Phone</label>
-                    <input type="text" id="loginUser" placeholder="Enter email or phone" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Email Address</label>
+                    <input type="email" id="loginUser" autocomplete="username" placeholder="user@gmail.com" class="field w-full rounded-2xl px-4 py-3 text-sm">
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Password</label>
@@ -1057,19 +1057,41 @@
             }
         });
 
-        function checkAuthStatus() {
-            const savedUser = localStorage.getItem('taskflex_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                const authOverlay = document.getElementById('authOverlay');
+        async function checkAuthStatus() {
+            const authOverlay = document.getElementById('authOverlay');
+            const header = document.getElementById('appHeader');
+            const main = document.getElementById('appMain');
+            const showLoggedOut = () => {
+                currentUser = null;
+                if (authOverlay) authOverlay.classList.remove('hidden');
+                if (header) header.classList.add('hidden');
+                if (main) main.classList.add('hidden');
+            };
+            try {
+                const client = await waitForSupabase();
+                if (!client) { showLoggedOut(); return; }
+                const { data, error } = await client.auth.getSession();
+                if (error || !data || !data.session || !data.session.user) { showLoggedOut(); return; }
+                const authUser = data.session.user;
+                const savedUser = (() => {
+                    try { return JSON.parse(localStorage.getItem('taskflex_user') || 'null'); } catch (e) { return null; }
+                })();
+                const email = String(authUser.email || '').trim().toLowerCase();
+                if (!email) { showLoggedOut(); return; }
+                currentUser = {
+                    ...(savedUser && String(savedUser.email || '').trim().toLowerCase() === email ? savedUser : {}),
+                    id: authUser.id,
+                    name: (savedUser && String(savedUser.email || '').trim().toLowerCase() === email && savedUser.name) || email.split('@')[0],
+                    email
+                };
+                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
                 if (authOverlay) authOverlay.classList.add('hidden');
-                const ah = document.getElementById('appHeader'); if (ah) ah.classList.remove('hidden');
-                const am = document.getElementById('appMain'); if (am) am.classList.remove('hidden');
+                if (header) header.classList.remove('hidden');
+                if (main) main.classList.remove('hidden');
                 updateUserDataUI();
-            } else {
-                document.getElementById('authOverlay').classList.remove('hidden');
-            var ah2 = document.getElementById('appHeader'); if (ah2) ah2.classList.add('hidden');
-            var am2 = document.getElementById('appMain'); if (am2) am2.classList.add('hidden');
+            } catch (error) {
+                console.error('Auth status check failed:', error);
+                showLoggedOut();
             }
         }
 
@@ -1152,6 +1174,10 @@
                 if (verifyError) throw verifyError;
                 const { error: updateError } = await client.auth.updateUser({ password });
                 if (updateError) throw updateError;
+                const { error: signOutError } = await client.auth.signOut({ scope: 'local' });
+                if (signOutError) throw signOutError;
+                currentUser = null;
+                localStorage.removeItem('taskflex_user');
                 document.getElementById('forgotEmailStep').classList.add('hidden');
                 document.getElementById('forgotOtpStep').classList.add('hidden');
                 document.getElementById('forgotPasswordIntro').textContent = 'Your password has been reset successfully.';
@@ -1296,13 +1322,51 @@
             document.getElementById('registerCard').classList.remove('hidden');
         }
 
-        function handleLogin() {
-            const user = document.getElementById('loginUser').value;
-            if (!user) { niceAlert('Please enter your email!'); return; }
-            currentUser = { name: user.split('@')[0], email: user, phone: user };
-            localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-            document.getElementById('authOverlay').classList.add('hidden');
-            updateUserDataUI();
+        async function handleLogin() {
+            const email = document.getElementById('loginUser').value.trim().toLowerCase();
+            const password = document.getElementById('loginPass').value;
+            if (!email) { niceAlert('Please enter your email!'); return; }
+            if (!password) { niceAlert('Please enter your password!'); return; }
+            if (!isValidEmailAddress(email)) { niceAlert('Please enter a valid email address.'); return; }
+            const client = await waitForSupabase();
+            if (!client) { niceAlert('Connection unavailable. Please refresh and try again.'); return; }
+            const button = document.querySelector('#loginCard button[onclick="handleLogin()"]');
+            if (button) { button.disabled = true; button.textContent = 'Logging in...'; }
+            try {
+                const { data, error } = await client.auth.signInWithPassword({ email, password });
+                if (error || !data || !data.user || !data.session) throw error || new Error('Incorrect email or password.');
+                const authUser = data.user;
+                if (!authUser.email || String(authUser.email).trim().toLowerCase() !== email) throw new Error('Incorrect email or password.');
+                let phone = String((authUser.user_metadata && authUser.user_metadata.phone) || '');
+                try {
+                    const profile = await client.from('users').select('phone').eq('email', email).maybeSingle();
+                    if (!profile.error && profile.data && profile.data.phone) phone = String(profile.data.phone);
+                } catch (profileError) { console.warn('Could not load optional user profile.', profileError); }
+                const savedUser = (() => {
+                    try { return JSON.parse(localStorage.getItem('taskflex_user') || 'null'); } catch (e) { return null; }
+                })();
+                currentUser = {
+                    ...(savedUser && String(savedUser.email || '').trim().toLowerCase() === email ? savedUser : {}),
+                    id: authUser.id,
+                    name: (savedUser && String(savedUser.email || '').trim().toLowerCase() === email && savedUser.name) || email.split('@')[0],
+                    email,
+                    phone: phone || (savedUser && savedUser.phone) || email
+                };
+                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+                document.getElementById('authOverlay').classList.add('hidden');
+                const header = document.getElementById('appHeader'); if (header) header.classList.remove('hidden');
+                const main = document.getElementById('appMain'); if (main) main.classList.remove('hidden');
+                document.getElementById('loginPass').value = '';
+                updateUserDataUI();
+            } catch (error) {
+                console.warn('Login failed:', error);
+                const message = error && /invalid login credentials|invalid email or password|incorrect email or password/i.test(error.message || '')
+                    ? 'Incorrect email or password.'
+                    : (error.message || 'Login failed. Please try again.');
+                niceAlert(message);
+            } finally {
+                if (button) { button.disabled = false; button.textContent = 'Login'; }
+            }
         }
 
         // ---- Referral Bonus (Supabase) ----
@@ -1490,11 +1554,20 @@
             btn.style.color = show ? '#F5B942' : '';
         }
 
-        function handleLogout() {
+        async function handleLogout() {
+            const client = await waitForSupabase();
+            if (client) {
+                try {
+                    const { error } = await client.auth.signOut({ scope: 'local' });
+                    if (error) console.warn('Supabase sign out failed:', error);
+                } catch (error) { console.warn('Supabase sign out failed:', error); }
+            }
             localStorage.removeItem('taskflex_user');
             currentUser = null;
             closeModal('accountModal');
             document.getElementById('authOverlay').classList.remove('hidden');
+            const header = document.getElementById('appHeader'); if (header) header.classList.add('hidden');
+            const main = document.getElementById('appMain'); if (main) main.classList.add('hidden');
         }
 
         function formatMoney(value) {
