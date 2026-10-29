@@ -1215,15 +1215,6 @@
             document.getElementById('proofZoomImg').src = src;
             z.style.display = 'flex';
         }
-        function deleteApplication(appId) {
-            niceConfirm('Delete this submission? This cannot be undone.', function(){ doDeleteApplication(appId); });
-        }
-        async function doDeleteApplication(appId) {
-            if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
-            const { error } = await supabaseClient.from('job_applications').delete().eq('id', appId);
-            if (error) { niceAlert('Delete failed: ' + error.message); return; }
-            await refreshAfterReview();
-        }
         function closeApplicationsModal() { reviewingJobId = null; closeModal('applicationsModal'); }
 
         // proof_image: a data URL, or a JSON array of data URLs (several image answers).
@@ -2504,9 +2495,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const row = document.createElement('div');
             row.className = 'proof-row bg-white/5 border border-white/10 rounded-2xl p-2.5 space-y-2';
             const chipsHtml = Object.keys(PROOF_TYPE_LABELS).map(k =>
-                '<label class="proof-chip cursor-pointer select-none text-[11px] px-2.5 py-1.5 rounded-xl border border-white/15 text-violet-100/80">'
-                + '<input type="checkbox" value="' + k + '" class="hidden" onchange="toggleProofChip(this)">'
-                + PROOF_TYPE_LABELS[k] + '</label>'
+                '<button type="button" class="proof-chip cursor-pointer select-none text-[11px] px-2.5 py-1.5 rounded-xl border border-white/15 text-violet-100/80" data-proof-type="' + k + '" aria-pressed="false" onclick="toggleProofChip(this)">'
+                + PROOF_TYPE_LABELS[k] + '</button>'
             ).join('');
             row.innerHTML = '<div class="flex gap-2 items-center">'
                 + '<input type="text" class="proof-title field flex-1 min-w-0 rounded-2xl px-3.5 py-2.5 text-xs" placeholder="Proof requirement title">'
@@ -2516,12 +2506,12 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             list.appendChild(row);
             refreshProofRemoveButtons();
         }
-        function toggleProofChip(input) {
-            const label = input.closest('.proof-chip');
-            const on = input.checked;
-            label.classList.toggle('bg-violet-500/30', on);
-            label.classList.toggle('border-amber-300/60', on);
-            label.classList.toggle('text-white', on);
+        function toggleProofChip(button) {
+            const on = button.getAttribute('aria-pressed') !== 'true';
+            button.setAttribute('aria-pressed', String(on));
+            button.classList.toggle('bg-violet-500/30', on);
+            button.classList.toggle('border-amber-300/60', on);
+            button.classList.toggle('text-white', on);
         }
         function removeProofRow(btn) {
             const row = btn.closest('.proof-row');
@@ -2543,7 +2533,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             // zero rows is valid: no proof required
             for (const row of rows) {
                 const title = row.querySelector('.proof-title').value.trim();
-                const types = Array.from(row.querySelectorAll('.proof-chip input:checked')).map(i => i.value);
+                const types = Array.from(row.querySelectorAll('.proof-chip[aria-pressed="true"]')).map(button => button.dataset.proofType);
                 if (!title) return { error: 'Please give every proof requirement a title.' };
                 if (types.length === 0) return { error: 'Please tick at least one proof type for "' + title + '".' };
                 out.push({ title: title, types: types });
