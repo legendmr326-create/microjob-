@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script>
-        // Apply the saved appearance before the page paints to avoid a theme flash.
+        // Apply the saved appearance before the page paints. First-time visitors start in light mode.
         (function () {
-            let choice = 'dark';
-            try { choice = localStorage.getItem('taskflex_theme') || 'dark'; } catch (e) {}
-            if (!['light', 'dark', 'system'].includes(choice)) choice = 'dark';
+            let choice = 'light';
+            try { choice = localStorage.getItem('taskflex_theme') || 'light'; } catch (e) {}
+            if (!['light', 'dark', 'system'].includes(choice)) choice = 'light';
             const effective = choice === 'system'
                 ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
                 : choice;
@@ -3358,7 +3358,10 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     body.theme-light { color: #201A31 !important; background: radial-gradient(1100px 600px at 10% -10%, rgba(196,181,253,.48) 0%, transparent 60%), radial-gradient(900px 500px at 110% 10%, rgba(253,230,138,.34) 0%, transparent 55%), #F6F4FB !important; }
     html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { background: linear-gradient(160deg,rgba(255,255,255,.98),rgba(250,248,255,.94)) !important; border-color: rgba(89,72,130,.14) !important; box-shadow: 0 10px 28px -14px rgba(52,38,83,.2), inset 0 1px 0 rgba(255,255,255,.9) !important; }
     html[data-theme-effective="light"] .field, body.theme-light .field { background: rgba(255,255,255,.96) !important; border-color: rgba(89,72,130,.22) !important; color: #211A32 !important; }
-    html[data-theme-effective="light"] .field::placeholder, body.theme-light .field::placeholder { color: #817995 !important; }
+    html[data-theme-effective="light"] .field::placeholder, body.theme-light .field::placeholder { color: #5B536B !important; opacity: 1 !important; }
+    html[data-theme-effective="light"] #niceAlertText, body.theme-light #niceAlertText,
+    html[data-theme-effective="light"] #niceConfirmText, body.theme-light #niceConfirmText { color: #211A32 !important; }
+    html[data-theme-effective="light"] .glass-card [class*="opacity-"], body.theme-light .glass-card [class*="opacity-"] { opacity: 1 !important; }
     html[data-theme-effective="light"] .nav-glass, body.theme-light .nav-glass { background: #FAF8FF !important; background-color: #FAF8FF !important; background-image: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: rgba(89,72,130,.14) !important; box-shadow: 0 -10px 30px -15px rgba(52,38,83,.2) !important; }
     html[data-theme-effective="light"] body header#appHeader, body.theme-light header#appHeader { background: #FAF8FF !important; background-color: #FAF8FF !important; background-image: none !important; opacity: 1 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: 0 !important; border-bottom: 1px solid #DED9E8 !important; box-shadow: none !important; }
     html[data-theme-effective="light"] body .sticky, body.theme-light .sticky { background: #FAF8FF !important; background-color: #FAF8FF !important; background-image: none !important; opacity: 1 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
@@ -3394,6 +3397,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { color: #252033 !important; }
     html[data-theme-effective="light"] .glass-card [class*="text-violet-"], body.theme-light .glass-card [class*="text-violet-"] { color: #494258 !important; }
     html[data-theme-effective="light"] .glass-card [class*="text-gray-"], html[data-theme-effective="light"] .glass-card [class*="text-slate-"], body.theme-light .glass-card [class*="text-gray-"], body.theme-light .glass-card [class*="text-slate-"] { color: #494258 !important; }
+    html[data-theme-effective="light"] .glass-card [style*="color: rgba"], body.theme-light .glass-card [style*="color: rgba"] { color: #494258 !important; }
+    html[data-theme-effective="light"] .glass-card [style*="opacity"], body.theme-light .glass-card [style*="opacity"] { opacity: 1 !important; }
     html[data-theme-effective="light"] label[class*="uppercase"], body.theme-light label[class*="uppercase"] { color: #302A3D !important; }
     html[data-theme-effective="light"] #personalView, html[data-theme-effective="light"] #personalView *, body.theme-light #personalView, body.theme-light #personalView * { color: #302A3D !important; }
     html[data-theme-effective="light"] #personalView [class*="text-violet-"], body.theme-light #personalView [class*="text-violet-"] { color: #302A3D !important; }
@@ -3401,6 +3406,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] #tab-dashboard .glass-card [class*="text-violet-"], body.theme-light #tab-dashboard .glass-card [class*="text-violet-"] { color: #383247 !important; }
     html[data-theme-effective="light"] .text-emerald-200, html[data-theme-effective="light"] .text-emerald-300, body.theme-light .text-emerald-200, body.theme-light .text-emerald-300 { color: #16723D !important; }
     html[data-theme-effective="light"] .text-rose-200, html[data-theme-effective="light"] .text-rose-300, body.theme-light .text-rose-200, body.theme-light .text-rose-300 { color: #A12640 !important; }
+    html[data-theme-effective="light"] [class*="text-amber-100"], html[data-theme-effective="light"] [class*="text-amber-200"], html[data-theme-effective="light"] [class*="text-amber-300"], html[data-theme-effective="light"] [class*="text-amber-400"], body.theme-light [class*="text-amber-100"], body.theme-light [class*="text-amber-200"], body.theme-light [class*="text-amber-300"], body.theme-light [class*="text-amber-400"] { color: #59400A !important; }
     /* Verified indicators use legible green lettering on a soft green surface in both themes. */
     .verified-badge { color: #18723D !important; background-color: rgba(34,197,94,.16) !important; }
     .verified-icon { color: #FFFFFF !important; background-color: #059669 !important; border-color: #047857 !important; box-shadow: 0 1px 3px rgba(0,0,0,.28) !important; }
@@ -3412,15 +3418,15 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function getThemeChoice() {
             try {
                 const saved = localStorage.getItem(themeKey);
-                return validThemes.includes(saved) ? saved : 'dark';
-            } catch (e) { return 'dark'; }
+                return validThemes.includes(saved) ? saved : 'light';
+            } catch (e) { return 'light'; }
         }
         function resolveTheme(choice) {
             if (choice !== 'system') return choice;
             return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
         function applyTheme(choice) {
-            if (!validThemes.includes(choice)) choice = 'dark';
+            if (!validThemes.includes(choice)) choice = 'light';
             const effective = resolveTheme(choice);
             document.documentElement.dataset.themePreference = choice;
             document.documentElement.dataset.themeEffective = effective;
