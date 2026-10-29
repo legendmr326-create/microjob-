@@ -1056,9 +1056,18 @@
                         <p class="text-xs text-violet-100"><span class="font-black text-amber-300">${total}</span> worker${total === 1 ? '' : 's'} applied</p>
                         <p class="text-[10px] text-violet-200/60">${pending} pending · ${approved} approved · ${rejected} rejected</p>
                     </div>
-                    <div class="flex items-center gap-2"><button onclick="openApplicationsModal(${Number(j.id)})" class="flex-1 min-w-0 text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button><button onclick="previewPostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-white/5 text-violet-100 border border-white/10 hover:bg-white/10" title="Preview job">Job View</button></div>
+                    <div class="flex items-center gap-2"><button onclick="openApplicationsModal(${Number(j.id)})" class="flex-1 min-w-0 text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button><button onclick="previewPostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-white/5 text-violet-100 border border-white/10 hover:bg-white/10" title="Preview job">Job View</button><button onclick="deletePostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-rose-500/25 text-rose-200 border border-rose-400/40 hover:bg-rose-500/35">Delete</button></div>
                 </div>`;
             }).join('');
+        }
+
+        async function deletePostedJob(jobId) {
+            if (!confirm('Delete this posted job? Its submissions (proofs) will be kept. This cannot be undone.')) return;
+            if (!supabaseClient) { alert('Not connected to server.'); return; }
+            const { error: jobErr } = await supabaseClient.from('micro_jobs').delete().eq('id', jobId);
+            if (jobErr) { alert('Could not delete the job: ' + jobErr.message); return; }
+            if (typeof loadMyPostedJobs === 'function') await loadMyPostedJobs();
+            if (typeof loadJobs === 'function') await loadJobs();
         }
 
         function previewPostedJob(jobId) {
