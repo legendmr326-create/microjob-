@@ -6,9 +6,9 @@
     <script>
         // Apply the saved appearance before the page paints to avoid a theme flash.
         (function () {
-            let choice = 'system';
-            try { choice = localStorage.getItem('taskflex_theme') || 'system'; } catch (e) {}
-            if (!['light', 'dark', 'system'].includes(choice)) choice = 'system';
+            let choice = 'dark';
+            try { choice = localStorage.getItem('taskflex_theme') || 'dark'; } catch (e) {}
+            if (!['light', 'dark', 'system'].includes(choice)) choice = 'dark';
             const effective = choice === 'system'
                 ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
                 : choice;
@@ -703,6 +703,28 @@
             <div class="glass-card rounded-2xl p-4 text-xs leading-relaxed text-violet-100/80">Micro job TaskFlex is a micro-job platform where you can earn by completing small tasks, and businesses can post jobs to promote their work.</div>
         </div>
 
+        <!-- TAB: SETTINGS -->
+        <div id="tab-settings" class="space-y-3.5 hidden">
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="document.getElementById('accountModal').classList.remove('hidden');" aria-label="Back to account menu" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-violet-100"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-base font-bold text-white">Settings <span class="text-violet-200/70">(সেটিংস)</span></h2>
+            </div>
+            <section class="appearance-card glass-card rounded-3xl p-4" aria-label="Appearance settings">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Appearance</h3>
+                        <p class="text-xs text-violet-200/70 mt-0.5">Choose how TaskFlex looks</p>
+                    </div>
+                    <i class="fa-solid fa-palette text-amber-300" aria-hidden="true"></i>
+                </div>
+                <div class="appearance-toggle" role="group" aria-label="Theme appearance">
+                    <button type="button" class="appearance-option" data-theme-choice="light" aria-pressed="false" onclick="setThemePreference('light')"><i class="fa-solid fa-sun" aria-hidden="true"></i><span>Light</span></button>
+                    <button type="button" class="appearance-option" data-theme-choice="dark" aria-pressed="false" onclick="setThemePreference('dark')"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Dark</span></button>
+                    <button type="button" class="appearance-option" data-theme-choice="system" aria-pressed="false" onclick="setThemePreference('system')"><i class="fa-solid fa-desktop" aria-hidden="true"></i><span>System</span></button>
+                </div>
+            </section>
+        </div>
+
         <!-- TAB: TERMS & PRIVACY -->
         <div id="tab-terms" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">Terms & Privacy</h2>
@@ -819,20 +841,6 @@
                             <p id="profilePhone" class="text-xs text-violet-200/70 truncate">email@gmail.com</p>
                         </div>
                     </div>
-                    <section class="appearance-card glass-card rounded-3xl p-4" aria-label="Appearance settings">
-                        <div class="flex items-center justify-between gap-3 mb-3">
-                            <div>
-                                <h3 class="text-sm font-bold text-white">Appearance</h3>
-                                <p class="text-xs text-violet-200/70 mt-0.5">Choose how TaskFlex looks</p>
-                            </div>
-                            <i class="fa-solid fa-palette text-amber-300" aria-hidden="true"></i>
-                        </div>
-                        <div class="appearance-toggle" role="group" aria-label="Theme appearance">
-                            <button type="button" class="appearance-option" data-theme-choice="light" aria-pressed="false" onclick="setThemePreference('light')"><i class="fa-solid fa-sun" aria-hidden="true"></i><span>Light</span></button>
-                            <button type="button" class="appearance-option" data-theme-choice="dark" aria-pressed="false" onclick="setThemePreference('dark')"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Dark</span></button>
-                            <button type="button" class="appearance-option" data-theme-choice="system" aria-pressed="false" onclick="setThemePreference('system')"><i class="fa-solid fa-desktop" aria-hidden="true"></i><span>System</span></button>
-                        </div>
-                    </section>
                     <div class="glass-card rounded-3xl divide-y divide-white/10 overflow-hidden text-sm">
                         <div onclick="openAccountPage('profile')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-user-pen text-amber-300 w-4"></i> Profile</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('notifications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-bell text-amber-300 w-4"></i> Notifications</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
@@ -844,6 +852,7 @@
                         <div onclick="openAccountPage('about')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-circle-info text-amber-300 w-4"></i> About Us</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('terms')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-amber-300 w-4"></i> Terms & Privacy</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                     </div>
+                    <button type="button" onclick="openAccountPage('settings')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between text-sm font-bold hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gear text-amber-300 w-4"></i> Settings (সেটিংস)</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></button>
                     <button onclick="handleLogout()" class="w-full border border-rose-400/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-3.5 rounded-2xl transition mt-4">Logout</button>
                 </div>
             </div>
@@ -875,7 +884,7 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
-        const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support'];
+        const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support', 'settings'];
 
         function esc(s) {
             return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2848,15 +2857,15 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function getThemeChoice() {
             try {
                 const saved = localStorage.getItem(themeKey);
-                return validThemes.includes(saved) ? saved : 'system';
-            } catch (e) { return 'system'; }
+                return validThemes.includes(saved) ? saved : 'dark';
+            } catch (e) { return 'dark'; }
         }
         function resolveTheme(choice) {
             if (choice !== 'system') return choice;
             return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
         function applyTheme(choice) {
-            if (!validThemes.includes(choice)) choice = 'system';
+            if (!validThemes.includes(choice)) choice = 'dark';
             const effective = resolveTheme(choice);
             document.documentElement.dataset.themePreference = choice;
             document.documentElement.dataset.themeEffective = effective;
