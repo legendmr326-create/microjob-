@@ -277,7 +277,7 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-2.5 text-center">
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 id="statPending" class="text-lg font-black text-amber-300 mt-0.5">0</h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 id="statPending" class="text-lg money-amount text-amber-300 mt-0.5"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></h4></div>
                         <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Approved</p><h4 id="statApproved" class="text-lg font-black text-emerald-300 mt-0.5">0</h4></div>
                         <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Rejected</p><h4 id="statRejected" class="text-lg font-black text-rose-300 mt-0.5">0</h4></div>
                     </div>
@@ -2183,7 +2183,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
 
         async function renderEarnings() {
-            const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+            const set = (id, v) => { const el = document.getElementById(id); if (!el) return; if (id === 'statPending') el.innerHTML = formatMoney(v); else el.innerText = v; };
             renderRecentActivity();
             setMoney('earnBalance', currentBalance);
             const mine = getLocalList('taskflex_applications').filter(a => currentUser && a.email === currentUser.email);
@@ -2196,7 +2196,16 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const myApps = (srvApps || getLocalList('taskflex_applications').filter(a => a.email === currentUser.email));
             set('statApproved', String(myApps.filter(a => norm(a.status) === 'Approved').length));
             set('statRejected', String(myApps.filter(a => norm(a.status) === 'Rejected').length));
-            set('statPending', String(myApps.filter(a => norm(a.status) === 'Pending').length));
+            // Pending card shows the pending AMOUNT in taka (sum of pending jobs' rewards)
+            const pendIds = [...new Set(myApps.filter(a => norm(a.status) === 'Pending').map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+            let pendSum = 0;
+            if (pendIds.length) {
+                const { data: pendJobs } = await supabaseClient.from('micro_jobs').select('id,reward').in('id', pendIds);
+                pendSum = (pendJobs || []).reduce((t, j) => t + (parseFloat(j.reward) || 0), 0);
+            } else {
+                pendSum = myApps.filter(a => norm(a.status) === 'Pending').reduce((t, a) => t + (parseFloat(a.reward) || 0), 0);
+            }
+            set('statPending', pendSum);
             set('earnWithdrawals', String(getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email).length));
         }
 
