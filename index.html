@@ -118,6 +118,25 @@
             color: #2A1A00;
             box-shadow: 0 8px 22px -8px rgba(245, 158, 11, 0.6);
         }
+        .referral-entry-label, .referral-entry-hint { color: #B7A9D8; }
+        html[data-theme-effective="light"] .referral-entry-label, body.theme-light .referral-entry-label { color: #453A59 !important; }
+        html[data-theme-effective="light"] .referral-entry-hint, body.theme-light .referral-entry-hint { color: #554C62 !important; }
+        .referral-bonus-card { background: linear-gradient(135deg, rgba(245, 185, 66, .14), rgba(139, 92, 246, .12), rgba(26, 18, 51, .92)); }
+        .referral-bonus-label { color: #FDE68A; }
+        .referral-bonus-title { color: #fff; }
+        .referral-bonus-copy { color: #EDE9FE; }
+        .referral-bonus-note { color: #FDE68A; }
+        .referral-count-card { border: 1px solid rgba(196, 181, 253, .18); }
+        html[data-theme-effective="light"] .referral-bonus-card, body.theme-light .referral-bonus-card { background: linear-gradient(135deg, #FFF4D6, #F4EFFF 65%, #FFFFFF) !important; border-color: #D9C9A2 !important; }
+        html[data-theme-effective="light"] .referral-bonus-label, body.theme-light .referral-bonus-label { color: #684800 !important; }
+        html[data-theme-effective="light"] .referral-bonus-title, body.theme-light .referral-bonus-title { color: #251D33 !important; }
+        html[data-theme-effective="light"] .referral-bonus-copy, body.theme-light .referral-bonus-copy { color: #40364F !important; }
+        html[data-theme-effective="light"] .referral-bonus-note, body.theme-light .referral-bonus-note { color: #463500 !important; }
+        html[data-theme-effective="light"] .referral-count-card, body.theme-light .referral-count-card { background: #FFFFFF !important; color: #282237 !important; border-color: #D8D2E3 !important; }
+        html[data-theme-effective="light"] #referredCount, body.theme-light #referredCount { color: #805000 !important; }
+        html[data-theme-effective="light"] #tab-refer .text-violet-100\/85, body.theme-light #tab-refer .text-violet-100\/85 { color: #3F374B !important; }
+        html[data-theme-effective="light"] #tab-refer .text-violet-200\/70, body.theme-light #tab-refer .text-violet-200\/70 { color: #554C62 !important; }
+        html[data-theme-effective="light"] #tab-refer .text-amber-300, body.theme-light #tab-refer .text-amber-300 { color: #775000 !important; }
         .btn-amber:hover { filter: brightness(1.06); }
         .btn-violet {
             background: linear-gradient(90deg, #8B5CF6, #6D28D9);
@@ -245,6 +264,11 @@
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Confirm Password (enter again)</label>
                     <div class="relative"><input type="password" id="regPass2" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('regPass2', this)" aria-label="Show/hide password" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+                </div>
+                <div class="referral-entry">
+                    <label class="referral-entry-label block text-[11px] font-semibold uppercase tracking-wider mb-1.5" for="regReferralCode">Referral Code (optional)</label>
+                    <input type="email" id="regReferralCode" placeholder="friend@example.com" autocomplete="email" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <p class="referral-entry-hint text-xs mt-1">Enter your friend's email</p>
                 </div>
                 <button onclick="handleRegister()" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Create Account</button>
                 <p class="text-xs text-center text-violet-200/70 pt-1">
@@ -392,12 +416,16 @@
                 <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
                 <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Link</button>
             </div>
-            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/25 via-violet-600/25 to-transparent border border-amber-300/25 shadow-xl">
-                <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Referral Bonus</p>
-                <h3 class="text-2xl font-black text-white mt-1">প্রতি রেফারে ১০ টাকা (KYC ভেরিফিকেশনের পর)</h3>
-                <p class="text-xs text-violet-100/80 mt-1">You earn ৳10 for every valid referral after your friend completes KYC verification.</p>
+            <div class="referral-count-card glass-card rounded-2xl p-4 flex items-center justify-between" aria-live="polite">
+                <span class="text-sm font-semibold">Total Referrals:</span>
+                <span id="referredCount" class="text-2xl font-black text-amber-300">0</span>
             </div>
-            <p class="text-xs text-amber-200/90 font-semibold px-1">রেফার করা বন্ধু KYC ভেরিফিকেশন সম্পন্ন করলে স্বয়ংক্রিয়ভাবে ১০ টাকা ব্যালেন্সে যোগ হবে</p>
+            <div class="relative overflow-hidden rounded-3xl p-5 referral-bonus-card border border-amber-300/25 shadow-xl">
+                <p class="referral-bonus-label text-[11px] uppercase tracking-widest font-semibold">Referral Bonus</p>
+                <h3 class="referral-bonus-title text-2xl font-black mt-1">প্রতি রেফারে ১০ টাকা (KYC ভেরিফিকেশনের পর)</h3>
+                <p class="referral-bonus-copy text-xs mt-1">You earn ৳10 for every valid referral after your friend completes KYC verification.</p>
+            </div>
+            <p class="referral-bonus-note text-xs font-semibold px-1">রেফার করা বন্ধু KYC ভেরিফিকেশন সম্পন্ন করলে স্বয়ংক্রিয়ভাবে ১০ টাকা ব্যালেন্সে যোগ হবে</p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 1</p><p class="text-xs text-violet-100/85 mt-1">Share your referral link. Each friend who signs up with it counts as a referral.</p></div>
                 <div class="glass-card rounded-2xl p-4"><p class="text-[11px] font-bold text-amber-300 uppercase tracking-wider">Rule 2</p><p class="text-xs text-violet-100/85 mt-1">You earn ৳10 per valid referral, only after your friend completes KYC verification.</p></div>
@@ -863,6 +891,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             captureRefParam();
+            prefillReferralCode();
             checkAuthStatus();
             function tryFetchJobs(attempt) {
                 if (supabaseClient) { fetchJobsFromDatabase(); loadLeaderboard(); }
@@ -897,15 +926,19 @@
         }
 
         function handleRegister() {
-            const email = document.getElementById('regEmail').value;
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const phone = document.getElementById('regPhone').value;
             const pass = document.getElementById('regPass').value;
+            const refInput = document.getElementById('regReferralCode');
+            const referralCode = String(refInput ? refInput.value : '').trim().toLowerCase();
             if (!email || !phone || !pass) { niceAlert('Please fill all fields!'); return; }
+            if (referralCode && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(referralCode)) { niceAlert('Please enter a valid referral email.'); return; }
             const pass2 = document.getElementById('regPass2').value;
             if (pass !== pass2) { niceAlert('Passwords do not match! Enter the same password twice.'); return; }
             currentUser = { name: email.split('@')[0], email: email, phone: phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-            registerReferralSignup(email);
+            if (referralCode) localStorage.setItem('taskflex_ref', referralCode);
+            registerReferralSignup(email, referralCode);
             document.getElementById('authOverlay').classList.add('hidden');
             updateUserDataUI();
         }
@@ -928,8 +961,9 @@
                 if (r && r.includes('@')) localStorage.setItem('taskflex_ref', r.trim().toLowerCase());
             } catch (e) {}
         }
-        async function registerReferralSignup(email) {
-            const ref = localStorage.getItem('taskflex_ref');
+        async function registerReferralSignup(email, referralCode) {
+            const storedRef = localStorage.getItem('taskflex_ref');
+            const ref = String(referralCode || storedRef || '').trim().toLowerCase();
             const referee = String(email || '').trim().toLowerCase();
             if (!ref || !referee || ref === referee || !supabaseClient) return;
             try {
@@ -937,8 +971,23 @@
                 if (ex.data && ex.data.length) { localStorage.removeItem('taskflex_ref'); return; }
                 const ins = await supabaseClient.from('referrals').insert([{ referrer_email: ref, referee_email: referee }]);
                 if (ins.error) console.warn('referral insert failed', ins.error);
-                else localStorage.removeItem('taskflex_ref');
+                else {
+                    localStorage.removeItem('taskflex_ref');
+                    const activeEmail = currentUser && String(currentUser.email || '').trim().toLowerCase();
+                    if (activeEmail === ref) {
+                        const rc = document.getElementById('referredCount');
+                        if (rc) rc.innerText = String((Number(rc.innerText) || 0) + 1);
+                    }
+                }
             } catch (e) { console.warn('referral error', e); }
+        }
+        function prefillReferralCode() {
+            const input = document.getElementById('regReferralCode');
+            if (!input) return;
+            const urlRef = new URLSearchParams(location.search).get('ref');
+            let value = urlRef && urlRef.includes('@') ? urlRef : '';
+            if (!value) { try { value = localStorage.getItem('taskflex_ref') || ''; } catch (e) {} }
+            if (value) input.value = value.trim().toLowerCase();
         }
         function todayKey() {
             const d = new Date();
