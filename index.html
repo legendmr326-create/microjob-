@@ -574,7 +574,9 @@
                         <button type="button" onclick="setQuickAmount(2000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳2000</button>
                         <button type="button" onclick="setQuickAmount(5000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳5000</button>
                     </div>
-                    <input type="number" id="depositAmount" oninput="updateFeePreview()" placeholder="Amount you want to receive (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
+                    <input type="number" id="depositAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳50')" placeholder="Amount you want to receive (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs" aria-describedby="depositMinHint depositAmountError">
+                    <p id="depositMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
+                    <p id="depositAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum deposit amount is ৳50</p>
                     <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
                         <div>Send: <span id="depositGross" class="font-bold text-amber-300">৳ 0.00</span></div>
                         <div>You receive: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
@@ -598,9 +600,11 @@
             <div id="withdrawSection" class="glass-card rounded-3xl p-5 space-y-3">
                 <h3 class="text-base font-bold text-white">Withdraw Request</h3>
                 <div class="flex gap-2">
-                    <input type="number" id="withdrawAmount" oninput="updateFeePreview()" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs">
+                    <input type="number" id="withdrawAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
                     <button type="button" onclick="withdrawAll()" class="bg-bgDark/70 border border-white/10 rounded-2xl px-3 text-[11px] font-bold text-amber-200 whitespace-nowrap">Withdraw All</button>
                 </div>
+                <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
+                <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
                 <select id="withdrawMethod" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     <option value="bKash">bKash</option>
                     <option value="Nagad">Nagad</option>
@@ -1848,8 +1852,20 @@
             return await supabaseClient.from(table).insert([stripped]);
         }
 
+        function validateMinimumAmount(inputId, errorId, message) {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errorId);
+            const amount = parseFloat(input.value);
+            const belowMinimum = Number.isFinite(amount) && amount < 50;
+            error.textContent = message;
+            error.classList.toggle('hidden', !belowMinimum);
+            input.setAttribute('aria-invalid', belowMinimum ? 'true' : 'false');
+            return !belowMinimum;
+        }
+
         async function submitDeposit() {
             const amt = document.getElementById('depositAmount').value;
+            if (!validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳50')) return;
             const sender = document.getElementById('depositSender').value;
             const trx = document.getElementById('depositTrx').value;
             if (!amt || !sender || !trx) { niceAlert('Please fill all boxes!'); return; }
@@ -2640,7 +2656,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const method = document.getElementById('withdrawMethod').value;
             const number = document.getElementById('withdrawNumber').value.trim();
             if (!amount || amount <= 0 || !number) { niceAlert('Please enter amount and number!'); return; }
-            if (amount < 100) { niceAlert('Minimum withdraw amount is \u09f3 100.'); return; }
+            if (!validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')) return;
             if (amount > currentBalance) { niceAlert('You cannot withdraw more than your balance.'); return; }
             const wFee = Math.round(amount * 10) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
