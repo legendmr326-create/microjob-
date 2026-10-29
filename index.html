@@ -909,14 +909,20 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            captureRefParam();
-            prefillReferralCode();
-            checkAuthStatus();
-            function tryFetchJobs(attempt) {
-                if (supabaseClient) { fetchJobsFromDatabase(); loadLeaderboard(); }
-                else if (attempt < 20) { setTimeout(() => tryFetchJobs(attempt + 1), 500); }
+            try {
+                captureRefParam();
+                prefillReferralCode();
+                checkAuthStatus();
+                function tryFetchJobs(attempt) {
+                    if (supabaseClient) { fetchJobsFromDatabase(); loadLeaderboard(); }
+                    else if (attempt < 20) { setTimeout(() => tryFetchJobs(attempt + 1), 500); }
+                }
+                tryFetchJobs(0);
+            } catch (e) {
+                console.error('Startup initialization failed:', e);
+                // Auth visibility must not depend on theme/referral initialization.
+                try { checkAuthStatus(); } catch (authError) { console.error('Auth initialization failed:', authError); }
             }
-            tryFetchJobs(0);
         });
 
         function checkAuthStatus() {
