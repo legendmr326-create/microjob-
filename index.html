@@ -124,7 +124,15 @@
         .nav-btn i { transition: transform .2s ease; }
         .nav-btn:active i { transform: scale(.85); }
         .stat-chip { border-radius: 16px; }
-        /* Mobile (<=768px): single column, no sideways scroll. Desktop unchanged. */
+        .money-amount { display: inline-flex; align-items: baseline; gap: .08em; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; font-weight: 600; letter-spacing: -.035em; }
+        .money-symbol { font-size: .58em; font-weight: 500; opacity: .82; letter-spacing: 0; }
+        .money-decimal { font-size: .72em; font-weight: 500; opacity: .86; letter-spacing: -.01em; }
+        .balance-card { background: linear-gradient(140deg, rgba(245,185,66,.17) 0%, rgba(139,92,246,.12) 44%, rgba(26,18,51,.9) 100%); border: 1px solid rgba(252,217,122,.27); box-shadow: 0 16px 38px -22px rgba(245,185,66,.48), 0 14px 32px -22px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.1); }
+        .balance-value { font-variant-numeric: tabular-nums lining-nums; font-weight: 600 !important; letter-spacing: -.045em; text-shadow: 0 1px 18px rgba(252,217,122,.12); }
+        .balance-value .money-symbol { font-size: .53em; vertical-align: .12em; }
+        .balance-value .money-decimal { font-size: .66em; }
+    </style>
+    <style>
         @media (max-width: 768px) {
             html, body { max-width: 100%; overflow-x: hidden; }
             main, main > div, #tab-profile, #tab-withdraw, #profEditPanel, #personalView { min-width: 0; max-width: 100%; }
@@ -258,20 +266,20 @@
             <div id="tab-dashboard" class="space-y-4">
 
                 <div id="workerDashboard" class="space-y-3.5">
-                    <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-amber-400/20 via-violet-600/25 to-transparent border border-amber-300/20 shadow-xl">
+                    <div class="relative overflow-hidden rounded-3xl p-5 balance-card">
                         <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-amber-400/20 blur-2xl"></div>
                         <div class="relative flex justify-between items-end gap-3">
                             <div>
                                 <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Available Balance</p>
-                                <h3 id="workerBalance" class="text-3xl font-black text-white mt-1">৳ 0.00</h3>
+                                <h3 id="workerBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                             </div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2.5 text-center">
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 id="statPending" class="text-lg font-black text-amber-300 mt-0.5">0</h4></div>
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Approved</p><h4 id="statApproved" class="text-lg font-black text-emerald-300 mt-0.5">0</h4></div>
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Rejected</p><h4 id="statRejected" class="text-lg font-black text-rose-300 mt-0.5">0</h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 id="statPending" class="text-lg money-amount text-amber-300 mt-0.5"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Approved</p><h4 id="statApproved" class="text-lg money-amount text-emerald-300 mt-0.5"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Rejected</p><h4 id="statRejected" class="text-lg money-amount text-rose-300 mt-0.5"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></h4></div>
                     </div>
                 </div>
 
@@ -294,12 +302,12 @@
 
         <!-- TAB: JOB POST (balance + open post form) -->
         <div id="tab-newjob" class="space-y-3.5 hidden">
-            <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-violet-500/30 via-fuchsia-600/15 to-transparent border border-violet-300/20 shadow-xl">
+                <div class="relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-violet-500/30 via-fuchsia-600/15 to-transparent border border-violet-300/20 shadow-xl balance-card">
                 <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-400/25 blur-2xl"></div>
                 <div class="relative flex justify-between items-end gap-3">
                     <div>
                         <p class="text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Available Balance</p>
-                        <h3 id="clientBalance" class="text-3xl font-black text-white mt-1">৳ 0.00</h3>
+                <h3 id="clientBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                     </div>
                     <button onclick="switchTab('deposit')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
                         <i class="fa-solid fa-plus text-xs"></i> Add Funds
@@ -325,9 +333,9 @@
         <div id="tab-history" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">Earnings Summary</h2>
             <div class="grid grid-cols-2 gap-3">
-                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Earned</p><h4 id="earnSummaryTotal" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+            <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Earned</p><h4 id="earnSummaryTotal" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
                 <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Completed Jobs</p><h4 id="earnSummaryCount" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
-                <div class="glass-card rounded-2xl p-4 col-span-2"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Wallet Balance</p><h4 id="earnBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+                <div class="glass-card rounded-2xl p-4 col-span-2"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Wallet Balance</p><h4 id="earnBalance" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
             </div>
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div class="flex items-center justify-between pb-2">
@@ -477,7 +485,7 @@
         <!-- TAB: WITHDRAW -->
         <div id="tab-withdraw" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Withdraw</h2>
-            <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Balance</p><h4 id="wdTotalBalance" class="text-lg font-black text-amber-300 mt-1">৳ 0.00</h4></div>
+            <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Balance</p><h4 id="wdTotalBalance" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
             <div id="withdrawSection" class="glass-card rounded-3xl p-5 space-y-3">
                 <h3 class="text-base font-bold text-white">Withdraw Request</h3>
                 <div class="flex gap-2">
@@ -926,7 +934,7 @@
                 btn.innerText = !currentUser ? 'Log in to claim' : (claimedToday ? 'Claimed today' : 'Claim ৳200');
             }
             const tot = document.getElementById('claimTotal');
-            if (tot) tot.innerText = '৳ ' + Number((row && row.total_bonus) || 0).toFixed(2);
+            if (tot) tot.innerHTML = formatMoney((row && row.total_bonus) || 0);
             clearInterval(window.__countdownTimer);
             const cd = document.getElementById('claimCountdown');
             if (!cd) return;
@@ -999,6 +1007,17 @@
             document.getElementById('authOverlay').classList.remove('hidden');
         }
 
+        function formatMoney(value) {
+            const amount = Number(value);
+            const safeAmount = Number.isFinite(amount) ? amount : 0;
+            const [whole, decimals] = safeAmount.toFixed(2).split('.');
+            return `<span class="money-amount"><span class="money-symbol">৳</span><span>${Number(whole).toLocaleString('en-US')}</span><span class="money-decimal">.${decimals}</span></span>`;
+        }
+        function setMoney(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = formatMoney(value);
+        }
+
         async function fetchUserBalance() {
             if (!currentUser || !supabaseClient) return;
             const { data: deposits, error } = await supabaseClient
@@ -1031,10 +1050,10 @@
                 (wdRes.data || []).forEach(w => { if (/pending/i.test(w.status || 'Pending')) window.__wdPending += parseFloat(w.amount || 0); });
             } catch (e) { console.warn('balance deduction fetch failed', e); }
             currentBalance = totalBalance;
-            document.getElementById('workerBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
-            document.getElementById('clientBalance').innerText = `৳ ${totalBalance.toFixed(2)}`;
+            setMoney('workerBalance', totalBalance);
+            setMoney('clientBalance', totalBalance);
             const wdTot = document.getElementById('wdTotalBalance');
-            if (wdTot) wdTot.innerText = `৳ ${totalBalance.toFixed(2)}`;
+            if (wdTot) wdTot.innerHTML = formatMoney(totalBalance);
             renderWallet();
             renderEarnings();
             renderDepositHistory();
@@ -1119,7 +1138,7 @@
                 const rejected = mine.filter(a => appStatusNorm(a.status) === 'Rejected').length;
                 return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                     <div class="flex items-center justify-between gap-3">
-                        <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
+                        <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ${formatMoney(j.reward ?? 0)}</p></div>
                         <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
                     </div>
                     <div class="flex items-center justify-between gap-2 flex-wrap">
@@ -1431,7 +1450,7 @@
                         <div class="min-w-0">
                             <h4 class="text-sm font-bold text-white truncate">${esc(job.title)}</h4>
                         </div>
-                        <span class="text-sm font-black text-amber-300 whitespace-nowrap">৳ ${esc(job.reward)}</span>
+                        <span class="text-sm text-amber-300 whitespace-nowrap">${formatMoney(job.reward || 0)}</span>
                     </div>
                     ${job.limit_count ? (() => { const taken = Math.min(Number(job.slots || 0), Number(job.limit_count)); const pct = Math.min(100, Math.round((taken / Number(job.limit_count)) * 100)); return `
                     <div class="mt-3">
@@ -1461,7 +1480,7 @@
                 <h3 class="text-lg font-black text-white">${esc(job.title)}</h3>
                 ${job.thumbnail_url ? `<img src="${esc(job.thumbnail_url)}" alt="" class="w-full max-h-[180px] object-cover rounded-xl">` : ''}
                 <div class="grid grid-cols-2 gap-2.5 text-xs">
-                    <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="font-black text-amber-300 mt-0.5">৳ ${esc(job.reward)}</p></div>
+                    <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="text-amber-300 mt-0.5">${formatMoney(job.reward || 0)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
                 </div>
                 ${job.description ? `<div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">What to do</p><p class="text-violet-100/85 leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
@@ -1957,7 +1976,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                         <p class="text-[11px] text-violet-200/60">${esc(new Date(a.date).toLocaleDateString())}</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-xs font-black text-amber-300">৳ ${esc(a.reward)}</p>
+                        <p class="text-xs text-amber-300">${formatMoney(a.reward || 0)}</p>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2 py-0.5 rounded-full font-bold">${esc(a.status)}</span>
                     </div>
                 </div>
@@ -2011,7 +2030,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const rowHtml = r => `
                 <div class="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 text-xs">
                     <div><p class="font-bold text-white">${esc(r.kind)} · ${esc(r.label)}</p><p class="text-[10px] text-violet-200/60">${esc(r.status)}</p></div>
-                    <span class="font-black ${r.kind === 'Deposit' ? 'text-amber-300' : 'text-rose-300'}">৳ ${esc(parseFloat(r.amount || 0).toFixed(2))}</span>
+                    <span class="${r.kind === 'Deposit' ? 'text-amber-300' : 'text-rose-300'}">${formatMoney(r.amount || 0)}</span>
                 </div>`;
             if (list) {
                 list.innerHTML = rows.length === 0 ? `<div class="text-center py-6 text-violet-200/60 text-xs">No transactions yet.</div>` : rows.map(rowHtml).join('');
@@ -2030,7 +2049,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             el.innerHTML = rows.map(d => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}</p></div>
-                    <div class="text-right"><span class="font-black text-white">&#2546; ${esc(parseFloat(d.amount || 0).toFixed(2))}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(d.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(d.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(d.status || 'Pending')}</p></div>
+                    <div class="text-right"><span class="text-white">${formatMoney(d.amount || 0)}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(d.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(d.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(d.status || 'Pending')}</p></div>
                 </div>`).join('');
         }
 
@@ -2046,27 +2065,27 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             el.innerHTML = rows.map(w => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(w.method || '')}</p><p class="text-[10px] text-violet-200/60">${esc((w.created_at || '').slice(0, 10))}</p></div>
-                    <div class="text-right"><span class="font-black text-white">&#2546; ${esc(parseFloat(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100).toFixed(2))}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(w.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(w.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(w.status || 'Pending')}</p></div>
+                    <div class="text-right"><span class="text-white">${formatMoney(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100)}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(w.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(w.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(w.status || 'Pending')}</p></div>
                 </div>`).join('');
         }
 
         async function renderEarningsSummary() {
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-            set('earnBalance', `৳ ${currentBalance.toFixed(2)}`);
-            if (!currentUser || !supabaseClient) { set('earnSummaryTotal', '৳ 0.00'); set('earnSummaryCount', '0'); return; }
+            setMoney('earnBalance', currentBalance);
+            if (!currentUser || !supabaseClient) { setMoney('earnSummaryTotal', 0); set('earnSummaryCount', '0'); return; }
             const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email);
-            if (appErr) { set('earnSummaryTotal', '৳ 0.00'); set('earnSummaryCount', '0'); return; }
+            if (appErr) { setMoney('earnSummaryTotal', 0); set('earnSummaryCount', '0'); return; }
             const earned = (apps || []).filter(a => /^(approved|completed|done)$/i.test(String(a.status || '').trim()));
             const ids = [...new Set(earned.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
             const jobMap = {};
             if (ids.length) {
                 const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('id,reward').in('id', ids);
-                if (jobErr) { set('earnSummaryTotal', '৳ 0.00'); set('earnSummaryCount', '0'); return; }
+                if (jobErr) { setMoney('earnSummaryTotal', 0); set('earnSummaryCount', '0'); return; }
                 (jobs || []).forEach(j => { jobMap[String(j.id)] = j; });
             }
             let total = 0;
             earned.forEach(a => { total += parseFloat((jobMap[String(a.job_id)] || {}).reward || 0) || 0; });
-            set('earnSummaryTotal', `৳ ${total.toFixed(2)}`);
+            setMoney('earnSummaryTotal', total);
             set('earnSummaryCount', String(earned.length));
         }
 
@@ -2101,7 +2120,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 else { label = 'Pending'; badge = 'bg-slate-400/20 text-slate-300 border-slate-300/40'; }
                 return `<div class="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0 text-xs gap-2">
                     <div class="min-w-0"><p class="font-bold text-white truncate">${esc(j.title || ('Job #' + a.job_id))}</p><p class="text-[10px] text-violet-200/60 truncate">Employer: ${esc(j.client_email || '-')}</p><p class="text-[10px] text-violet-200/60">${esc(dateStr)}</p></div>
-                    <div class="text-right whitespace-nowrap"><span class="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold border ${badge}">${label}</span><p class="font-black text-amber-300 mt-1">৳ ${esc(amount.toFixed(2))}</p></div>
+                    <div class="text-right whitespace-nowrap"><span class="inline-block text-[10px] px-2 py-0.5 rounded-full font-bold border ${badge}">${label}</span><p class="mt-1 text-amber-300">${formatMoney(amount)}</p></div>
                 </div>`;
             }).join('');
         }
@@ -2157,16 +2176,16 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 <div class="glass-card rounded-2xl p-3.5 flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2.5 min-w-0"><i class="fa-solid ${it.icon} text-amber-300 text-xs"></i><span class="text-xs text-violet-100/85 truncate">${esc(it.text)}</span></div>
                     <div class="text-right whitespace-nowrap">
-                        <p class="text-xs font-black text-amber-300">৳${esc(parseFloat(it.amount || 0).toFixed(2))}</p>
+                        <p class="text-xs text-amber-300">${formatMoney(parseFloat(it.amount || 0))}</p>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2 py-0.5 rounded-full font-bold">${esc(it.status || '')}</span>
                     </div>
                 </div>`).join('');
         }
 
         async function renderEarnings() {
-            const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+            const set = (id, v) => { const el = document.getElementById(id); if (!el) return; if (['statPending', 'statApproved', 'statRejected'].includes(id)) el.innerHTML = formatMoney(v); else el.innerText = v; };
             renderRecentActivity();
-            set('earnBalance', `৳ ${currentBalance.toFixed(2)}`);
+            setMoney('earnBalance', currentBalance);
             const mine = getLocalList('taskflex_applications').filter(a => currentUser && a.email === currentUser.email);
             set('earnApplied', String(mine.length));
             set('earnPendingDeposits', String(allDeposits.filter(d => d.status === 'Pending').length));
@@ -2186,7 +2205,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             } else {
                 pendSum = myApps.filter(a => norm(a.status) === 'Pending').reduce((t, a) => t + (parseFloat(a.reward) || 0), 0);
             }
-            set('statPending', '\u09f3 ' + pendSum.toFixed(2));
+            setMoney('statPending', pendSum);
             set('earnWithdrawals', String(getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email).length));
         }
 
@@ -2610,20 +2629,20 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const R = Math.round(reward * 100) / 100;
             const T = Math.round(R * limit * 100) / 100;
             const fee = Math.round(T * 10) / 100;
-            document.getElementById('jobReward').textContent = '৳ ' + T.toFixed(2);
-            document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
-            document.getElementById('jobTotal').textContent = '৳ ' + (T + fee).toFixed(2);
+            document.getElementById('jobReward').innerHTML = formatMoney(T);
+            document.getElementById('jobFee').innerHTML = formatMoney(fee);
+            document.getElementById('jobTotal').innerHTML = formatMoney(T + fee);
             applyCostPerWorkerRule();
         }
         function updateFeePreview() {
             const d = parseFloat(document.getElementById('depositAmount').value) || 0;
-            document.getElementById('depositGross').textContent = '৳ ' + d.toFixed(2);
-            document.getElementById('depositNet').textContent = '৳ ' + d.toFixed(2);
+            document.getElementById('depositGross').innerHTML = formatMoney(d);
+            document.getElementById('depositNet').innerHTML = formatMoney(d);
             const w = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const wFee = Math.round(w * 7) / 100;
-            document.getElementById('withdrawGross').textContent = '৳ ' + w.toFixed(2);
-            document.getElementById('withdrawFee').textContent = '৳ ' + wFee.toFixed(2);
-            document.getElementById('withdrawNet').textContent = '৳ ' + (w - wFee).toFixed(2);
+            document.getElementById('withdrawGross').innerHTML = formatMoney(w);
+            document.getElementById('withdrawFee').innerHTML = formatMoney(wFee);
+            document.getElementById('withdrawNet').innerHTML = formatMoney(w - wFee);
         }
         function setQuickAmount(v) {
             document.getElementById('depositAmount').value = v;
