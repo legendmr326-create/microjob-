@@ -651,8 +651,8 @@
                     </div>
                     <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Cost per Worker (৳)</label>
-                        <input type="number" id="newJobReward" min="50" step="any" oninput="updateJobFeePreview()" aria-describedby="newJobRewardError" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                        <p id="newJobRewardError" class="hidden mt-1 text-[11px] font-semibold text-rose-300" role="alert">Minimum reward is ৳50</p>
+                        <input type="number" id="newJobReward" min="1" step="any" oninput="updateJobFeePreview()" aria-describedby="newJobRewardError" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        <p id="newJobRewardError" class="hidden mt-1 text-[11px] font-semibold text-rose-300" role="alert">Minimum total job cost is ৳50 (reward x workers)</p>
                     </div>
                     <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
@@ -1321,10 +1321,11 @@
                         </div>
                         <span class="text-sm font-black text-amber-300 whitespace-nowrap">৳ ${esc(job.reward)}</span>
                     </div>
-                    <div class="flex justify-between items-center mt-2.5 text-[11px] text-violet-200/60">
-                        <span><i class="fa-solid fa-users"></i> ${job.limit_count ? (Math.max(0, Number(job.limit_count) - Number(job.slots || 0))) + ' of ' + esc(job.limit_count) + ' slots left' : 'Unlimited workers'}</span>
-                        <span>★ ${job.rating ? esc(job.rating) : 'New'}</span>
-                    </div>
+                    ${job.limit_count ? (() => { const taken = Math.min(Number(job.slots || 0), Number(job.limit_count)); const pct = Math.min(100, Math.round((taken / Number(job.limit_count)) * 100)); return `
+                    <div class="mt-3">
+                        <p class="text-center text-[11px] font-bold text-violet-200/70 tracking-wide">${taken} OF ${esc(job.limit_count)}</p>
+                        <div class="mt-1.5 h-2 w-full rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width:${pct}%"></div></div>
+                    </div>`; })() : ''}
                 </div>
             `).join('');
         }
@@ -2299,7 +2300,6 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
             if (!title) { alert('Please fill all fields!'); return; }
             if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
-            if (reward < JOB_MIN_COST_PER_WORKER) { alert('Minimum reward is ৳' + JOB_MIN_COST_PER_WORKER + '.'); return; }
             const limitRaw = document.getElementById('newJobLimit').value;
             const limit = parseInt(limitRaw, 10);
             if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { alert('Limit (workers) is required and must be at least 1.'); return; }
@@ -2307,6 +2307,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 
             const R = Math.round(reward * 100) / 100;
             const budget = Math.round(R * limit * 100) / 100;
+            if (budget < JOB_MIN_TOTAL_BUDGET) { alert('Minimum total job cost is ৳' + JOB_MIN_TOTAL_BUDGET + ' (reward x workers).'); return; }
             const jobFee = Math.round(budget * 10) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
             if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
@@ -2437,15 +2438,18 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
         function closePostJobModal() { document.getElementById('postJobModal').classList.add('hidden'); }
 
-        const JOB_MIN_COST_PER_WORKER = 50;
+        const JOB_MIN_TOTAL_BUDGET = 50; // total job cost (reward x workers) must be at least 50
         function applyCostPerWorkerRule() {
             const input = document.getElementById('newJobReward');
             const btn = document.getElementById('jobNextBtn');
             const error = document.getElementById('newJobRewardError');
             const raw = (input.value || '').trim();
-            const cost = parseFloat(raw);
-            const hasValue = raw !== '' && Number.isFinite(cost);
-            const belowMinimum = hasValue && cost < JOB_MIN_COST_PER_WORKER;
+            const reward = parseFloat(raw);
+            const limitRaw = (document.getElementById('newJobLimit').value || '').trim();
+            const limit = parseFloat(limitRaw);
+            const hasValue = raw !== '' && Number.isFinite(reward) && limitRaw !== '' && Number.isFinite(limit) && limit >= 1;
+            // minimum applies to the TOTAL (reward x workers): 1 taka/worker is fine, total must reach 50
+            const belowMinimum = hasValue && (Math.round(reward * limit * 100) / 100) < JOB_MIN_TOTAL_BUDGET;
             // red below 50, amber at 50 or more; neutral while the field is empty
             let color = '';
             if (hasValue) color = belowMinimum ? '#f87171' : '#fcd34d';
