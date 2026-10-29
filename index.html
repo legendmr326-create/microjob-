@@ -3,6 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Apply the saved appearance before the page paints to avoid a theme flash.
+        (function () {
+            let choice = 'system';
+            try { choice = localStorage.getItem('taskflex_theme') || 'system'; } catch (e) {}
+            if (!['light', 'dark', 'system'].includes(choice)) choice = 'system';
+            const effective = choice === 'system'
+                ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+                : choice;
+            document.documentElement.dataset.themePreference = choice;
+            document.documentElement.dataset.themeEffective = effective;
+            document.documentElement.classList.toggle('dark', effective === 'dark');
+        })();
+    </script>
     <title>Micro job TaskFlex - Professional Platform</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -773,6 +787,20 @@
                             <p id="profilePhone" class="text-xs text-violet-200/70 truncate">email@gmail.com</p>
                         </div>
                     </div>
+                    <section class="appearance-card glass-card rounded-3xl p-4" aria-label="Appearance settings">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Appearance</h3>
+                                <p class="text-xs text-violet-200/70 mt-0.5">Choose how TaskFlex looks</p>
+                            </div>
+                            <i class="fa-solid fa-palette text-amber-300" aria-hidden="true"></i>
+                        </div>
+                        <div class="appearance-toggle" role="group" aria-label="Theme appearance">
+                            <button type="button" class="appearance-option" data-theme-choice="light" aria-pressed="false" onclick="setThemePreference('light')"><i class="fa-solid fa-sun" aria-hidden="true"></i><span>Light</span></button>
+                            <button type="button" class="appearance-option" data-theme-choice="dark" aria-pressed="false" onclick="setThemePreference('dark')"><i class="fa-solid fa-moon" aria-hidden="true"></i><span>Dark</span></button>
+                            <button type="button" class="appearance-option" data-theme-choice="system" aria-pressed="false" onclick="setThemePreference('system')"><i class="fa-solid fa-desktop" aria-hidden="true"></i><span>System</span></button>
+                        </div>
+                    </section>
                     <div class="glass-card rounded-3xl divide-y divide-white/10 overflow-hidden text-sm">
                         <div onclick="openAccountPage('profile')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-user-pen text-amber-300 w-4"></i> Profile</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                         <div onclick="openAccountPage('notifications')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-bell text-amber-300 w-4"></i> Notifications</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
@@ -2701,5 +2729,82 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     <button id="niceAlertOk" class="w-full text-xs font-black py-3 rounded-2xl btn-amber">OK</button>
   </div>
 </div>
+<style>
+    /* Appearance control styling. Dark mode remains on the original site styles. */
+    .appearance-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid rgba(196,181,253,.16); border-radius: 16px; background: rgba(16,10,34,.62); }
+    .appearance-option { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; border: 1px solid transparent; border-radius: 12px; padding: 7px 5px; color: #C4B5FD; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .appearance-option[aria-pressed="true"] { color: #2A1A00; background: linear-gradient(90deg,#FCD34D,#F59E0B); box-shadow: 0 4px 12px rgba(245,158,11,.2); }
+    .appearance-option:focus-visible { outline: 2px solid #F5B942; outline-offset: 2px; }
+    html[data-theme-effective="light"] body,
+    body.theme-light { color: #201A31 !important; background: radial-gradient(1100px 600px at 10% -10%, rgba(196,181,253,.48) 0%, transparent 60%), radial-gradient(900px 500px at 110% 10%, rgba(253,230,138,.34) 0%, transparent 55%), #F6F4FB !important; }
+    html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { background: linear-gradient(160deg,rgba(255,255,255,.98),rgba(250,248,255,.94)) !important; border-color: rgba(89,72,130,.14) !important; box-shadow: 0 10px 28px -14px rgba(52,38,83,.2), inset 0 1px 0 rgba(255,255,255,.9) !important; }
+    html[data-theme-effective="light"] .field, body.theme-light .field { background: rgba(255,255,255,.96) !important; border-color: rgba(89,72,130,.22) !important; color: #211A32 !important; }
+    html[data-theme-effective="light"] .field::placeholder, body.theme-light .field::placeholder { color: #817995 !important; }
+    html[data-theme-effective="light"] .nav-glass, body.theme-light .nav-glass { background: rgba(250,248,255,.94) !important; border-color: rgba(89,72,130,.14) !important; box-shadow: 0 -10px 30px -15px rgba(52,38,83,.2) !important; }
+    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: linear-gradient(140deg,rgba(255,246,220,.98),rgba(247,241,255,.98) 65%,rgba(255,255,255,.96)) !important; border-color: rgba(194,139,35,.3) !important; box-shadow: 0 14px 32px -22px rgba(135,96,24,.32), inset 0 1px 0 white !important; }
+    html[data-theme-effective="light"] .custom-scrollbar::-webkit-scrollbar-thumb, body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background: #C8C0D8 !important; }
+    html[data-theme-effective="light"] .appearance-card .text-white, body.theme-light .appearance-card .text-white { color: #211A32 !important; }
+    html[data-theme-effective="light"] .appearance-toggle, body.theme-light .appearance-toggle { background: #EEEAF5; border-color: rgba(89,72,130,.12); }
+    html[data-theme-effective="light"] .appearance-option, body.theme-light .appearance-option { color: #655C77; }
+    html[data-theme-effective="light"] .appearance-option[aria-pressed="true"], body.theme-light .appearance-option[aria-pressed="true"] { color: #2A1A00; }
+    /* Map the page's existing hard-coded dark Tailwind utilities to the light palette. */
+    html[data-theme-effective="light"] [class*="bg-bgDark"], body.theme-light [class*="bg-bgDark"] { background-color: #F6F4FB !important; }
+    html[data-theme-effective="light"] [class*="bg-cardDark"], body.theme-light [class*="bg-cardDark"] { background-color: #FFFFFF !important; }
+    html[data-theme-effective="light"] [class*="border-cardBorder"], body.theme-light [class*="border-cardBorder"] { border-color: #E2DDEA !important; }
+    html[data-theme-effective="light"] [class~="text-white"], body.theme-light [class~="text-white"] { color: #211A32 !important; }
+    html[data-theme-effective="light"] [class*="text-violet-50"], html[data-theme-effective="light"] [class*="text-violet-100"], html[data-theme-effective="light"] [class*="text-violet-200"], html[data-theme-effective="light"] [class*="text-violet-300"], body.theme-light [class*="text-violet-50"], body.theme-light [class*="text-violet-100"], body.theme-light [class*="text-violet-200"], body.theme-light [class*="text-violet-300"] { color: #554C68 !important; }
+    html[data-theme-effective="light"] [class*="text-gray-100"], html[data-theme-effective="light"] [class*="text-gray-200"], html[data-theme-effective="light"] [class*="text-gray-300"], html[data-theme-effective="light"] [class*="text-slate-100"], html[data-theme-effective="light"] [class*="text-slate-200"], html[data-theme-effective="light"] [class*="text-slate-300"], body.theme-light [class*="text-gray-100"], body.theme-light [class*="text-gray-200"], body.theme-light [class*="text-gray-300"], body.theme-light [class*="text-slate-100"], body.theme-light [class*="text-slate-200"], body.theme-light [class*="text-slate-300"] { color: #433B55 !important; }
+    html[data-theme-effective="light"] [class*="border-white/"], body.theme-light [class*="border-white/"] { border-color: rgba(76,62,105,.14) !important; }
+    html[data-theme-effective="light"] [class*="divide-white/"] > :not([hidden]) ~ :not([hidden]), body.theme-light [class*="divide-white/"] > :not([hidden]) ~ :not([hidden]) { border-color: rgba(76,62,105,.14) !important; }
+    html[data-theme-effective="light"] [class*="bg-white/"], body.theme-light [class*="bg-white/"] { background-color: rgba(75,60,105,.055) !important; }
+    html[data-theme-effective="light"] [class*="hover:bg-white/"], body.theme-light [class*="hover:bg-white/"] { --tw-bg-opacity: .08; }
+    html[data-theme-effective="light"] #landingHero, html[data-theme-effective="light"] #authOverlay, body.theme-light #landingHero, body.theme-light #authOverlay { background-color: #F6F4FB !important; background-image: none !important; }
+    html[data-theme-effective="light"] #landingHero .landing-menu-button, body.theme-light #landingHero .landing-menu-button { background: #FFFFFF !important; color: #322A43 !important; border-color: #E2DDEA !important; box-shadow: 0 4px 16px rgba(52,38,83,.1) !important; }
+    html[data-theme-effective="light"] #landingHero .landing-title, html[data-theme-effective="light"] #landingHero .landing-trust, body.theme-light #landingHero .landing-title, body.theme-light #landingHero .landing-trust { color: #211A32 !important; }
+    html[data-theme-effective="light"] #accountModal > div, body.theme-light #accountModal > div { background-color: #F6F4FB !important; }
+    html[data-theme-effective="light"] #accountModal > div > div:first-child, body.theme-light #accountModal > div > div:first-child { background: rgba(246,244,251,.96) !important; border-color: rgba(76,62,105,.14) !important; }
+    html[data-theme-effective="light"] .field:focus, body.theme-light .field:focus { border-color: #D69A24 !important; box-shadow: 0 0 0 3px rgba(214,154,36,.16) !important; }
+</style>
+<script>
+    (function () {
+        const themeKey = 'taskflex_theme';
+        const validThemes = ['light', 'dark', 'system'];
+        function getThemeChoice() {
+            try {
+                const saved = localStorage.getItem(themeKey);
+                return validThemes.includes(saved) ? saved : 'system';
+            } catch (e) { return 'system'; }
+        }
+        function resolveTheme(choice) {
+            if (choice !== 'system') return choice;
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        function applyTheme(choice) {
+            if (!validThemes.includes(choice)) choice = 'system';
+            const effective = resolveTheme(choice);
+            document.documentElement.dataset.themePreference = choice;
+            document.documentElement.dataset.themeEffective = effective;
+            document.documentElement.classList.toggle('dark', effective === 'dark');
+            if (document.body) document.body.classList.toggle('theme-light', effective === 'light');
+            document.querySelectorAll('[data-theme-choice]').forEach(button => {
+                const selected = button.dataset.themeChoice === choice;
+                button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+            });
+        }
+        window.setThemePreference = function (choice) {
+            if (!validThemes.includes(choice)) return;
+            try { localStorage.setItem(themeKey, choice); } catch (e) {}
+            applyTheme(choice);
+        };
+        applyTheme(getThemeChoice());
+        if (window.matchMedia) {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: light)');
+            const updateForSystem = () => { if (getThemeChoice() === 'system') applyTheme('system'); };
+            if (systemTheme.addEventListener) systemTheme.addEventListener('change', updateForSystem);
+            else if (systemTheme.addListener) systemTheme.addListener(updateForSystem);
+        }
+        document.addEventListener('DOMContentLoaded', () => applyTheme(getThemeChoice()));
+    })();
+</script>
 </body>
 </html>
