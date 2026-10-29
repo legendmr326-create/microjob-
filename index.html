@@ -1038,7 +1038,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             try {
-                captureRefParam();
+                try { localStorage.removeItem('taskflex_ref'); } catch (e) {}
                 prefillReferralCode();
                 checkAuthStatus();
                 function tryFetchJobs(attempt) {
@@ -1191,7 +1191,6 @@
                 const { data, error } = await client.auth.signUp({ email, password: pass, options: { data: { phone } } });
                 if (error) throw error;
                 pendingSignup = { email, phone, referralCode };
-                if (referralCode) localStorage.setItem('taskflex_ref', referralCode);
                 if (data && data.session) {
                     await finishSignup(data.user);
                     return;
@@ -1216,7 +1215,6 @@
             const { email, phone, referralCode } = pendingSignup;
             currentUser = { id: authUser && authUser.id, name: email.split('@')[0], email, phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-            if (referralCode) localStorage.setItem('taskflex_ref', referralCode);
             await ensureReferralCode(currentUser);
             await registerReferralSignup(email, referralCode);
             pendingSignup = null;
@@ -1306,12 +1304,6 @@
         // ---- Referral Bonus (Supabase) ----
         const DAILY_BONUS = 200;
         window.__bonusRow = null;
-        function captureRefParam() {
-            try {
-                const r = new URLSearchParams(location.search).get('ref');
-                if (r) localStorage.setItem('taskflex_ref', r.trim());
-            } catch (e) {}
-        }
         async function waitForSupabase() {
             for (let i = 0; i < 30 && !supabaseClient; i++) await new Promise(resolve => setTimeout(resolve, 250));
             return supabaseClient;
@@ -1365,27 +1357,24 @@
             return code ? { code, email: String(found.data.email || '').trim().toLowerCase() } : null;
         }
         async function registerReferralSignup(email, referralCode) {
-            const ref = String(referralCode || localStorage.getItem('taskflex_ref') || '').trim();
+            const ref = String(referralCode || '').trim();
             const referee = String(email || '').trim().toLowerCase();
             if (!ref || !referee || !(await waitForSupabase())) return;
             try {
                 const resolved = await resolveReferralInput(ref);
-                if (!resolved || resolved.email === referee) { localStorage.removeItem('taskflex_ref'); return; }
+                if (!resolved || resolved.email === referee) return;
                 const existing = await supabaseClient.from('referrals').select('id').eq('referee_email', referee).limit(1);
                 if (existing.error) { console.warn('Could not check referral signup.', existing.error); return; }
-                if (existing.data && existing.data.length) { localStorage.removeItem('taskflex_ref'); return; }
+                if (existing.data && existing.data.length) return;
                 const inserted = await supabaseClient.from('referrals').insert([{ referrer_email: resolved.email, referee_email: referee, referrer_code: resolved.code }]);
                 if (inserted.error) console.warn('Could not save referral signup.', inserted.error);
-                else localStorage.removeItem('taskflex_ref');
             } catch (e) { console.warn('Referral signup failed.', e); }
         }
         function prefillReferralCode() {
             const input = document.getElementById('regReferralCode');
             if (!input) return;
             const urlRef = new URLSearchParams(location.search).get('ref');
-            let value = urlRef || '';
-            if (!value) { try { value = localStorage.getItem('taskflex_ref') || ''; } catch (e) {} }
-            if (value) input.value = value.trim();
+            input.value = urlRef ? urlRef.trim() : '';
         }
         function todayKey() {
             const d = new Date();
