@@ -779,8 +779,9 @@
                 </div>
                 <div class="p-4 space-y-4">
                     <div class="relative overflow-hidden glass-card rounded-3xl p-5 flex items-center gap-4">
-                        <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0">
+                        <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 relative">
                             <img id="modalUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="w-full h-full rounded-full bg-cardDark">
+                            <span id="accountVerifiedTick" title="Verified" aria-label="Verified" class="verified-icon hidden absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] items-center justify-center border border-white"><i class="fa-solid fa-check"></i></span>
                         </div>
                         <div class="min-w-0">
                             <h3 id="profileName" class="text-base font-bold text-white truncate">User</h3>
@@ -1607,6 +1608,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (name) name.classList.toggle('hidden', !on);
             const hdr = document.getElementById('headerVerifiedTick');
             if (hdr) { hdr.classList.toggle('hidden', !on); hdr.classList.toggle('flex', on); }
+            const account = document.getElementById('accountVerifiedTick');
+            if (account) { account.classList.toggle('hidden', !on); account.classList.toggle('flex', on); }
         }
         function renderKycCard() {
             renderVerifiedTick();
