@@ -203,9 +203,9 @@
                     </div>
 
                     <div class="grid grid-cols-3 gap-2.5 text-center">
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 class="text-lg font-black text-amber-300 mt-0.5">0</h4></div>
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Approved</p><h4 class="text-lg font-black text-emerald-300 mt-0.5">0</h4></div>
-                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Rejected</p><h4 class="text-lg font-black text-rose-300 mt-0.5">0</h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 id="statPending" class="text-lg font-black text-amber-300 mt-0.5">0</h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Approved</p><h4 id="statApproved" class="text-lg font-black text-emerald-300 mt-0.5">0</h4></div>
+                        <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Rejected</p><h4 id="statRejected" class="text-lg font-black text-rose-300 mt-0.5">0</h4></div>
                     </div>
                 </div>
 
@@ -1072,10 +1072,12 @@
             if (typeof loadJobs === 'function') await loadJobs();
         }
 
+        let jobPreviewMode = false;
         function previewPostedJob(jobId) {
             const job = postedJobsCache[String(jobId)];
             if (!job) { niceAlert('Could not load this job. Refresh My Posted Jobs and try again.'); return; }
             if (!allJobs.some(j => Number(j.id) === Number(job.id))) allJobs.push(job);
+            jobPreviewMode = true;
             openJobDetail(job.id);
         }
 
@@ -1341,9 +1343,12 @@
 
         function applyJobFilters() {
             const q = (document.getElementById('jobSearch')?.value || '').toLowerCase().trim();
+            const apps = getLocalList('taskflex_applications');
             const list = allJobs.filter(j =>
                 (jobCategory === 'all' || j.category === jobCategory) &&
-                (!q || String(j.title || '').toLowerCase().includes(q))
+                (!q || String(j.title || '').toLowerCase().includes(q)) &&
+                // already submitted -> hide from the available list
+                !apps.some(a => currentUser && a.email === currentUser.email && Number(a.job_id) === Number(j.id))
             );
             renderJobList(list);
         }
@@ -1396,11 +1401,20 @@
             `;
             const already = getLocalList('taskflex_applications').some(a => a.email === (currentUser && currentUser.email) && Number(a.job_id) === Number(job.id));
             const btn = document.getElementById('applyJobBtn');
-            btn.innerText = already ? 'Already submitted' : 'Submit';
-            document.getElementById('proofPanel').classList.toggle('hidden', already);
+            const isPreview = jobPreviewMode === true;
+            jobPreviewMode = false;
+            // Job View (employer preview): view only, no submit tools
+            document.getElementById('proofPanel').classList.toggle('hidden', already || isPreview);
             renderProofPanel(job);
-            btn.disabled = already;
-            btn.className = already ? "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60" : "btn-amber w-full font-bold py-3.5 rounded-2xl text-sm";
+            if (isPreview) {
+                btn.innerText = 'Preview only \u2014 workers submit this job';
+                btn.disabled = true;
+                btn.className = "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60";
+            } else {
+                btn.innerText = already ? 'Already submitted' : 'Submit';
+                btn.disabled = already;
+                btn.className = already ? "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60" : "btn-amber w-full font-bold py-3.5 rounded-2xl text-sm";
+            }
             switchTab('jobdetail');
         }
 
@@ -2080,13 +2094,21 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 </div>`).join('');
         }
 
-        function renderEarnings() {
+        async function renderEarnings() {
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
             renderRecentActivity();
             set('earnBalance', `৳ ${currentBalance.toFixed(2)}`);
             const mine = getLocalList('taskflex_applications').filter(a => currentUser && a.email === currentUser.email);
             set('earnApplied', String(mine.length));
             set('earnPendingDeposits', String(allDeposits.filter(d => d.status === 'Pending').length));
+            // dashboard Pending / Approved / Rejected cards: the user's own job applications
+            const norm = t => /^approved$/i.test(t) ? 'Approved' : /^rejected$/i.test(t) ? 'Rejected' : 'Pending';
+            if (!currentUser || !supabaseClient) { set('statPending', '0'); set('statApproved', '0'); set('statRejected', '0'); return; }
+            const { data: srvApps } = await supabaseClient.from('job_applications').select('status').eq('user_email', currentUser.email);
+            const myApps = (srvApps || getLocalList('taskflex_applications').filter(a => a.email === currentUser.email));
+            set('statPending', String(myApps.filter(a => norm(a.status) === 'Pending').length));
+            set('statApproved', String(myApps.filter(a => norm(a.status) === 'Approved').length));
+            set('statRejected', String(myApps.filter(a => norm(a.status) === 'Rejected').length));
             set('earnWithdrawals', String(getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email).length));
         }
 
