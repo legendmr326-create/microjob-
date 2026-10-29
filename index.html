@@ -270,8 +270,8 @@
                 </div>
                 <div class="referral-entry">
                     <label class="referral-entry-label block text-[11px] font-semibold uppercase tracking-wider mb-1.5" for="regReferralCode">Referral Code (optional)</label>
-                    <input type="email" id="regReferralCode" placeholder="friend@example.com" autocomplete="email" class="field w-full rounded-2xl px-4 py-3 text-sm">
-                    <p class="referral-entry-hint text-xs mt-1">Enter your friend's email</p>
+                    <input type="text" id="regReferralCode" placeholder="Enter your friend's referral code" autocomplete="off" autocapitalize="characters" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                    <p class="referral-entry-hint text-xs mt-1">Enter your friend's referral code</p>
                 </div>
                 <button onclick="handleRegister()" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Create Account</button>
                 <p class="text-xs text-center text-violet-200/70 pt-1">
@@ -419,9 +419,16 @@
                 <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
                 <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Link</button>
             </div>
-            <div class="referral-count-card glass-card rounded-2xl p-4 flex items-center justify-between" aria-live="polite">
-                <span class="text-sm font-semibold">Total Referrals:</span>
-                <span id="referredCount" class="text-2xl font-black text-amber-300">0</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="glass-card rounded-2xl p-4 space-y-2.5">
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70" for="referralCodeDisplay">REFERRAL CODE</label>
+                    <input type="text" id="referralCodeDisplay" readonly class="field w-full rounded-2xl px-4 py-3 text-sm font-black tracking-widest text-center" placeholder="Loading code...">
+                    <button onclick="copyReferralCode()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Code</button>
+                </div>
+                <div class="referral-count-card glass-card rounded-2xl p-4 flex flex-col items-center justify-center min-h-[132px]" aria-live="polite">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Referrals</span>
+                    <span id="referredCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
+                </div>
             </div>
             <div class="relative overflow-hidden rounded-3xl p-5 referral-bonus-card border border-amber-300/25 shadow-xl">
                 <p class="referral-bonus-label text-[11px] uppercase tracking-widest font-semibold">Referral Bonus</p>
@@ -902,6 +909,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
+            applyTheme(getThemeChoice());
             captureRefParam();
             prefillReferralCode();
             checkAuthStatus();
@@ -942,9 +950,9 @@
             const phone = document.getElementById('regPhone').value;
             const pass = document.getElementById('regPass').value;
             const refInput = document.getElementById('regReferralCode');
-            const referralCode = String(refInput ? refInput.value : '').trim().toLowerCase();
+            const referralCode = String(refInput ? refInput.value : '').trim();
             if (!email || !phone || !pass) { niceAlert('Please fill all fields!'); return; }
-            if (referralCode && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(referralCode)) { niceAlert('Please enter a valid referral email.'); return; }
+            if (referralCode && !/^(?:[^\s@]+@[^\s@]+\.[^\s@]+|[A-Za-z0-9]{6,8})$/.test(referralCode)) { niceAlert('Enter your friend\'s referral code or email.'); return; }
             const pass2 = document.getElementById('regPass2').value;
             if (pass !== pass2) { niceAlert('Passwords do not match! Enter the same password twice.'); return; }
             currentUser = { name: email.split('@')[0], email: email, phone: phone };
@@ -970,36 +978,83 @@
         function captureRefParam() {
             try {
                 const r = new URLSearchParams(location.search).get('ref');
-                if (r && r.includes('@')) localStorage.setItem('taskflex_ref', r.trim().toLowerCase());
+                if (r) localStorage.setItem('taskflex_ref', r.trim());
             } catch (e) {}
         }
-        async function registerReferralSignup(email, referralCode) {
-            const storedRef = localStorage.getItem('taskflex_ref');
-            const ref = String(referralCode || storedRef || '').trim().toLowerCase();
-            const referee = String(email || '').trim().toLowerCase();
-            if (!ref || !referee || ref === referee || !supabaseClient) return;
-            try {
-                const ex = await supabaseClient.from('referrals').select('id').eq('referee_email', referee).limit(1);
-                if (ex.data && ex.data.length) { localStorage.removeItem('taskflex_ref'); return; }
-                const ins = await supabaseClient.from('referrals').insert([{ referrer_email: ref, referee_email: referee }]);
-                if (ins.error) console.warn('referral insert failed', ins.error);
-                else {
-                    localStorage.removeItem('taskflex_ref');
-                    const activeEmail = currentUser && String(currentUser.email || '').trim().toLowerCase();
-                    if (activeEmail === ref) {
-                        const rc = document.getElementById('referredCount');
-                        if (rc) rc.innerText = String((Number(rc.innerText) || 0) + 1);
-                    }
+        async function waitForSupabase() {
+            for (let i = 0; i < 30 && !supabaseClient; i++) await new Promise(resolve => setTimeout(resolve, 250));
+            return supabaseClient;
+        }
+        async function ensureReferralCode(user) {
+            if (!user || !user.email || !(await waitForSupabase())) return '';
+            const email = String(user.email).trim().toLowerCase();
+            let profile = await supabaseClient.from('users').select('referral_code').eq('email', email).maybeSingle();
+            if (profile.error) { console.warn('Could not load referral code.', profile.error); return ''; }
+            let code = profile.data && profile.data.referral_code;
+            if (!profile.data) {
+                const created = await supabaseClient.from('users').insert([{ email, referral_code: null }]).select('referral_code').maybeSingle();
+                if (created.error && created.error.code !== '23505') { console.warn('Could not create user profile.', created.error); return ''; }
+                profile = await supabaseClient.from('users').select('referral_code').eq('email', email).maybeSingle();
+                if (profile.error || !profile.data) return '';
+                code = profile.data.referral_code;
+            }
+            const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            if (!code) for (let attempt = 0; attempt < 24; attempt++) {
+                const bytes = new Uint8Array(8);
+                if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
+                else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+                const candidate = Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+                const saved = await supabaseClient.from('users').update({ referral_code: candidate }).eq('email', email).is('referral_code', null).select('referral_code').maybeSingle();
+                if (saved.error) {
+                    if (saved.error.code === '23505') continue;
+                    console.warn('Could not save referral code.', saved.error); return '';
                 }
-            } catch (e) { console.warn('referral error', e); }
+                if (saved.data && saved.data.referral_code) { code = saved.data.referral_code; break; }
+                const reread = await supabaseClient.from('users').select('referral_code').eq('email', email).maybeSingle();
+                if (reread.error) return '';
+                if (reread.data && reread.data.referral_code) { code = reread.data.referral_code; break; }
+            }
+            if (code && currentUser && String(currentUser.email || '').toLowerCase() === email) {
+                currentUser.referral_code = code;
+                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+            }
+            return code || '';
+        }
+        async function resolveReferralInput(raw) {
+            const input = String(raw || '').trim();
+            if (!input || !(await waitForSupabase())) return null;
+            const query = input.includes('@')
+                ? supabaseClient.from('users').select('email,referral_code').eq('email', input.toLowerCase()).maybeSingle()
+                : supabaseClient.from('users').select('email,referral_code').eq('referral_code', input.toUpperCase()).maybeSingle();
+            const found = await query;
+            if (found.error) { console.warn('Could not resolve referral code.', found.error); return null; }
+            if (!found.data) return null;
+            let code = found.data.referral_code;
+            if (!code && found.data.email) code = await ensureReferralCode({ email: found.data.email });
+            return code ? { code, email: String(found.data.email || '').trim().toLowerCase() } : null;
+        }
+        async function registerReferralSignup(email, referralCode) {
+            const ref = String(referralCode || localStorage.getItem('taskflex_ref') || '').trim();
+            const referee = String(email || '').trim().toLowerCase();
+            if (!ref || !referee || !(await waitForSupabase())) return;
+            try {
+                const resolved = await resolveReferralInput(ref);
+                if (!resolved || resolved.email === referee) { localStorage.removeItem('taskflex_ref'); return; }
+                const existing = await supabaseClient.from('referrals').select('id').eq('referee_email', referee).limit(1);
+                if (existing.error) { console.warn('Could not check referral signup.', existing.error); return; }
+                if (existing.data && existing.data.length) { localStorage.removeItem('taskflex_ref'); return; }
+                const inserted = await supabaseClient.from('referrals').insert([{ referrer_email: resolved.email, referee_email: referee, referrer_code: resolved.code }]);
+                if (inserted.error) console.warn('Could not save referral signup.', inserted.error);
+                else localStorage.removeItem('taskflex_ref');
+            } catch (e) { console.warn('Referral signup failed.', e); }
         }
         function prefillReferralCode() {
             const input = document.getElementById('regReferralCode');
             if (!input) return;
             const urlRef = new URLSearchParams(location.search).get('ref');
-            let value = urlRef && urlRef.includes('@') ? urlRef : '';
+            let value = urlRef || '';
             if (!value) { try { value = localStorage.getItem('taskflex_ref') || ''; } catch (e) {} }
-            if (value) input.value = value.trim().toLowerCase();
+            if (value) input.value = value.trim();
         }
         function todayKey() {
             const d = new Date();
@@ -1037,11 +1092,16 @@
             if (!currentUser || !supabaseClient) { renderDailyState(); return; }
             const email = String(currentUser.email).trim().toLowerCase();
             try {
-                const [claimRes, refRes] = await Promise.all([
+                const [claimRes, code] = await Promise.all([
                     supabaseClient.from('bonus_claims').select('*').eq('email', email).maybeSingle(),
-                    supabaseClient.from('referrals').select('id', { count: 'exact', head: true }).eq('referrer_email', email)
+                    ensureReferralCode(currentUser)
                 ]);
                 window.__bonusRow = claimRes.data || null;
+                const link = document.getElementById('referralLink');
+                if (link && code) link.value = 'https://taskflexbd.vercel.app/?ref=' + encodeURIComponent(code);
+                const display = document.getElementById('referralCodeDisplay');
+                if (display && code) display.value = code;
+                const refRes = code ? await supabaseClient.from('referrals').select('id', { count: 'exact', head: true }).eq('referrer_code', code) : { count: 0 };
                 const rc = document.getElementById('referredCount');
                 if (rc) rc.innerText = refRes.count || 0;
             } catch (e) { console.warn('referral load failed', e); }
@@ -2313,9 +2373,18 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
 
         function renderReferral() {
-            const el = document.getElementById('referralLink');
-            if (!el || !currentUser) return;
-            el.value = `${location.origin}${location.pathname}?ref=${encodeURIComponent(String(currentUser.email).trim().toLowerCase())}`;
+            if (!currentUser) return;
+            const code = currentUser.referral_code || '';
+            const link = document.getElementById('referralLink');
+            const display = document.getElementById('referralCodeDisplay');
+            if (link) link.value = code ? 'https://taskflexbd.vercel.app/?ref=' + encodeURIComponent(code) : 'Loading referral link...';
+            if (display) display.value = code || '';
+        }
+        async function copyReferralCode() {
+            const el = document.getElementById('referralCodeDisplay');
+            if (!el || !el.value) { niceAlert('Referral code is still loading.'); return; }
+            try { await navigator.clipboard.writeText(el.value); niceAlert('Code copied!'); }
+            catch (e) { el.select(); document.execCommand('copy'); niceAlert('Code copied!'); }
         }
 
         function copyReferral() {
