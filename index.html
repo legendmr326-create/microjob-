@@ -651,7 +651,8 @@
                     </div>
                     <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Cost per Worker (৳)</label>
-                        <input type="number" id="newJobReward" min="0" step="any" oninput="updateJobFeePreview()" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        <input type="number" id="newJobReward" min="50" step="any" oninput="updateJobFeePreview()" aria-describedby="newJobRewardError" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                        <p id="newJobRewardError" class="hidden mt-1 text-[11px] font-semibold text-rose-300" role="alert">Minimum reward is ৳50</p>
                     </div>
                     <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
@@ -666,7 +667,7 @@
                     </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-3 text-[12px] text-violet-100 space-y-1">
                         <div>Net Amount: <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
-                        <div>System Fee (7.00%): <span id="jobFee" class="font-bold text-amber-300">৳ 0.00</span></div>
+                        <div>Admin Fee (10.00%): <span id="jobFee" class="font-bold text-amber-300">৳ 0.00</span></div>
                         <div class="pt-1 border-t border-white/10 flex justify-between items-baseline">
                             <span class="font-bold text-white">Total Payable</span>
                             <span id="jobTotal" class="font-black text-lg text-amber-300">৳ 0.00</span>
@@ -1031,7 +1032,7 @@
             const email = currentUser && currentUser.email;
             const empty = `<div class="text-center py-6 text-violet-200/60 text-xs">No jobs posted yet</div>`;
             if (!supabaseClient || !email) { box.innerHTML = empty; return; }
-            const { data, error } = await supabaseClient.from('micro_jobs').select('id,title,reward,status,client_email').eq('client_email', email).order('id', { ascending: false });
+            const { data, error } = await supabaseClient.from('micro_jobs').select('*').eq('client_email', email).order('id', { ascending: false });
             if (error || !data || data.length === 0) { box.innerHTML = empty; return; }
             postedJobsCache = {};
             data.forEach(j => { postedJobsCache[String(j.id)] = j; });
@@ -1055,9 +1056,16 @@
                         <p class="text-xs text-violet-100"><span class="font-black text-amber-300">${total}</span> worker${total === 1 ? '' : 's'} applied</p>
                         <p class="text-[10px] text-violet-200/60">${pending} pending · ${approved} approved · ${rejected} rejected</p>
                     </div>
-                    <button onclick="openApplicationsModal(${Number(j.id)})" class="w-full text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button>
+                    <div class="flex items-center gap-2"><button onclick="openApplicationsModal(${Number(j.id)})" class="flex-1 min-w-0 text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button><button onclick="previewPostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-white/5 text-violet-100 border border-white/10 hover:bg-white/10" title="Preview job">Job View</button></div>
                 </div>`;
             }).join('');
+        }
+
+        function previewPostedJob(jobId) {
+            const job = postedJobsCache[String(jobId)];
+            if (!job) { alert('Could not load this job. Refresh My Posted Jobs and try again.'); return; }
+            if (!allJobs.some(j => Number(j.id) === Number(job.id))) allJobs.push(job);
+            openJobDetail(job.id);
         }
 
         function openApplicationsModal(jobId) {
@@ -1068,6 +1076,26 @@
             document.getElementById('appsModalList').innerHTML = '';
             openModal('applicationsModal');
             renderApplicationsModal();
+        }
+        function openProofZoom(src) {
+            let z = document.getElementById('proofZoomOverlay');
+            if (!z) {
+                z = document.createElement('div');
+                z.id = 'proofZoomOverlay';
+                z.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:16px;cursor:zoom-out;';
+                z.onclick = function(){ z.style.display = 'none'; };
+                z.innerHTML = '<img id="proofZoomImg" style="max-width:100%;max-height:100%;object-fit:contain;" alt="proof">';
+                document.body.appendChild(z);
+            }
+            document.getElementById('proofZoomImg').src = src;
+            z.style.display = 'flex';
+        }
+        async function deleteApplication(appId) {
+            if (!confirm('Delete this submission? This cannot be undone.')) return;
+            if (!supabaseClient) { alert('Not connected to server.'); return; }
+            const { error } = await supabaseClient.from('job_applications').delete().eq('id', appId);
+            if (error) { alert('Delete failed: ' + error.message); return; }
+            await refreshAfterReview();
         }
         function closeApplicationsModal() { reviewingJobId = null; closeModal('applicationsModal'); }
 
@@ -1106,20 +1134,21 @@
             const rows = data || [];
             document.getElementById('appsModalCount').innerText = rows.length + ' worker' + (rows.length === 1 ? '' : 's') + ' applied';
             if (rows.length === 0) { list.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No applications yet</div>`; return; }
-            list.innerHTML = rows.map(a => {
+            list.innerHTML = rows.map((a, index) => {
                 const s = appStatusNorm(a.status);
                 const badge = s === 'Approved' ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-400/15 text-emerald-200">Approved</span>'
                     : s === 'Rejected' ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-400/15 text-rose-200">Rejected</span>'
                     : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-400/15 text-amber-200">Pending</span>';
                 const imgs = proofImagesOf(a.proof_image);
-                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" class="w-full max-h-[260px] object-contain rounded-xl bg-black/30">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
+                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" onclick="openProofZoom(this.src)" class="w-full max-h-[260px] object-contain rounded-xl bg-black/30 cursor-zoom-in">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
                 const txt = a.proof_text ? `<div class="space-y-1.5">${proofLinesHtml(a.proof_text)}</div>` : `<p class="text-[11px] text-violet-200/50">No text report</p>`;
                 const actions = s === 'Pending'
                     ? `<div class="flex gap-2 mt-2"><button onclick="reviewApplication(${Number(a.id)}, 'Approved')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Approve</button><button onclick="reviewApplication(${Number(a.id)}, 'Rejected')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-rose-400/20 text-rose-200 border border-rose-300/30">Reject</button></div>`
                     : '';
                 return `<div class="bg-black/20 border border-white/10 rounded-2xl p-3 space-y-2">
-                    <div class="flex items-center justify-between gap-2"><p class="text-xs font-semibold text-white truncate min-w-0">${esc(a.user_email || 'worker')}</p>${badge}</div>
-                    ${img}${txt}${actions}
+                    <div class="flex items-center justify-between gap-2"><p class="text-xs font-semibold text-white truncate min-w-0">#${rows.length - index}</p>${badge}</div>
+                    ${img}${txt}
+                    <div class="flex gap-2 mt-2">${actions}<button onclick="deleteApplication(${Number(a.id)})" class="text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 border border-rose-400/40">Delete</button></div>
                 </div>`;
             }).join('');
         }
@@ -1957,7 +1986,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!amount || amount <= 0 || !number) { alert('Please enter amount and number!'); return; }
             if (amount < 100) { alert('Minimum withdraw amount is \u09f3 100.'); return; }
             if (amount > currentBalance) { alert('You cannot withdraw more than your balance.'); return; }
-            const wFee = Math.round(amount * 7) / 100;
+            const wFee = Math.round(amount * 10) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
 
             let savedOnServer = false;
@@ -2261,7 +2290,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
             if (!title) { alert('Please fill all fields!'); return; }
             if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
-            if (reward < JOB_MIN_COST_PER_WORKER) { alert('Cost per worker must be at least ৳' + JOB_MIN_COST_PER_WORKER + '.'); return; }
+            if (reward < JOB_MIN_COST_PER_WORKER) { alert('Minimum reward is ৳' + JOB_MIN_COST_PER_WORKER + '.'); return; }
             const limitRaw = document.getElementById('newJobLimit').value;
             const limit = parseInt(limitRaw, 10);
             if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { alert('Limit (workers) is required and must be at least 1.'); return; }
@@ -2269,9 +2298,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 
             const R = Math.round(reward * 100) / 100;
             const budget = Math.round(R * limit * 100) / 100;
-            const jobFee = Math.round(budget * 7) / 100;
+            const jobFee = Math.round(budget * 10) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
-            if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 7% job post fee)'); return; }
+            if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
             // Thumbnail is optional: if the upload fails, the job still saves without it.
             let thumbnailUrl = null;
@@ -2304,7 +2333,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 ({ error } = await insertSafe('micro_jobs', row));
             }
             if (error) { alert('Error: ' + error.message); return; }
-            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 7% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
+            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
             closePostJobModal();
             fetchJobsFromDatabase();
             renderMyTakenJobs();
@@ -2403,18 +2432,22 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function applyCostPerWorkerRule() {
             const input = document.getElementById('newJobReward');
             const btn = document.getElementById('jobNextBtn');
+            const error = document.getElementById('newJobRewardError');
             const raw = (input.value || '').trim();
             const cost = parseFloat(raw);
-            const hasValue = raw !== '' && !isNaN(cost);
-            // red below 50, yellow at 50 or more; neutral while the field is empty
+            const hasValue = raw !== '' && Number.isFinite(cost);
+            const belowMinimum = hasValue && cost < JOB_MIN_COST_PER_WORKER;
+            // red below 50, amber at 50 or more; neutral while the field is empty
             let color = '';
-            if (hasValue) color = cost < JOB_MIN_COST_PER_WORKER ? '#f87171' : '#fde047';
+            if (hasValue) color = belowMinimum ? '#f87171' : '#fcd34d';
             input.style.color = color;
             input.style.borderColor = color;
+            input.setAttribute('aria-invalid', belowMinimum ? 'true' : 'false');
+            if (error) error.classList.toggle('hidden', !belowMinimum);
             document.getElementById('jobReward').style.color = color;
             document.getElementById('jobTotal').style.color = color;
             // Publish is blocked below 50 (and while there is no cost entered)
-            const blocked = !hasValue || cost < JOB_MIN_COST_PER_WORKER;
+            const blocked = !hasValue || belowMinimum;
             if (btn) {
                 btn.disabled = blocked;
                 btn.style.opacity = blocked ? '0.5' : '';
@@ -2426,7 +2459,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const limit = parseInt(document.getElementById('newJobLimit').value, 10) || 0;
             const R = Math.round(reward * 100) / 100;
             const T = Math.round(R * limit * 100) / 100;
-            const fee = Math.round(T * 7) / 100;
+            const fee = Math.round(T * 10) / 100;
             document.getElementById('jobReward').textContent = '৳ ' + T.toFixed(2);
             document.getElementById('jobFee').textContent = '৳ ' + fee.toFixed(2);
             document.getElementById('jobTotal').textContent = '৳ ' + (T + fee).toFixed(2);
