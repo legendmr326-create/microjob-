@@ -62,6 +62,13 @@
             background: conic-gradient(from 200deg, #F5B942, #8B5CF6, #F5B942);
             box-shadow: 0 0 28px rgba(245, 185, 66, 0.35);
         }
+        /* Logged-out landing top row */
+        #authOverlay { background: #100A22; }
+        #landingHero { min-height: calc(100svh - 2rem) !important; }
+        #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
+        #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
+        #landingHero .landing-menu-button { background: #1A1233; border: 1px solid rgba(196,181,253,.38); color: #F5F3FF; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
+        #landingHero .landing-menu-button i { display: block; font-size: 1rem; line-height: 1; }
         .field {
             background: rgba(16, 10, 34, 0.7);
             border: 1px solid rgba(196, 181, 253, 0.18);
@@ -111,18 +118,18 @@
     <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-cardBorder">
 
         <!-- AUTH OVERLAY (Login / Register) -->
-        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col justify-center px-6 py-8 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
-            <div id="landingHero" class="text-center mb-7" style="min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]">
-                        <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center">
-                            <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
+        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-start justify-start px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
+            <div id="landingHero" class="text-left mb-7 w-full" style="min-height:calc(100svh - 2rem);display:flex;flex-direction:column;justify-content:space-between;">
+                <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between mb-6">
+                    <div class="flex min-w-0 items-center gap-2.5">
+                        <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]">
+                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center">
+                                <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
+                            </div>
                         </div>
+                        <span class="text-sm font-bold text-violet-100 truncate">Micro job TaskFlex</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[11px] font-bold text-violet-200/70 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">Micro job TaskFlex</span>
-                        <button type="button" onclick="toggleAuthMenu()" class="w-11 h-11 rounded-full bg-cardDark border border-white/10 flex items-center justify-center text-violet-100"><i class="fa-solid fa-bars"></i></button>
-                    </div>
+                    <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
                 </div>
                 <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;background:#141a3a;padding:28px 30px;overflow-y:auto;">
                     <div class="flex items-center justify-between mb-10">
@@ -193,7 +200,7 @@
         </div>
 
         <!-- HEADER BAR -->
-        <header class="sticky top-0 z-30 bg-bgDark/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between">
+        <header id="appHeader" class="hidden sticky top-0 z-30 bg-bgDark/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
                 <div class="logo-orb w-9 h-9 rounded-xl p-[2px]">
                     <div class="w-full h-full rounded-[10px] bg-bgDark flex items-center justify-center font-black text-amber-400 text-sm">M</div>
@@ -213,7 +220,7 @@
         </header>
 
         <!-- MAIN CONTAINER -->
-        <main class="flex-1 px-4 pt-4 pb-4 space-y-4 overflow-y-auto custom-scrollbar">
+        <main id="appMain" class="hidden flex-1 px-4 pt-4 pb-4 space-y-4 overflow-y-auto custom-scrollbar">
 
             <!-- TAB 1: DASHBOARD / HOME (job board + my taken jobs) -->
             <div id="tab-dashboard" class="space-y-4">
@@ -800,9 +807,13 @@
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 document.getElementById('authOverlay').classList.add('hidden');
+            var ah = document.getElementById('appHeader'); if (ah) ah.classList.remove('hidden');
+            var am = document.getElementById('appMain'); if (am) am.classList.remove('hidden');
                 updateUserDataUI();
             } else {
                 document.getElementById('authOverlay').classList.remove('hidden');
+            var ah2 = document.getElementById('appHeader'); if (ah2) ah2.classList.add('hidden');
+            var am2 = document.getElementById('appMain'); if (am2) am2.classList.add('hidden');
             }
         }
 
