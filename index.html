@@ -2445,7 +2445,11 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             submitNewJob();
         }
 
+        let jobPublishInFlight = false;
         async function submitNewJob() {
+            if (jobPublishInFlight) return;
+            const publishButton = document.getElementById('jobNextBtn');
+            if (publishButton && publishButton.disabled) return;
             const title = document.getElementById('newJobTitle').value;
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const category = document.getElementById('newJobCategory').value;
@@ -2469,6 +2473,27 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
             if (jobTotal > currentBalance) { niceAlert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
+            jobPublishInFlight = true;
+            if (publishButton) {
+                publishButton.disabled = true;
+                publishButton.dataset.originalLabel = publishButton.innerText;
+                publishButton.innerText = 'Publishing...';
+                publishButton.style.opacity = '0.6';
+                publishButton.style.cursor = 'wait';
+            }
+            const resetPublishState = () => {
+                jobPublishInFlight = false;
+                if (publishButton) {
+                    publishButton.innerText = publishButton.dataset.originalLabel || 'Publish Job';
+                    publishButton.style.opacity = '';
+                    publishButton.style.cursor = '';
+                    if (document.getElementById('postJobModal').classList.contains('hidden')) {
+                        publishButton.disabled = false;
+                    } else {
+                        applyCostPerWorkerRule();
+                    }
+                }
+            };
             // Thumbnail is optional: if the upload fails, the job still saves without it.
             let thumbnailUrl = null;
             let thumbFailed = false;
@@ -2499,8 +2524,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 delete row.description; delete row.thumbnail_url; delete row.limit_count; delete row.budget;
                 ({ error } = await insertSafe('micro_jobs', row));
             }
-            if (error) { niceAlert('Error: ' + error.message); return; }
+            if (error) { resetPublishState(); niceAlert('Error: ' + error.message); return; }
             niceAlert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
+            resetPublishState();
             closePostJobModal();
             fetchJobsFromDatabase();
             renderMyTakenJobs();
