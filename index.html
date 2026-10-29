@@ -69,6 +69,28 @@
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
         #landingHero .landing-menu-button { background: #1A1233; border: 1px solid rgba(196,181,253,.38); color: #F5F3FF; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
         #landingHero .landing-menu-button i { display: block; font-size: 1rem; line-height: 1; }
+        /* Landing hero, tuned to the supplied mobile reference */
+        body:has(#landingHero) { background: #0b1230; }
+        #authOverlay { background: radial-gradient(ellipse at 95% 10%, rgba(32,55,111,.5), transparent 42%), #0b1230; }
+        #landingHero.landing-hero { min-height: 0 !important; display: flex; flex-direction: column; justify-content: flex-start; gap: 0; padding: 2px 4px 0; }
+        #landingHero .landing-topbar { min-height: 3rem; margin-bottom: 28px; }
+        #landingHero .landing-logo { width: 3rem; height: 3rem; border-radius: 15px; background: linear-gradient(145deg,#ff9b42 4%,#ef5a8b 52%,#874bff 100%); box-shadow: 0 5px 20px rgba(208,94,185,.3); }
+        #landingHero .landing-logo > div { border-radius: 13px; background: #101a39; }
+        #landingHero .landing-brand { font-size: 16px; letter-spacing: -.35px; }
+        #landingHero .landing-menu-button { width: 44px; height: 44px; background: #111c3b; border: 1px solid rgba(119,148,220,.22); color: #f7f8ff; box-shadow: none; }
+        #landingHero .landing-copy { display: flex; flex-direction: column; align-items: flex-start; }
+        #landingHero .landing-title { display: flex; flex-direction: column; gap: 0; width: 100%; color: #f8f8ff; font-size: clamp(29px, 8vw, 37px); line-height: 1.18; letter-spacing: -1.15px; text-align: left; }
+        #landingHero .hero-title { width: max-content; max-width: 100%; background: linear-gradient(90deg,#ffe85e 0%,#ff9c43 34%,#ff658d 69%,#d66bff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        #landingHero .landing-trust { display: flex; align-items: center; gap: 10px; color: #f4f6ff; font-size: 14px; font-weight: 700; margin: 20px 0 0 2px; }
+        #landingHero .trust-shield { width: 23px; height: 26px; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; clip-path: polygon(50% 0,96% 16%,91% 65%,50% 100%,9% 65%,4% 16%); background: linear-gradient(145deg,#48a9ff,#2863eb); filter: drop-shadow(0 3px 6px rgba(40,105,255,.4)); }
+        #landingHero .trust-underline { height: 3px; width: 176px; margin: 8px 0 44px 35px; border-radius: 8px; background: linear-gradient(90deg,#8d5bff,#5643b7 75%,transparent); transform: rotate(-1.5deg); }
+        #landingHero .landing-cta { min-width: 216px; height: 58px; padding: 0 27px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; gap: 11px; background: linear-gradient(100deg,#16c878,#25dc93); color: white; font-size: 18px; font-weight: 800; letter-spacing: -.2px; box-shadow: 0 0 12px rgba(31,224,137,.48), 0 0 34px rgba(31,224,137,.24), inset 0 1px 0 rgba(255,255,255,.2); }
+        #landingHero .landing-cta span { font-size: 22px; font-weight: 600; }
+        #landingHero .landing-art { width: calc(100% + 8px); margin: 16px -4px -10px; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; transform: scale(1.16); transform-origin: center top; }
+        #landingHero .landing-illustration { display: block; width: 100%; max-width: 420px; height: auto; }
+        @media (min-height: 760px) { #landingHero .landing-art { margin-top: 92px; } }
+        @media (min-height: 900px) { #landingHero .landing-art { margin-top: auto; padding-top: 28px; } }
+        @media (max-width: 370px) { #landingHero .landing-title { font-size: 29px; } #landingHero .landing-art { margin-top: 70px; } }
         .field {
             background: rgba(16, 10, 34, 0.7);
             border: 1px solid rgba(196, 181, 253, 0.18);
@@ -119,15 +141,13 @@
 
         <!-- AUTH OVERLAY (Login / Register) -->
         <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-start justify-start px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
-            <div id="landingHero" class="text-left mb-7 w-full" style="min-height:calc(100svh - 2rem);display:flex;flex-direction:column;justify-content:space-between;">
-                <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between mb-6">
+            <div id="landingHero" class="landing-hero text-left mb-7 w-full">
+                <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
                     <div class="flex min-w-0 items-center gap-2.5">
-                        <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]">
-                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center">
-                                <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
-                            </div>
+                        <div class="logo-orb landing-logo w-12 h-12 rounded-2xl p-[2px]">
+                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-300 text-lg"></i></div>
                         </div>
-                        <span class="text-sm font-bold text-violet-100 truncate">Micro job TaskFlex</span>
+                        <span class="landing-brand text-base font-bold text-white truncate">Micro job TaskFlex</span>
                     </div>
                     <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
                 </div>
@@ -148,13 +168,24 @@
                     </div>
                     <p class="mt-12 text-xs text-violet-200/50">&copy;2026 Micro job TaskFlex</p>
                 </div>
-                <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-                    <h2 class="text-4xl font-black leading-snug text-center" style="color:#f4f2ff;">Best Microjob &amp;<br>Freelancing Site To<br><span class="hero-title">Make Money Online</span></h2>
+                <section class="landing-copy" aria-label="TaskFlex introduction">
+                    <h2 class="landing-title font-black"><span>Best Microjob &amp;</span><span>Freelancing Site To</span><span class="hero-title">Make Money Online</span></h2>
+                    <div class="landing-trust"><span class="trust-shield"><i class="fa-solid fa-check"></i></span><span>Trusted Platform 100%</span></div>
+                    <div class="trust-underline"></div>
+                    <button type="button" onclick="showAuthLogin()" class="landing-cta">Earn Money <span aria-hidden="true">→</span></button>
+                </section>
+                <div class="landing-art" aria-hidden="true">
+                    <svg viewBox="0 0 420 320" role="img" class="landing-illustration" xmlns="http://www.w3.org/2000/svg">
+                        <defs><linearGradient id="halo" x1="0" x2="1"><stop stop-color="#326cff"/><stop offset=".55" stop-color="#8e5dff"/><stop offset="1" stop-color="#fa68c7"/></linearGradient><linearGradient id="phone" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#283b76"/><stop offset="1" stop-color="#111b3d"/></linearGradient><linearGradient id="appLogo" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff9f43"/><stop offset="1" stop-color="#a64cff"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="12"/></filter></defs>
+                        <ellipse cx="206" cy="281" rx="170" ry="23" fill="url(#halo)" opacity=".48" filter="url(#glow)"/><ellipse cx="206" cy="280" rx="155" ry="12" fill="none" stroke="url(#halo)" stroke-width="3" opacity=".8"/>
+                        <path d="M36 64c40-36 75-29 105-2" fill="none" stroke="#7fa9ff" stroke-width="2" stroke-dasharray="5 7"/><path d="m130 49 13 13-17 2" fill="#58b8ff"/><path d="M47 55 62 46l15 9-15 9z" fill="#54b7ff" opacity=".95"/>
+                        <g transform="translate(144 24) rotate(-7 78 125)"><rect x="0" y="0" width="156" height="254" rx="23" fill="#070d20" stroke="#8697cf" stroke-width="3"/><rect x="8" y="10" width="140" height="234" rx="17" fill="url(#phone)"/><rect x="56" y="7" width="44" height="7" rx="4" fill="#060b18"/><rect x="59" y="31" width="38" height="38" rx="12" fill="url(#appLogo)"/><path d="m83 37-13 17h10l-4 11 15-19H81z" fill="#ffe277"/><text x="77" y="83" fill="#fff" font-size="10" text-anchor="middle" font-family="Arial" font-weight="700">Hello! Let's work</text><text x="77" y="96" fill="#fff" font-size="10" text-anchor="middle" font-family="Arial" font-weight="700">and earn</text><path d="m95 99 5-7 4 4 7-12" fill="none" stroke="#55e7ae" stroke-width="2.5"/><g font-family="Arial" font-size="8" fill="#edf2ff"><rect x="19" y="111" width="118" height="30" rx="8" fill="#1e2c59"/><circle cx="34" cy="126" r="7" fill="#548dff"/><text x="47" y="129">Available Jobs</text><path d="m125 123 4 3-4 3" fill="none" stroke="#9db2ef"/><rect x="19" y="147" width="118" height="30" rx="8" fill="#1e2c59"/><circle cx="34" cy="162" r="7" fill="#28c995"/><text x="47" y="165">Your Earnings</text><path d="m125 159 4 3-4 3" fill="none" stroke="#9db2ef"/><rect x="19" y="183" width="118" height="30" rx="8" fill="#1e2c59"/><circle cx="34" cy="198" r="7" fill="#a16cff"/><text x="47" y="201">Complete Tasks</text><path d="m125 195 4 3-4 3" fill="none" stroke="#9db2ef"/></g><rect x="40" y="219" width="77" height="7" rx="3" fill="#725bff" opacity=".8"/></g>
+                        <g transform="translate(38 170)"><path d="M25 42h52l-6 67H31z" fill="#d8dcf1"/><path d="M31 49h41l-4 52H35z" fill="#b7c4ec"/><path d="M51 45c-28-25-19-47-6-36 8 7 6 20 7 30 1-24 19-42 23-29 4 12-10 23-24 35" fill="#59cb95"/><path d="M52 44c-4-26-22-38-25-27-3 10 13 19 25 27 6-24 23-29 25-18 2 9-12 15-25 18" fill="#79e0a7"/><path d="M33 64h35" stroke="#8f9cc4" stroke-width="2" opacity=".5"/></g>
+                        <g transform="translate(68 224)"><path d="M0 8h61v39H0z" rx="10" fill="#26345e"/><path d="M61 17c21-4 21 27 0 24" fill="none" stroke="#8594c7" stroke-width="6"/><text x="29" y="26" text-anchor="middle" fill="#fff" font-size="8" font-family="cursive">Dream Work</text><text x="29" y="38" text-anchor="middle" fill="#ffd663" font-size="8" font-family="cursive">Earn</text><path d="M18 3c-4-8 5-9 1-16M34 3c-4-8 5-9 1-16" fill="none" stroke="#aab7e8" stroke-width="2" opacity=".7"/></g>
+                        <g transform="translate(331 86)"><rect width="52" height="48" rx="14" fill="#312b72" stroke="#7362df"/><path d="M14 25c-7-10 5-16 12-7 7-9 19-3 12 7L26 37z" fill="#f36bb4"/></g><g transform="translate(344 157)"><rect width="48" height="46" rx="13" fill="#174b82" stroke="#388bd3"/><path d="m12 24 8 8 17-19" fill="none" stroke="#8fe7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+                        <path d="M272 253h114l-14 39h-111z" fill="#aeb9d6"/><path d="M285 258h86l-9 25h-87z" fill="#53638e"/><path d="M287 286h82" stroke="#d4ddf4" stroke-width="3"/>
+                    </svg>
                 </div>
-                <div style="display:flex;justify-content:flex-start;padding-left:8px;margin-bottom:24px;">
-                    <button type="button" onclick="showAuthLogin()" style="width:88px;height:88px;border-radius:9999px;background:#16a34a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:800;font-size:12px;"><span>Earn</span><span>Money</span><i class="fa-solid fa-arrow-right" style="font-size:14px;"></i></button>
-                </div>
-                
             </div>
 
             <!-- LOGIN CARD -->
