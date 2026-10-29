@@ -3410,6 +3410,22 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     /* Verified indicators use legible green lettering on a soft green surface in both themes. */
     .verified-badge { color: #18723D !important; background-color: rgba(34,197,94,.16) !important; }
     .verified-icon { color: #FFFFFF !important; background-color: #059669 !important; border-color: #047857 !important; box-shadow: 0 1px 3px rgba(0,0,0,.28) !important; }
+    /* Softer light palette: keep page, cards, controls and fixed chrome off-white, with dark text. */
+    html[data-theme-effective="light"] body, body.theme-light { background-color: #F5F3FA !important; }
+    html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { background: linear-gradient(160deg, #F5F3FA, #EDEAF5) !important; color: #252033 !important; }
+    html[data-theme-effective="light"] .field, body.theme-light .field { background: #F5F3FA !important; color: #211A32 !important; }
+    html[data-theme-effective="light"] .nav-glass, body.theme-light .nav-glass,
+    html[data-theme-effective="light"] body header#appHeader, body.theme-light header#appHeader,
+    html[data-theme-effective="light"] body .sticky, body.theme-light .sticky { background: #EDEAF5 !important; background-color: #EDEAF5 !important; background-image: none !important; }
+    html[data-theme-effective="light"] body header#appHeader .logo-orb > div, body.theme-light header#appHeader .logo-orb > div { background: #EDEAF5 !important; background-color: #EDEAF5 !important; }
+    html[data-theme-effective="light"] [class*="bg-bgDark"], body.theme-light [class*="bg-bgDark"],
+    html[data-theme-effective="light"] #landingHero, html[data-theme-effective="light"] #authOverlay, body.theme-light #landingHero, body.theme-light #authOverlay,
+    html[data-theme-effective="light"] #accountModal > div, body.theme-light #accountModal > div { background-color: #F5F3FA !important; background-image: none !important; }
+    html[data-theme-effective="light"] [class*="bg-cardDark"], body.theme-light [class*="bg-cardDark"],
+    html[data-theme-effective="light"] .kyc-capture-card, body.theme-light .kyc-capture-card,
+    html[data-theme-effective="light"] .referral-count-card, body.theme-light .referral-count-card { background: #EDEAF5 !important; }
+    html[data-theme-effective="light"] #forgotPasswordCard .field, html[data-theme-effective="light"] #verifyEmailCard input, html[data-theme-effective="light"] #tab-refer input,
+    body.theme-light #forgotPasswordCard .field, body.theme-light #verifyEmailCard input, body.theme-light #tab-refer input { background-color: #F5F3FA !important; }
 </style>
 <script>
     (function () {
