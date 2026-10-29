@@ -1127,7 +1127,7 @@
             const token = document.getElementById('forgotPasswordToken').value.trim();
             const password = document.getElementById('forgotNewPassword').value;
             const confirmation = document.getElementById('forgotConfirmPassword').value;
-            if (!/^\\d{6}$/.test(token)) { showPasswordResetMessage('Enter the 6-digit code from your email.', true); return; }
+            if (!/^\d{6}$/.test(token)) { showPasswordResetMessage('Enter the 6-digit code from your email.', true); return; }
             if (password.length < 6) { showPasswordResetMessage('Your new password must be at least 6 characters.', true); return; }
             if (password !== confirmation) { showPasswordResetMessage('Passwords do not match.', true); return; }
             const client = await waitForSupabase();
