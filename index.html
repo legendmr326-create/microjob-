@@ -1161,7 +1161,9 @@
             const token = document.getElementById('forgotPasswordToken').value.trim();
             const password = document.getElementById('forgotNewPassword').value;
             const confirmation = document.getElementById('forgotConfirmPassword').value;
+            const email = String(passwordResetEmail || document.getElementById('forgotPasswordEmail').value || '').trim().toLowerCase();
             if (!/^\d{6}$/.test(token)) { showPasswordResetMessage('Enter the 6-digit code from your email.', true); return; }
+            if (!isValidEmailAddress(email)) { showPasswordResetMessage('Enter the email address used to request the reset code.', true); return; }
             if (password.length < 6) { showPasswordResetMessage('Your new password must be at least 6 characters.', true); return; }
             if (password !== confirmation) { showPasswordResetMessage('Passwords do not match.', true); return; }
             const client = await waitForSupabase();
@@ -1170,25 +1172,35 @@
             button.disabled = true;
             button.textContent = 'Verifying...';
             try {
-                const { error: verifyError } = await client.auth.verifyOtp({ email: passwordResetEmail, token, type: 'recovery' });
+                const { data: verified, error: verifyError } = await client.auth.verifyOtp({ email, token, type: 'recovery' });
                 if (verifyError) throw verifyError;
+                const verifiedEmail = String((verified && verified.user && verified.user.email) || '').trim().toLowerCase();
+                if (!verified || !verified.session || verifiedEmail !== email) {
+                    throw new Error('Code verified without a matching recovery session. Request a new reset code and try again.');
+                }
                 const { error: updateError } = await client.auth.updateUser({ password });
                 if (updateError) throw updateError;
+
+                // Password update succeeded. A local sign-out error must not hide that fact.
                 const { error: signOutError } = await client.auth.signOut({ scope: 'local' });
-                if (signOutError) throw signOutError;
+                if (signOutError) console.warn('Password changed, but local sign-out failed:', signOutError);
                 currentUser = null;
                 localStorage.removeItem('taskflex_user');
+                document.getElementById('loginUser').value = email;
+                document.getElementById('loginPass').value = '';
                 document.getElementById('forgotEmailStep').classList.add('hidden');
                 document.getElementById('forgotOtpStep').classList.add('hidden');
                 document.getElementById('forgotPasswordIntro').textContent = 'Your password has been reset successfully.';
-                showPasswordResetMessage('Password updated. You can now log in with your new password.', false);
                 document.getElementById('forgotPasswordEmail').value = '';
                 document.getElementById('forgotPasswordToken').value = '';
                 document.getElementById('forgotNewPassword').value = '';
                 document.getElementById('forgotConfirmPassword').value = '';
                 passwordResetEmail = '';
+                toggleAuthForm('login');
+                niceAlert(signOutError ? 'Password updated. Please log in with your new password. If you remain signed in, close this tab and reopen the site first.' : 'Password updated. Log in with your new password.');
             } catch (error) {
-                showPasswordResetMessage(error.message || 'Could not verify the code. Check it and try again.', true);
+                console.error('Password reset failed:', error);
+                showPasswordResetMessage(error.message || 'Could not verify the code or update your password. Please try again.', true);
             } finally {
                 button.disabled = false;
                 button.textContent = 'Verify Code & Update Password';
