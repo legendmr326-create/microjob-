@@ -2104,11 +2104,20 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             // dashboard Pending / Approved / Rejected cards: the user's own job applications
             const norm = t => /^approved$/i.test(t) ? 'Approved' : /^rejected$/i.test(t) ? 'Rejected' : 'Pending';
             if (!currentUser || !supabaseClient) { set('statPending', '0'); set('statApproved', '0'); set('statRejected', '0'); return; }
-            const { data: srvApps } = await supabaseClient.from('job_applications').select('status').eq('user_email', currentUser.email);
+            const { data: srvApps } = await supabaseClient.from('job_applications').select('status,job_id').eq('user_email', currentUser.email);
             const myApps = (srvApps || getLocalList('taskflex_applications').filter(a => a.email === currentUser.email));
-            set('statPending', String(myApps.filter(a => norm(a.status) === 'Pending').length));
             set('statApproved', String(myApps.filter(a => norm(a.status) === 'Approved').length));
             set('statRejected', String(myApps.filter(a => norm(a.status) === 'Rejected').length));
+            // Pending card shows the pending AMOUNT in taka (sum of pending jobs' rewards)
+            const pendIds = [...new Set(myApps.filter(a => norm(a.status) === 'Pending').map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+            let pendSum = 0;
+            if (pendIds.length) {
+                const { data: pendJobs } = await supabaseClient.from('micro_jobs').select('id,reward').in('id', pendIds);
+                pendSum = (pendJobs || []).reduce((t, j) => t + (parseFloat(j.reward) || 0), 0);
+            } else {
+                pendSum = myApps.filter(a => norm(a.status) === 'Pending').reduce((t, a) => t + (parseFloat(a.reward) || 0), 0);
+            }
+            set('statPending', '\u09f3 ' + pendSum.toFixed(2));
             set('earnWithdrawals', String(getLocalList('taskflex_withdrawals').filter(w => currentUser && w.email === currentUser.email).length));
         }
 
