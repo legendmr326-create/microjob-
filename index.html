@@ -119,12 +119,32 @@
                             <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
                         </div>
                     </div>
-                    <span class="text-[11px] font-bold text-violet-200/70 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">Micro job TaskFlex</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-bold text-violet-200/70 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">Micro job TaskFlex</span>
+                        <button type="button" onclick="toggleAuthMenu()" class="w-11 h-11 rounded-full bg-cardDark border border-white/10 flex items-center justify-center text-violet-100"><i class="fa-solid fa-bars"></i></button>
+                    </div>
+                </div>
+                <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;background:#141a3a;padding:28px 30px;overflow-y:auto;">
+                    <div class="flex items-center justify-between mb-10">
+                        <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg"></i></div></div>
+                        <button type="button" onclick="toggleAuthMenu()" class="text-violet-100 text-2xl p-2"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="space-y-6 font-black text-3xl text-white">
+                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Home</button>
+                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Withdraw</button>
+                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">History</button>
+                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Referral Program</button>
+                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Live Support</button>
+                        <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('register');" class="block text-left w-full">Register</button>
+                        <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('login');" class="block text-left w-full">Login</button>
+                        <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('login');" class="block text-left w-full">Reset Password</button>
+                    </div>
+                    <p class="mt-12 text-xs text-violet-200/50">&copy;2026 Micro job TaskFlex</p>
                 </div>
                 <div class="text-left">
                     <h2 class="text-3xl font-black leading-tight">Best Microjob &amp; Freelancing Site To <span class="hero-title">Make Money Online</span></h2>
                 </div>
-                <button type="button" onclick="document.getElementById('loginCard').scrollIntoView({behavior:'smooth'}); setTimeout(function(){ var f = document.getElementById('loginUser'); if (f) f.focus(); }, 450);" class="btn-amber w-full font-black py-4 rounded-full text-sm mt-6 flex items-center justify-center gap-2">Earn Money <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="button" onclick="document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'}); setTimeout(function(){ var f = document.getElementById('loginUser'); if (f) f.focus(); }, 450);" class="btn-amber w-full font-black py-4 rounded-full text-sm mt-6 flex items-center justify-center gap-2">Earn Money <i class="fa-solid fa-arrow-right"></i></button>
                 <div class="mt-7 mb-2">
                     <div class="logo-orb w-16 h-16 mx-auto rounded-[22px] p-[2px] mb-4">
                         <div class="w-full h-full bg-bgDark rounded-[20px] flex items-center justify-center">
@@ -137,7 +157,7 @@
             </div>
 
             <!-- LOGIN CARD -->
-            <div id="loginCard" class="glass-card p-6 rounded-3xl space-y-4">
+            <div id="loginCard" class="glass-card p-6 rounded-3xl space-y-4 hidden">
                 <h3 class="text-lg font-bold text-white text-center">Account Login</h3>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Email or Phone</label>
@@ -1138,6 +1158,8 @@
         }
         window.niceAlert = niceAlert;
 
+        function toggleAuthMenu() { var m = document.getElementById('authMenu'); if (m) m.classList.toggle('hidden'); }
+        function closeAuthMenu() { var m = document.getElementById('authMenu'); if (m) m.classList.add('hidden'); }
         function openProofZoom(src) {
             let z = document.getElementById('proofZoomOverlay');
             if (!z) {
