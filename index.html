@@ -793,9 +793,9 @@
             const email = document.getElementById('regEmail').value;
             const phone = document.getElementById('regPhone').value;
             const pass = document.getElementById('regPass').value;
-            if (!email || !phone || !pass) { alert('Please fill all fields!'); return; }
+            if (!email || !phone || !pass) { niceAlert('Please fill all fields!'); return; }
             const pass2 = document.getElementById('regPass2').value;
-            if (pass !== pass2) { alert('Passwords do not match! Enter the same password twice.'); return; }
+            if (pass !== pass2) { niceAlert('Passwords do not match! Enter the same password twice.'); return; }
             currentUser = { name: email.split('@')[0], email: email, phone: phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             registerReferralSignup(email);
@@ -805,7 +805,7 @@
 
         function handleLogin() {
             const user = document.getElementById('loginUser').value;
-            if (!user) { alert('Please enter your email!'); return; }
+            if (!user) { niceAlert('Please enter your email!'); return; }
             currentUser = { name: user.split('@')[0], email: user, phone: user };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             document.getElementById('authOverlay').classList.add('hidden');
@@ -881,18 +881,18 @@
             loadLeaderboard();
         }
         async function claimDailyBonus() {
-            if (!currentUser || !supabaseClient) { alert('Log in and wait for the server connection first.'); return; }
+            if (!currentUser || !supabaseClient) { niceAlert('Log in and wait for the server connection first.'); return; }
             const email = String(currentUser.email).trim().toLowerCase();
             const today = todayKey();
             const cur = await supabaseClient.from('bonus_claims').select('*').eq('email', email).maybeSingle();
-            if (cur.error) { alert('Could not check your claim. Please try again.'); return; }
+            if (cur.error) { niceAlert('Could not check your claim. Please try again.'); return; }
             if (cur.data && cur.data.last_claim_date === today) { window.__bonusRow = cur.data; renderDailyState(); return; }
             const newTotal = (cur.data ? Number(cur.data.total_bonus || 0) : 0) + DAILY_BONUS;
             const up = await supabaseClient.from('bonus_claims').upsert([{ email: email, last_claim_date: today, total_bonus: newTotal }], { onConflict: 'email' }).select().maybeSingle();
-            if (up.error) { alert('Claim failed: ' + up.error.message); return; }
+            if (up.error) { niceAlert('Claim failed: ' + up.error.message); return; }
             window.__bonusRow = up.data || { email: email, last_claim_date: today, total_bonus: newTotal };
             renderDailyState();
-            alert('৳200 bonus claimed!');
+            niceAlert('৳200 bonus claimed!');
         }
         function maskEmail(e) {
             const parts = String(e || '').split('@');
@@ -1061,18 +1061,20 @@
             }).join('');
         }
 
-        async function deletePostedJob(jobId) {
-            if (!confirm('Delete this posted job? Its submissions (proofs) will be kept. This cannot be undone.')) return;
-            if (!supabaseClient) { alert('Not connected to server.'); return; }
+        function deletePostedJob(jobId) {
+            niceConfirm('Delete this posted job? Its submissions (proofs) will be kept. This cannot be undone.', function(){ doDeletePostedJob(jobId); });
+        }
+        async function doDeletePostedJob(jobId) {
+            if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
             const { error: jobErr } = await supabaseClient.from('micro_jobs').delete().eq('id', jobId);
-            if (jobErr) { alert('Could not delete the job: ' + jobErr.message); return; }
+            if (jobErr) { niceAlert('Could not delete the job: ' + jobErr.message); return; }
             if (typeof loadMyPostedJobs === 'function') await loadMyPostedJobs();
             if (typeof loadJobs === 'function') await loadJobs();
         }
 
         function previewPostedJob(jobId) {
             const job = postedJobsCache[String(jobId)];
-            if (!job) { alert('Could not load this job. Refresh My Posted Jobs and try again.'); return; }
+            if (!job) { niceAlert('Could not load this job. Refresh My Posted Jobs and try again.'); return; }
             if (!allJobs.some(j => Number(j.id) === Number(job.id))) allJobs.push(job);
             openJobDetail(job.id);
         }
@@ -1086,6 +1088,40 @@
             openModal('applicationsModal');
             renderApplicationsModal();
         }
+        
+        function niceConfirm(message, onYes) {
+            const ov = document.getElementById('niceConfirmOverlay');
+            if (!ov) { if (window.confirm(message)) onYes(); return; }
+            document.getElementById('niceConfirmText').textContent = message;
+            ov.classList.remove('hidden');
+            ov.style.display = 'flex';
+            const yes = document.getElementById('niceConfirmYes');
+            const no = document.getElementById('niceConfirmNo');
+            const close = () => { ov.classList.add('hidden'); ov.style.display = 'none'; yes.onclick = null; no.onclick = null; };
+            yes.onclick = () => { close(); onYes(); };
+            no.onclick = close;
+        }
+
+        
+        function niceAlert(message) {
+            const ov = document.getElementById('niceAlertOverlay');
+            if (!ov) { window.alert(message); return; }
+            const msg = String(message);
+            const ok = /claimed!|submitted!|saved!|posted!|copied!|sent!|Application submitted/i.test(msg);
+            const wrap = document.getElementById('niceAlertIconWrap');
+            wrap.innerHTML = ok
+                ? '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+                : '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fda4af" stroke-width="2" stroke-linecap="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>';
+            wrap.style.background = ok ? 'rgba(52,211,153,.15)' : 'rgba(244,63,94,.15)';
+            wrap.style.border = ok ? '1px solid rgba(52,211,153,.35)' : '1px solid rgba(244,63,94,.35)';
+            document.getElementById('niceAlertText').textContent = msg;
+            ov.classList.remove('hidden');
+            ov.style.display = 'flex';
+            const btn = document.getElementById('niceAlertOk');
+            btn.onclick = () => { ov.classList.add('hidden'); ov.style.display = 'none'; };
+        }
+        window.niceAlert = niceAlert;
+
         function openProofZoom(src) {
             let z = document.getElementById('proofZoomOverlay');
             if (!z) {
@@ -1099,11 +1135,13 @@
             document.getElementById('proofZoomImg').src = src;
             z.style.display = 'flex';
         }
-        async function deleteApplication(appId) {
-            if (!confirm('Delete this submission? This cannot be undone.')) return;
-            if (!supabaseClient) { alert('Not connected to server.'); return; }
+        function deleteApplication(appId) {
+            niceConfirm('Delete this submission? This cannot be undone.', function(){ doDeleteApplication(appId); });
+        }
+        async function doDeleteApplication(appId) {
+            if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
             const { error } = await supabaseClient.from('job_applications').delete().eq('id', appId);
-            if (error) { alert('Delete failed: ' + error.message); return; }
+            if (error) { niceAlert('Delete failed: ' + error.message); return; }
             await refreshAfterReview();
         }
         function closeApplicationsModal() { reviewingJobId = null; closeModal('applicationsModal'); }
@@ -1170,18 +1208,18 @@
         // Approve: moves the application to Approved and credits the worker once (Approved deposit, gateway 'Job Payment', trx 'JOB-<job id>').
         // Reject: moves it to Rejected. Decided applications are locked.
         async function reviewApplication(appId, newStatus) {
-            if (!supabaseClient) { alert('Not connected to server.'); return; }
+            if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
             const { data: cur, error: curErr } = await supabaseClient.from('job_applications').select('id,job_id,user_email,status').eq('id', appId).limit(1);
-            if (curErr || !cur || !cur.length) { alert('Could not load application: ' + (curErr ? curErr.message : 'not found')); return; }
+            if (curErr || !cur || !cur.length) { niceAlert('Could not load application: ' + (curErr ? curErr.message : 'not found')); return; }
             const app = cur[0];
             const prevStatus = app.status;
-            if (appStatusNorm(prevStatus) !== 'Pending') { alert('This application is already ' + appStatusNorm(prevStatus) + '.'); await refreshAfterReview(); return; }
+            if (appStatusNorm(prevStatus) !== 'Pending') { niceAlert('This application is already ' + appStatusNorm(prevStatus) + '.'); await refreshAfterReview(); return; }
             // claim the row: only an update that still sees the old status succeeds
             let claimQ = supabaseClient.from('job_applications').update({ status: newStatus }).eq('id', appId);
             claimQ = prevStatus == null ? claimQ.is('status', null) : claimQ.eq('status', prevStatus);
             const { data: claimed, error: claimErr } = await claimQ.select('id');
-            if (claimErr) { alert('Update failed: ' + claimErr.message); return; }
-            if (!claimed || !claimed.length) { alert('This application was already changed. Refreshing.'); await refreshAfterReview(); return; }
+            if (claimErr) { niceAlert('Update failed: ' + claimErr.message); return; }
+            if (!claimed || !claimed.length) { niceAlert('This application was already changed. Refreshing.'); await refreshAfterReview(); return; }
 
             if (newStatus === 'Approved') {
                 const trx = 'JOB-' + app.job_id;
@@ -1201,7 +1239,7 @@
                 } catch (e) {
                     // roll back so the worker is not left Approved without a credit
                     await supabaseClient.from('job_applications').update({ status: prevStatus }).eq('id', appId);
-                    alert('Could not credit the worker, approval cancelled: ' + (e && e.message ? e.message : e));
+                    niceAlert('Could not credit the worker, approval cancelled: ' + (e && e.message ? e.message : e));
                     await refreshAfterReview();
                     return;
                 }
@@ -1259,16 +1297,16 @@
             const amt = document.getElementById('depositAmount').value;
             const sender = document.getElementById('depositSender').value;
             const trx = document.getElementById('depositTrx').value;
-            if (!amt || !sender || !trx) { alert('Please fill all boxes!'); return; }
-            if (parseFloat(amt) < 50) { alert('Minimum deposit amount is \u09f3 50.'); return; }
-            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
+            if (!amt || !sender || !trx) { niceAlert('Please fill all boxes!'); return; }
+            if (parseFloat(amt) < 50) { niceAlert('Minimum deposit amount is \u09f3 50.'); return; }
+            if (!supabaseClient) { niceAlert('Not connected to server, please try again shortly.'); return; }
 
             // KYC gate: job cannot be posted without admin-approved KYC
             if (supabaseClient && currentUser) {
                 const { data: kycRows, error: kycErr } = await supabaseClient.from('kyc_verifications').select('status').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(1);
                 const kycOk = !kycErr && kycRows && kycRows.length > 0 && kycRows[0].status === 'Approved';
                 if (!kycOk) {
-                    alert('KYC verification required. Please complete KYC (Profile → KYC) and wait for admin approval before posting a job.');
+                    niceAlert('KYC verification required. Please complete KYC (Profile → KYC) and wait for admin approval before posting a job.');
                     return;
                 }
             }
@@ -1279,8 +1317,8 @@
             const { error } = await insertSafe('deposits', {
                 user_email: currentUser.email, gateway: selectedGateway, amount: gross, fee: fee, net_amount: net, sender: sender, trx: trx, status: 'Pending'
             });
-            if (error) { alert('Error: ' + error.message); return; }
-            alert('Deposit submitted!\nSend: ৳' + gross.toFixed(2) + ' | You receive: ৳' + net.toFixed(2));
+            if (error) { niceAlert('Error: ' + error.message); return; }
+            niceAlert('Deposit submitted!\nSend: ৳' + gross.toFixed(2) + ' | You receive: ৳' + net.toFixed(2));
             document.getElementById('depositAmount').value = '';
             document.getElementById('depositSender').value = '';
             document.getElementById('depositTrx').value = '';
@@ -1482,7 +1520,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
         }
         function openKycForm() {
-            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
             document.getElementById('kycVerifyBtn').classList.add('hidden');
             document.getElementById('kycResubmitBtn').classList.add('hidden');
             document.getElementById('kycFormPanel').classList.remove('hidden');
@@ -1511,7 +1549,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const f = document.getElementById(inputId).files[0];
             const t = document.getElementById(thumbId);
             if (f && !f.type.startsWith('image/')) {
-                alert('Please choose an image file.');
+                niceAlert('Please choose an image file.');
                 document.getElementById(inputId).value = '';
             }
             const chosen = document.getElementById(inputId).files[0];
@@ -1540,20 +1578,20 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             else { updateKycSubmitState(); }
         }
         async function submitKyc() {
-            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
             const docType = document.getElementById('kycDocType').value;
             const name = document.getElementById('kycName').value.trim();
             const idNumber = document.getElementById('kycIdNumber').value.trim();
-            if (!docType) { alert('Please choose a document type.'); return; }
-            if (!name) { alert('Please enter your full name.'); return; }
-            if (!idNumber) { alert('Please enter your NID / ID number.'); return; }
+            if (!docType) { niceAlert('Please choose a document type.'); return; }
+            if (!name) { niceAlert('Please enter your full name.'); return; }
+            if (!idNumber) { niceAlert('Please enter your NID / ID number.'); return; }
             const slots = KYC_PHOTO_SLOTS.map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0] }));
-            if (slots.some(s => !s.file)) { alert('Please choose all 3 photos: Front side of ID, Back side of ID, Selfie holding the ID.'); updateKycSubmitState(); return; }
+            if (slots.some(s => !s.file)) { niceAlert('Please choose all 3 photos: Front side of ID, Back side of ID, Selfie holding the ID.'); updateKycSubmitState(); return; }
             for (const s of slots) {
-                if (!s.file.type.startsWith('image/')) { alert(s.label + ': please choose an image file.'); return; }
-                if (s.file.size > 10 * 1024 * 1024) { alert(s.label + ': photo must be 10 MB or less.'); return; }
+                if (!s.file.type.startsWith('image/')) { niceAlert(s.label + ': please choose an image file.'); return; }
+                if (s.file.size > 10 * 1024 * 1024) { niceAlert(s.label + ': photo must be 10 MB or less.'); return; }
             }
-            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
+            if (!supabaseClient) { niceAlert('Not connected to server, please try again shortly.'); return; }
 
             setKycBusy(true);
             const failed = [];
@@ -1575,7 +1613,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
             if (failed.length) {
                 setKycBusy(false);
-                alert('Could not upload: ' + failed.join(', ') + '. Please try again.');
+                niceAlert('Could not upload: ' + failed.join(', ') + '. Please try again.');
                 return;
             }
             const frontUrl = (docs.find(d => d.type === 'front') || {}).url || null;
@@ -1592,11 +1630,11 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 if (isMissingKycTableError(error)) {
                     kycTableMissing = true;
                     logKycSql();
-                    alert('KYC is not set up on the server yet. Please try again later.');
+                    niceAlert('KYC is not set up on the server yet. Please try again later.');
                     renderKycCard();
                     return;
                 }
-                alert('KYC submit failed: ' + error.message);
+                niceAlert('KYC submit failed: ' + error.message);
                 return;
             }
             document.getElementById('kycName').value = '';
@@ -1605,7 +1643,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             resetKycPhotos();
             document.getElementById('kycFormPanel').classList.add('hidden');
             await loadMyKyc();
-            alert('KYC submitted! Status: Pending review.');
+            niceAlert('KYC submitted! Status: Pending review.');
         }
         async function isKycApproved() {
             if (!currentUser) return false;
@@ -1730,12 +1768,12 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
 
         async function submitJobWork() {
-            if (!currentUser) { alert('Please log in first.'); return; }
-            if (!(await isKycApproved())) { alert('Please complete KYC verification first'); openKycProfile(); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
+            if (!(await isKycApproved())) { niceAlert('Please complete KYC verification first'); openKycProfile(); return; }
             const job = allJobs.find(j => Number(j.id) === Number(currentJobId));
             if (!job) return;
             const apps = getLocalList('taskflex_applications');
-            if (apps.some(a => a.email === currentUser.email && Number(a.job_id) === Number(job.id))) { alert('You have already submitted this job.'); return; }
+            if (apps.some(a => a.email === currentUser.email && Number(a.job_id) === Number(job.id))) { niceAlert('You have already submitted this job.'); return; }
 
             // Validate every required (requirement, type) pair before saving anything.
             const images = [];
@@ -1790,26 +1828,26 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
             apps.push({ email: currentUser.email, job_id: job.id, title: job.title, reward: job.reward, status: 'Pending', date: new Date().toISOString() });
             setLocalList('taskflex_applications', apps);
-            alert('Submitted! Status: Pending');
+            niceAlert('Submitted! Status: Pending');
             openJobDetail(job.id);
             renderMyApplications();
             renderEarnings();
         }
 
         function openProofPanel() {
-            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
             const panel = document.getElementById('proofPanel');
             panel.classList.remove('hidden');
             panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         async function applyToJob() {
-            if (!currentUser) { alert('Please log in first.'); return; }
-            if (!(await isKycApproved())) { alert('Please complete KYC verification first'); openKycProfile(); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
+            if (!(await isKycApproved())) { niceAlert('Please complete KYC verification first'); openKycProfile(); return; }
             const job = allJobs.find(j => Number(j.id) === Number(currentJobId));
             if (!job) return;
             const apps = getLocalList('taskflex_applications');
-            if (apps.some(a => a.email === currentUser.email && Number(a.job_id) === Number(job.id))) { alert('You have already applied for this job.'); return; }
+            if (apps.some(a => a.email === currentUser.email && Number(a.job_id) === Number(job.id))) { niceAlert('You have already applied for this job.'); return; }
 
             let savedOnServer = false;
             if (supabaseClient) {
@@ -1818,7 +1856,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
             apps.push({ email: currentUser.email, job_id: job.id, title: job.title, reward: job.reward, status: 'Applied', date: new Date().toISOString() });
             setLocalList('taskflex_applications', apps);
-            alert(savedOnServer ? 'Application submitted!' : 'Application saved (on this device). Not saved to server.');
+            niceAlert(savedOnServer ? 'Application submitted!' : 'Application saved (on this device). Not saved to server.');
             openJobDetail(job.id);
             renderMyApplications();
             renderEarnings();
@@ -1989,13 +2027,13 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function renderMyTakenJobs() {}
 
         async function submitWithdraw() {
-            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
             const number = document.getElementById('withdrawNumber').value.trim();
-            if (!amount || amount <= 0 || !number) { alert('Please enter amount and number!'); return; }
-            if (amount < 100) { alert('Minimum withdraw amount is \u09f3 100.'); return; }
-            if (amount > currentBalance) { alert('You cannot withdraw more than your balance.'); return; }
+            if (!amount || amount <= 0 || !number) { niceAlert('Please enter amount and number!'); return; }
+            if (amount < 100) { niceAlert('Minimum withdraw amount is \u09f3 100.'); return; }
+            if (amount > currentBalance) { niceAlert('You cannot withdraw more than your balance.'); return; }
             const wFee = Math.round(amount * 10) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
 
@@ -2009,7 +2047,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 list.push({ email: currentUser.email, amount: amount, fee: wFee, net_amount: wNet, method: method, account: number, status: 'Pending (this device)' });
                 setLocalList('taskflex_withdrawals', list);
             }
-            alert((savedOnServer ? 'Withdraw request sent!' : 'Request saved on this device. Not sent to server.') + '\nTotal: ৳' + amount.toFixed(2) + ' | Fee (5%): ৳' + wFee.toFixed(2) + ' | You receive: ৳' + wNet.toFixed(2));
+            niceAlert((savedOnServer ? 'Withdraw request sent!' : 'Request saved on this device. Not sent to server.') + '\nTotal: ৳' + amount.toFixed(2) + ' | Fee (5%): ৳' + wFee.toFixed(2) + ' | You receive: ৳' + wNet.toFixed(2));
             document.getElementById('withdrawAmount').value = '';
             document.getElementById('withdrawNumber').value = '';
             renderWallet();
@@ -2074,10 +2112,10 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!el) return;
             el.select();
             if (navigator.clipboard) {
-                navigator.clipboard.writeText(el.value).then(() => alert('Link copied!')).catch(() => { document.execCommand('copy'); alert('Link copied!'); });
+                navigator.clipboard.writeText(el.value).then(() => niceAlert('Link copied!')).catch(() => { document.execCommand('copy'); niceAlert('Link copied!'); });
             } else {
                 document.execCommand('copy');
-                alert('Link copied!');
+                niceAlert('Link copied!');
             }
         }
 
@@ -2151,16 +2189,16 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
         }
         function pickAvatarPhoto() {
-            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
             document.getElementById('avatarFileInput').click();
         }
         async function handleAvatarFile(input) {
             const file = input.files && input.files[0];
             input.value = '';
             if (!file || !currentUser) return;
-            if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
-            if (file.size > 5 * 1024 * 1024) { alert('Photo must be 5 MB or less.'); return; }
-            if (!supabaseClient) { alert('Could not upload photo: not connected to server. Please try again shortly.'); return; }
+            if (!file.type.startsWith('image/')) { niceAlert('Please choose an image file.'); return; }
+            if (file.size > 5 * 1024 * 1024) { niceAlert('Photo must be 5 MB or less.'); return; }
+            if (!supabaseClient) { niceAlert('Could not upload photo: not connected to server. Please try again shortly.'); return; }
             const btn = document.getElementById('avatarChangeBtn');
             if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
             try {
@@ -2185,7 +2223,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 updateUserDataUI();
             } catch (e) {
                 console.warn('Avatar upload failed:', e);
-                alert('Sorry, the photo could not be uploaded. Please check your connection and try again. Your current avatar is unchanged.');
+                niceAlert('Sorry, the photo could not be uploaded. Please check your connection and try again. Your current avatar is unchanged.');
             } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-camera mr-1"></i> Change photo'; }
             }
@@ -2234,10 +2272,10 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (btn) btn.innerHTML = open ? '<i class="fa-solid fa-xmark text-[10px] mr-1"></i> Close' : '<i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit';
         }
         async function savePersonalDetails() {
-            if (!currentUser) { alert('Please log in first.'); return; }
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
             const d = {};
             PERSONAL_FIELDS.forEach(f => { d[f.key] = (document.getElementById(f.id).value || '').trim(); });
-            if (!d.fullName || !d.dob) { alert('Please fill Full Name and Date of Birth.'); return; }
+            if (!d.fullName || !d.dob) { niceAlert('Please fill Full Name and Date of Birth.'); return; }
             const json = JSON.stringify(d);
             const btn = document.getElementById('pdSaveBtn');
             btn.disabled = true; btn.textContent = 'Saving...';
@@ -2257,21 +2295,21 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             btn.disabled = false; btn.textContent = 'Save';
             renderPersonalDetails();
             togglePersonalEdit(false);
-            if (savedTo === 'local' && myKyc) alert('Saved on this device. Server save will work once the personal_details_json column is added to kyc_verifications.');
-            else alert('Personal details saved!');
+            if (savedTo === 'local' && myKyc) niceAlert('Saved on this device. Server save will work once the personal_details_json column is added to kyc_verifications.');
+            else niceAlert('Personal details saved!');
         }
 
         function saveProfile() {
             if (!currentUser) return;
             const name = document.getElementById('profEditName').value.trim();
             const phone = document.getElementById('profEditPhone').value.trim();
-            if (!name) { alert('Please enter a name!'); return; }
+            if (!name) { niceAlert('Please enter a name!'); return; }
             currentUser.name = name;
             currentUser.phone = phone;
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             updateUserDataUI();
             toggleProfileEdit(false);
-            alert('Profile saved!');
+            niceAlert('Profile saved!');
         }
 
         function toggleProfileEdit(force) {
@@ -2293,24 +2331,24 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const reward = parseFloat(document.getElementById('newJobReward').value);
             const category = document.getElementById('newJobCategory').value;
             const check = getProofRequirements();
-            if (check.error) { alert(check.error); return; }
+            if (check.error) { niceAlert(check.error); return; }
             const proofRows = check.rows;
             const proofReq = proofRows.map(r => r.title + ' (' + r.types.map(t => PROOF_TYPE_LABELS[t]).join(' + ') + ')').join('; ');
             const shotsReq = proofRows.filter(r => r.types.includes('screenshot')).length;
             const clientProofsReq = proofRows.filter(r => r.types.includes('message')).length;
-            if (!title) { alert('Please fill all fields!'); return; }
-            if (isNaN(reward) || reward <= 0) { alert('Payment per worker is required.'); return; }
+            if (!title) { niceAlert('Please fill all fields!'); return; }
+            if (isNaN(reward) || reward <= 0) { niceAlert('Payment per worker is required.'); return; }
             const limitRaw = document.getElementById('newJobLimit').value;
             const limit = parseInt(limitRaw, 10);
-            if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { alert('Limit (workers) is required and must be at least 1.'); return; }
-            if (!supabaseClient) { alert('Not connected to server, please try again shortly.'); return; }
+            if (limitRaw === '' || !Number.isFinite(limit) || limit < 1 || String(limit) !== String(Number(limitRaw))) { niceAlert('Limit (workers) is required and must be at least 1.'); return; }
+            if (!supabaseClient) { niceAlert('Not connected to server, please try again shortly.'); return; }
 
             const R = Math.round(reward * 100) / 100;
             const budget = Math.round(R * limit * 100) / 100;
-            if (budget < JOB_MIN_TOTAL_BUDGET) { alert('Minimum total job cost is ৳' + JOB_MIN_TOTAL_BUDGET + ' (reward x workers).'); return; }
+            if (budget < JOB_MIN_TOTAL_BUDGET) { niceAlert('Minimum total job cost is ৳' + JOB_MIN_TOTAL_BUDGET + ' (reward x workers).'); return; }
             const jobFee = Math.round(budget * 10) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
-            if (jobTotal > currentBalance) { alert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
+            if (jobTotal > currentBalance) { niceAlert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
             // Thumbnail is optional: if the upload fails, the job still saves without it.
             let thumbnailUrl = null;
@@ -2342,8 +2380,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 delete row.description; delete row.thumbnail_url; delete row.limit_count; delete row.budget;
                 ({ error } = await insertSafe('micro_jobs', row));
             }
-            if (error) { alert('Error: ' + error.message); return; }
-            alert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
+            if (error) { niceAlert('Error: ' + error.message); return; }
+            niceAlert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
             closePostJobModal();
             fetchJobsFromDatabase();
             renderMyTakenJobs();
@@ -2408,8 +2446,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const file = input.files && input.files[0];
             input.value = '';
             if (!file) return;
-            if (!file.type.startsWith('image/')) { alert('Please choose an image file.'); return; }
-            if (file.size > 5 * 1024 * 1024) { alert('Thumbnail must be 5 MB or less.'); return; }
+            if (!file.type.startsWith('image/')) { niceAlert('Please choose an image file.'); return; }
+            if (file.size > 5 * 1024 * 1024) { niceAlert('Thumbnail must be 5 MB or less.'); return; }
             jobThumbFile = file;
             const img = document.getElementById('newJobThumbPreview');
             img.src = URL.createObjectURL(file);
@@ -2498,5 +2536,26 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
     </script>
 
+
+<div id="niceConfirmOverlay" class="hidden" style="position:fixed;inset:0;z-index:9998;background:rgba(10,5,25,.75);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);">
+  <div class="glass-card rounded-3xl p-5 w-full max-w-xs space-y-4 text-center" style="max-width:320px;">
+    <div style="width:52px;height:52px;margin:0 auto;border-radius:9999px;background:rgba(244,63,94,.15);border:1px solid rgba(244,63,94,.35);display:flex;align-items:center;justify-content:center;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fda4af" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    </div>
+    <p id="niceConfirmText" class="text-sm text-violet-100 leading-relaxed"></p>
+    <div class="flex gap-3">
+      <button id="niceConfirmNo" class="flex-1 text-xs font-bold py-3 rounded-2xl bg-white/5 text-violet-200 border border-white/10">Cancel</button>
+      <button id="niceConfirmYes" class="flex-1 text-xs font-black py-3 rounded-2xl bg-rose-500 text-white">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="niceAlertOverlay" class="hidden" style="position:fixed;inset:0;z-index:9998;background:rgba(10,5,25,.75);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);">
+  <div class="glass-card rounded-3xl p-5 w-full max-w-xs space-y-4 text-center" style="max-width:320px;">
+    <div id="niceAlertIconWrap" style="width:52px;height:52px;margin:0 auto;border-radius:9999px;display:flex;align-items:center;justify-content:center;"></div>
+    <p id="niceAlertText" class="text-sm text-violet-100 leading-relaxed whitespace-pre-line" style="text-align:center;"></p>
+    <button id="niceAlertOk" class="w-full text-xs font-black py-3 rounded-2xl btn-amber">OK</button>
+  </div>
+</div>
 </body>
 </html>
