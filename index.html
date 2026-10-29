@@ -113,6 +113,11 @@
         }
         .field:focus { border-color: #F5B942; box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.18); }
         .field::placeholder { color: #8B7FB0; }
+        html[data-theme-effective="light"] #verifyEmailCard, body.theme-light #verifyEmailCard { background: linear-gradient(160deg, #F4EFFF, #FFFFFF 65%) !important; border-color: #D8CDEB !important; }
+        html[data-theme-effective="light"] #verifyEmailCard h3, body.theme-light #verifyEmailCard h3 { color: #282237 !important; }
+        html[data-theme-effective="light"] #verifyEmailCard p, body.theme-light #verifyEmailCard p { color: #554C62 !important; }
+        html[data-theme-effective="light"] #verifyEmailCard input, body.theme-light #verifyEmailCard input { color: #282237 !important; background-color: #FFFFFF !important; border-color: #CFC8DB !important; }
+        html[data-theme-effective="light"] #verifyEmailCard button:not(.btn-amber), body.theme-light #verifyEmailCard button:not(.btn-amber) { color: #453A59 !important; }
         .btn-amber {
             background: linear-gradient(90deg, #FCD34D, #F59E0B);
             color: #2A1A00;
@@ -277,6 +282,18 @@
                 <p class="text-xs text-center text-violet-200/70 pt-1">
                     Already have an account? <a href="#" onclick="toggleAuthForm('login')" class="text-amber-400 font-bold hover:underline">Login</a>
                 </p>
+            </div>
+
+            <!-- EMAIL VERIFICATION CARD -->
+            <div id="verifyEmailCard" class="glass-card w-full p-6 rounded-3xl space-y-4 hidden">
+                <h3 class="text-lg font-bold text-white text-center">Verify your email</h3>
+                <p class="text-sm text-center text-violet-200/80">Enter the 6-digit code sent to your email</p>
+                <p id="verifyEmailAddress" class="text-xs text-center text-violet-200/60"></p>
+                <input type="text" id="signupOtp" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit code" aria-label="6-digit verification code" class="field w-full rounded-2xl px-4 py-3 text-lg tracking-[.35em] text-center">
+                <p id="signupOtpMessage" class="hidden text-xs text-center" role="status" aria-live="polite"></p>
+                <button type="button" onclick="verifySignupOtp()" id="verifySignupBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Verify</button>
+                <button type="button" onclick="resendSignupOtp()" id="resendSignupBtn" class="w-full border border-violet-300/20 bg-white/5 text-violet-100 font-semibold py-3 rounded-2xl transition">Resend code <span id="resendCooldown"></span></button>
+                <button type="button" onclick="backToSignup()" class="w-full text-xs text-violet-200/70 py-2">Back</button>
             </div>
         </div>
 
@@ -891,6 +908,9 @@
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
+        let pendingSignup = null;
+        let resendSignupAt = 0;
+        let resendSignupTimer = null;
         const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support', 'settings'];
 
         function esc(s) {
@@ -950,9 +970,9 @@
             }
         }
 
-        function handleRegister() {
+        async function handleRegister() {
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const phone = document.getElementById('regPhone').value;
+            const phone = document.getElementById('regPhone').value.trim();
             const pass = document.getElementById('regPass').value;
             const refInput = document.getElementById('regReferralCode');
             const referralCode = String(refInput ? refInput.value : '').trim();
@@ -960,12 +980,115 @@
             if (referralCode && !/^(?:[^\s@]+@[^\s@]+\.[^\s@]+|[A-Za-z0-9]{6,8})$/.test(referralCode)) { niceAlert('Enter your friend\'s referral code or email.'); return; }
             const pass2 = document.getElementById('regPass2').value;
             if (pass !== pass2) { niceAlert('Passwords do not match! Enter the same password twice.'); return; }
-            currentUser = { name: email.split('@')[0], email: email, phone: phone };
+            const client = await waitForSupabase();
+            if (!client) { niceAlert('Connection unavailable. Please refresh and try again.'); return; }
+            const submitBtn = document.querySelector('#registerCard button[onclick="handleRegister()"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating account...'; }
+            try {
+                const { data, error } = await client.auth.signUp({ email, password: pass, options: { data: { phone } } });
+                if (error) throw error;
+                pendingSignup = { email, phone, referralCode };
+                if (referralCode) localStorage.setItem('taskflex_ref', referralCode);
+                if (data && data.session) {
+                    await finishSignup(data.user);
+                    return;
+                }
+                document.getElementById('registerCard').classList.add('hidden');
+                document.getElementById('loginCard').classList.add('hidden');
+                document.getElementById('verifyEmailCard').classList.remove('hidden');
+                document.getElementById('verifyEmailAddress').textContent = email;
+                document.getElementById('signupOtp').value = '';
+                setSignupOtpMessage('');
+                startSignupResendCooldown(30);
+                document.getElementById('signupOtp').focus();
+            } catch (error) {
+                niceAlert('Sign up failed: ' + (error.message || 'Please try again.'));
+            } finally {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account'; }
+            }
+        }
+
+        async function finishSignup(authUser) {
+            if (!pendingSignup) return;
+            const { email, phone, referralCode } = pendingSignup;
+            currentUser = { id: authUser && authUser.id, name: email.split('@')[0], email, phone };
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
             if (referralCode) localStorage.setItem('taskflex_ref', referralCode);
-            registerReferralSignup(email, referralCode);
+            await ensureReferralCode(currentUser);
+            await registerReferralSignup(email, referralCode);
+            pendingSignup = null;
+            clearInterval(resendSignupTimer);
+            document.getElementById('verifyEmailCard').classList.add('hidden');
             document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('appHeader').classList.remove('hidden');
+            document.getElementById('appMain').classList.remove('hidden');
+            switchTab('dashboard');
             updateUserDataUI();
+        }
+
+        function setSignupOtpMessage(message, isError) {
+            const el = document.getElementById('signupOtpMessage');
+            if (!el) return;
+            el.textContent = message;
+            el.classList.toggle('hidden', !message);
+            el.classList.toggle('text-rose-300', !!isError);
+            el.classList.toggle('text-emerald-300', !!message && !isError);
+        }
+
+        function startSignupResendCooldown(seconds) {
+            resendSignupAt = Date.now() + seconds * 1000;
+            clearInterval(resendSignupTimer);
+            const tick = () => {
+                const left = Math.max(0, Math.ceil((resendSignupAt - Date.now()) / 1000));
+                const btn = document.getElementById('resendSignupBtn');
+                const timer = document.getElementById('resendCooldown');
+                if (btn) btn.disabled = left > 0;
+                if (timer) timer.textContent = left > 0 ? '(' + left + 's)' : '';
+                if (!left) clearInterval(resendSignupTimer);
+            };
+            tick();
+            resendSignupTimer = setInterval(tick, 1000);
+        }
+
+        async function verifySignupOtp() {
+            if (!pendingSignup) { setSignupOtpMessage('Signup details are missing. Please start again.', true); return; }
+            const token = document.getElementById('signupOtp').value.replace(/\D/g, '');
+            if (!/^\d{6}$/.test(token)) { setSignupOtpMessage('Enter the 6-digit code.', true); return; }
+            const btn = document.getElementById('verifySignupBtn');
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+            try {
+                const { data, error } = await (await waitForSupabase()).auth.verifyOtp({ email: pendingSignup.email, token, type: 'signup' });
+                if (error) throw error;
+                if (!data || !data.user) throw new Error('Verification did not return a user. Please try again.');
+                await finishSignup(data.user);
+            } catch (error) {
+                setSignupOtpMessage(error.message || 'Could not verify the code. Please try again.', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify';
+            }
+        }
+
+        async function resendSignupOtp() {
+            if (!pendingSignup || Date.now() < resendSignupAt) return;
+            const btn = document.getElementById('resendSignupBtn');
+            btn.disabled = true;
+            try {
+                const { error } = await (await waitForSupabase()).auth.resend({ type: 'signup', email: pendingSignup.email });
+                if (error) throw error;
+                setSignupOtpMessage('A new code has been sent.', false);
+                startSignupResendCooldown(30);
+            } catch (error) {
+                setSignupOtpMessage(error.message || 'Could not resend the code. Please try again.', true);
+                btn.disabled = false;
+            }
+        }
+
+        function backToSignup() {
+            clearInterval(resendSignupTimer);
+            document.getElementById('verifyEmailCard').classList.add('hidden');
+            document.getElementById('registerCard').classList.remove('hidden');
         }
 
         function handleLogin() {
