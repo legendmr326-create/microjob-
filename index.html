@@ -1088,10 +1088,14 @@
             passwordResetResendTimer = setInterval(update, 250);
         }
 
+        function isValidEmailAddress(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
         async function sendPasswordResetCode(isResend) {
             const emailInput = document.getElementById('forgotPasswordEmail');
             const email = (isResend ? passwordResetEmail : emailInput.value).trim().toLowerCase();
-            if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) { showPasswordResetMessage('Enter a valid email address.', true); return; }
+            if (!isValidEmailAddress(email)) { showPasswordResetMessage('Enter a valid email address.', true); return; }
             const client = await waitForSupabase();
             if (!client) { showPasswordResetMessage('Connection unavailable. Please refresh and try again.', true); return; }
             const button = document.getElementById(isResend ? 'forgotResendButton' : 'forgotSendCodeButton');
