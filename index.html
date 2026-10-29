@@ -1050,9 +1050,10 @@
             const savedUser = localStorage.getItem('taskflex_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
-                document.getElementById('authOverlay').classList.add('hidden');
-            var ah = document.getElementById('appHeader'); if (ah) ah.classList.remove('hidden');
-            var am = document.getElementById('appMain'); if (am) am.classList.remove('hidden');
+                const authOverlay = document.getElementById('authOverlay');
+                if (authOverlay) authOverlay.classList.add('hidden');
+                const ah = document.getElementById('appHeader'); if (ah) ah.classList.remove('hidden');
+                const am = document.getElementById('appMain'); if (am) am.classList.remove('hidden');
                 updateUserDataUI();
             } else {
                 document.getElementById('authOverlay').classList.remove('hidden');
@@ -1535,27 +1536,49 @@
 
         function updateUserDataUI() {
             if (!currentUser) return;
-            document.getElementById('profileName').innerText = currentUser.email;
-            document.getElementById('profilePhone').innerText = currentUser.phone || currentUser.email;
-            const avatarUrl = getAvatarUrl();
-            document.getElementById('headerUserAvatar').src = avatarUrl;
-            document.getElementById('modalUserAvatar').src = avatarUrl;
-            document.getElementById('profInitial').innerText = String(currentUser.name || 'U').charAt(0).toUpperCase();
-            renderProfileAvatar();
-            renderAvatarPicker();
-            renderVerifiedTick();
-            document.getElementById('profHeaderName').innerText = currentUser.name || 'User';
-            document.getElementById('profHeaderEmail').innerText = currentUser.email || '';
-            fetchUserBalance();
-            loadReferralSection();
-            renderMyTakenJobs();
-            renderProfileForm();
-            renderReferral();
-            renderMyApplications();
-            renderEarnings();
-            loadRatings();
-            loadNotifications();
-            loadMyKyc();
+            // Keep the authenticated app shell available even if an optional profile widget fails.
+            const shell = document.getElementById('appMain');
+            if (shell) shell.classList.remove('hidden');
+            const safeSetText = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+            const safeSetSrc = (id, value) => { const el = document.getElementById(id); if (el) el.src = value; };
+            safeSetText('profileName', currentUser.email || currentUser.name || 'User');
+            safeSetText('profilePhone', currentUser.phone || currentUser.email || '');
+            try {
+                const avatarUrl = getAvatarUrl();
+                safeSetSrc('headerUserAvatar', avatarUrl);
+                safeSetSrc('modalUserAvatar', avatarUrl);
+                safeSetText('profInitial', String(currentUser.name || 'U').charAt(0).toUpperCase());
+                renderProfileAvatar();
+                renderAvatarPicker();
+                renderVerifiedTick();
+                safeSetText('profHeaderName', currentUser.name || 'User');
+                safeSetText('profHeaderEmail', currentUser.email || '');
+            } catch (e) { console.warn('Profile shell render failed:', e); }
+
+            // Each data-backed panel is isolated. A rejected Supabase request must not abort
+            // the rest of startup or leave the dashboard hidden/partially initialized.
+            const safeLoad = (name, load, fallback) => {
+                try {
+                    const result = load();
+                    if (result && typeof result.catch === 'function') result.catch(e => {
+                        console.warn(name + ' load failed:', e);
+                        try { if (fallback) fallback(); } catch (fallbackError) { console.warn(name + ' fallback failed:', fallbackError); }
+                    });
+                } catch (e) {
+                    console.warn(name + ' load failed:', e);
+                    try { if (fallback) fallback(); } catch (fallbackError) { console.warn(name + ' fallback failed:', fallbackError); }
+                }
+            };
+            safeLoad('balance', fetchUserBalance, () => { currentBalance = 0; setMoney('workerBalance', 0); setMoney('clientBalance', 0); });
+            safeLoad('referral', loadReferralSection, renderDailyState);
+            safeLoad('taken jobs', renderMyTakenJobs);
+            safeLoad('profile form', renderProfileForm);
+            safeLoad('referral card', renderReferral);
+            safeLoad('applications', renderMyApplications);
+            safeLoad('earnings', renderEarnings);
+            safeLoad('ratings', loadRatings, () => safeSetText('ratingDisplay', 'Rating data unavailable'));
+            safeLoad('notifications', loadNotifications, () => safeSetText('notificationsList', 'Notifications unavailable right now.'));
+            safeLoad('KYC', loadMyKyc, () => { myKyc = null; try { renderKycCard(); } catch (_) {} });
         }
 
         function switchTab(tabId) {
