@@ -276,21 +276,12 @@
         <div id="tab-jobdetail" class="space-y-3.5 hidden">
             <button onclick="switchTab('dashboard')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back</button>
             <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
-            <button onclick="openProofPanel()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Submit <span class="font-normal text-[11px] opacity-80">সাবমিট করুন</span></button>
-            <div id="proofPanel" class="glass-card rounded-3xl p-5 space-y-3 hidden">
-                <p class="text-xs font-bold text-white">Proof required: Screenshot + Text Report</p>
-                <div>
-                    <label class="block text-[11px] font-semibold text-violet-100 mb-1">Screenshot Image <span class="text-rose-300">*</span></label>
-                    <input type="file" id="proofImgInput" accept="image/*" onchange="previewProofImage(this)" class="field w-full rounded-2xl px-3 py-2.5 text-sm">
-                    <img id="proofImgPreview" alt="" class="hidden w-full max-h-48 object-contain rounded-xl border border-white/10 mt-2">
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-violet-100 mb-1">Text Report <span class="text-rose-300">*</span></label>
-                    <textarea id="proofText" rows="4" placeholder="Describe what you did" class="field w-full rounded-2xl px-4 py-3 text-sm"></textarea>
-                </div>
+            <div id="proofPanel" class="glass-card rounded-3xl p-5 space-y-3">
+                <p id="proofTitle" class="text-xs font-bold text-white">Submit your proof</p>
+                <div id="proofFields" class="space-y-3"></div>
                 <p id="proofError" class="hidden text-[11px] font-semibold text-rose-300"></p>
-                <button type="button" id="proofSubmitBtn" onclick="submitJobWork()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Confirm Submit</button>
             </div>
+            <button type="button" onclick="submitJobWork()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Submit <span class="font-normal text-[11px] opacity-80">সাবমিট করুন</span></button>
         </div>
 
         <!-- TAB: MY APPLICATIONS / MY JOBS -->
@@ -613,6 +604,17 @@
         </nav>
 
         <!-- MULTI-STEP POST JOB MODAL -->
+        <!-- APPLICATIONS REVIEW MODAL (employer) -->
+        <div id="applicationsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden px-4 opacity-0 transition-opacity duration-300">
+            <div class="w-full max-w-sm glass-card rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <div class="flex justify-between items-start gap-3 pb-3 border-b border-white/10">
+                    <div class="min-w-0"><h3 id="appsModalTitle" class="text-base font-bold text-white truncate">Applications</h3><p id="appsModalCount" class="text-[11px] text-violet-200/70 mt-0.5"></p></div>
+                    <button onclick="closeApplicationsModal()" class="text-violet-200/70 hover:text-white shrink-0"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div id="appsModalList" class="space-y-3"></div>
+            </div>
+        </div>
+
         <div id="postJobModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden px-4">
             <div class="w-full max-w-sm glass-card rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
                 <div class="flex justify-between items-center pb-3 border-b border-white/10">
@@ -1016,6 +1018,13 @@
             if (tabId === 'withdraw') renderWithdrawHistory();
         }
 
+        // ---- Employer: My Posted Jobs + application review ----
+        let postedJobsCache = {};
+        let reviewingJobId = null;
+        function appStatusNorm(s) {
+            const t = String(s == null ? 'Pending' : s);
+            return /^approved$/i.test(t) ? 'Approved' : /^rejected$/i.test(t) ? 'Rejected' : 'Pending';
+        }
         async function loadMyPostedJobs() {
             const box = document.getElementById('myPostedJobsList');
             if (!box) return;
@@ -1024,42 +1033,144 @@
             if (!supabaseClient || !email) { box.innerHTML = empty; return; }
             const { data, error } = await supabaseClient.from('micro_jobs').select('id,title,reward,status,client_email').eq('client_email', email).order('id', { ascending: false });
             if (error || !data || data.length === 0) { box.innerHTML = empty; return; }
+            postedJobsCache = {};
+            data.forEach(j => { postedJobsCache[String(j.id)] = j; });
             const ids = data.map(j => j.id);
-            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('id,job_id,user_email,status').in('job_id', ids).order('id', { ascending: false });
+            const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('id,job_id,status').in('job_id', ids);
             const appList = (!appErr && apps) ? apps : [];
             box.innerHTML = data.map(j => {
                 const st = String(j.status || 'Pending');
                 const cls = /^approved|active$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected|inactive$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
                 const mine = appList.filter(a => String(a.job_id) === String(j.id));
-                const subs = mine.length === 0
-                    ? `<p class="text-[11px] text-violet-200/50">No submissions yet</p>`
-                    : mine.map(a => {
-                        const as = String(a.status || 'Applied');
-                        const isApproved = /^approved$/i.test(as), isRejected = /^rejected$/i.test(as);
-                        const badge = isApproved ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-400/15 text-emerald-200">Approved</span>'
-                            : isRejected ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-400/15 text-rose-200">Rejected</span>'
-                            : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-400/15 text-amber-200">Pending</span>';
-                        const actions = (!isApproved && !isRejected)
-                            ? `<div class="flex gap-2 mt-2"><button onclick="setApplicationStatus(${Number(a.id)}, 'Approved')" class="flex-1 text-[11px] font-bold py-1.5 rounded-xl bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Approve</button><button onclick="setApplicationStatus(${Number(a.id)}, 'Rejected')" class="flex-1 text-[11px] font-bold py-1.5 rounded-xl bg-rose-400/20 text-rose-200 border border-rose-300/30">Reject</button></div>`
-                            : '';
-                        return `<div class="bg-black/20 border border-white/10 rounded-xl p-2.5"><div class="flex items-center justify-between gap-2"><p class="text-[11px] text-violet-100 truncate min-w-0">${esc(a.user_email || 'worker')}</p>${badge}</div>${actions}</div>`;
-                    }).join('');
+                const total = mine.length;
+                const pending = mine.filter(a => appStatusNorm(a.status) === 'Pending').length;
+                const approved = mine.filter(a => appStatusNorm(a.status) === 'Approved').length;
+                const rejected = mine.filter(a => appStatusNorm(a.status) === 'Rejected').length;
                 return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ৳ ${esc(String(j.reward ?? 0))}</p></div>
                         <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
                     </div>
-                    <div class="space-y-1.5"><p class="text-[10px] uppercase tracking-wider text-violet-200/50">Submissions</p>${subs}</div>
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <p class="text-xs text-violet-100"><span class="font-black text-amber-300">${total}</span> worker${total === 1 ? '' : 's'} applied</p>
+                        <p class="text-[10px] text-violet-200/60">${pending} pending · ${approved} approved · ${rejected} rejected</p>
+                    </div>
+                    <button onclick="openApplicationsModal(${Number(j.id)})" class="w-full text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button>
                 </div>`;
             }).join('');
         }
 
-        async function setApplicationStatus(appId, status) {
-            if (!supabaseClient) { alert('Not connected to server.'); return; }
-            const { error } = await supabaseClient.from('job_applications').update({ status: status }).eq('id', appId);
-            if (error) { alert('Update failed: ' + error.message); return; }
-            await loadMyPostedJobs();
+        function openApplicationsModal(jobId) {
+            reviewingJobId = Number(jobId);
+            const job = postedJobsCache[String(jobId)];
+            document.getElementById('appsModalTitle').innerText = job ? (job.title || ('Job #' + job.id)) : ('Job #' + jobId);
+            document.getElementById('appsModalCount').innerText = job ? ('Reward ৳ ' + (job.reward ?? 0)) : '';
+            document.getElementById('appsModalList').innerHTML = '';
+            openModal('applicationsModal');
+            renderApplicationsModal();
         }
+        function closeApplicationsModal() { reviewingJobId = null; closeModal('applicationsModal'); }
+
+        // proof_image: a data URL, or a JSON array of data URLs (several image answers).
+        function proofImagesOf(v) {
+            if (!v) return [];
+            const str = String(v).trim();
+            if (str.startsWith('[')) { try { const arr = JSON.parse(str); if (Array.isArray(arr)) return arr.filter(x => typeof x === 'string' && x.startsWith('data:image/')); } catch (e) {} }
+            return str.startsWith('data:image/') ? [str] : [];
+        }
+        // proof_text: one labelled line per answer. Http(s) answers render as real links.
+        function proofLinesHtml(text) {
+            return String(text).split('\n').filter(l => l.trim()).map(line => {
+                const i = line.indexOf(': ');
+                const label = i > -1 ? line.slice(0, i) : '';
+                const value = i > -1 ? line.slice(i + 2) : line;
+                const isUrl = /^https?:\/\/\S+$/i.test(value.trim());
+                const valHtml = isUrl
+                    ? `<a href="${esc(value.trim())}" target="_blank" rel="noopener noreferrer" class="text-amber-300 underline break-all">${esc(value.trim())}</a>`
+                    : `<span class="whitespace-pre-wrap break-words">${esc(value)}</span>`;
+                return label
+                    ? `<div class="text-xs text-violet-100/90"><p class="text-[10px] text-violet-200/60 mb-0.5">${esc(label)}</p>${valHtml}</div>`
+                    : `<div class="text-xs text-violet-100/90">${valHtml}</div>`;
+            }).join('');
+        }
+
+        async function renderApplicationsModal() {
+            const list = document.getElementById('appsModalList');
+            if (!list || reviewingJobId == null) return;
+            const jobId = reviewingJobId;
+            if (!supabaseClient) { list.innerHTML = `<p class="text-center py-6 text-violet-200/60 text-xs">Not connected to server.</p>`; return; }
+            list.innerHTML = `<p class="text-center py-6 text-violet-200/60 text-xs">Loading...</p>`;
+            const { data, error } = await supabaseClient.from('job_applications').select('id,job_id,user_email,status,proof_text,proof_image').eq('job_id', jobId).order('id', { ascending: false });
+            if (jobId !== reviewingJobId) return;
+            if (error) { list.innerHTML = `<p class="text-center py-6 text-rose-200 text-xs">Could not load applications: ${esc(error.message)}</p>`; return; }
+            const rows = data || [];
+            document.getElementById('appsModalCount').innerText = rows.length + ' worker' + (rows.length === 1 ? '' : 's') + ' applied';
+            if (rows.length === 0) { list.innerHTML = `<div class="text-center py-6 text-violet-200/60 text-xs">No applications yet</div>`; return; }
+            list.innerHTML = rows.map(a => {
+                const s = appStatusNorm(a.status);
+                const badge = s === 'Approved' ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-400/15 text-emerald-200">Approved</span>'
+                    : s === 'Rejected' ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-400/15 text-rose-200">Rejected</span>'
+                    : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-400/15 text-amber-200">Pending</span>';
+                const imgs = proofImagesOf(a.proof_image);
+                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" class="w-full max-h-[260px] object-contain rounded-xl bg-black/30">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
+                const txt = a.proof_text ? `<div class="space-y-1.5">${proofLinesHtml(a.proof_text)}</div>` : `<p class="text-[11px] text-violet-200/50">No text report</p>`;
+                const actions = s === 'Pending'
+                    ? `<div class="flex gap-2 mt-2"><button onclick="reviewApplication(${Number(a.id)}, 'Approved')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Approve</button><button onclick="reviewApplication(${Number(a.id)}, 'Rejected')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-rose-400/20 text-rose-200 border border-rose-300/30">Reject</button></div>`
+                    : '';
+                return `<div class="bg-black/20 border border-white/10 rounded-2xl p-3 space-y-2">
+                    <div class="flex items-center justify-between gap-2"><p class="text-xs font-semibold text-white truncate min-w-0">${esc(a.user_email || 'worker')}</p>${badge}</div>
+                    ${img}${txt}${actions}
+                </div>`;
+            }).join('');
+        }
+
+        async function refreshAfterReview() {
+            await loadMyPostedJobs();
+            if (reviewingJobId != null) await renderApplicationsModal();
+        }
+
+        // Approve: moves the application to Approved and credits the worker once (Approved deposit, gateway 'Job Payment', trx 'JOB-<job id>').
+        // Reject: moves it to Rejected. Decided applications are locked.
+        async function reviewApplication(appId, newStatus) {
+            if (!supabaseClient) { alert('Not connected to server.'); return; }
+            const { data: cur, error: curErr } = await supabaseClient.from('job_applications').select('id,job_id,user_email,status').eq('id', appId).limit(1);
+            if (curErr || !cur || !cur.length) { alert('Could not load application: ' + (curErr ? curErr.message : 'not found')); return; }
+            const app = cur[0];
+            const prevStatus = app.status;
+            if (appStatusNorm(prevStatus) !== 'Pending') { alert('This application is already ' + appStatusNorm(prevStatus) + '.'); await refreshAfterReview(); return; }
+            // claim the row: only an update that still sees the old status succeeds
+            let claimQ = supabaseClient.from('job_applications').update({ status: newStatus }).eq('id', appId);
+            claimQ = prevStatus == null ? claimQ.is('status', null) : claimQ.eq('status', prevStatus);
+            const { data: claimed, error: claimErr } = await claimQ.select('id');
+            if (claimErr) { alert('Update failed: ' + claimErr.message); return; }
+            if (!claimed || !claimed.length) { alert('This application was already changed. Refreshing.'); await refreshAfterReview(); return; }
+
+            if (newStatus === 'Approved') {
+                const trx = 'JOB-' + app.job_id;
+                try {
+                    const { data: job, error: jobErr } = await supabaseClient.from('micro_jobs').select('id,reward').eq('id', app.job_id).limit(1);
+                    if (jobErr) throw jobErr;
+                    if (!job || !job.length) throw new Error('job not found');
+                    const amount = Math.round((parseFloat(job[0].reward) || 0) * 100) / 100;
+                    if (!(amount > 0)) throw new Error('job reward is not set');
+                    // never credit the same worker twice for the same job
+                    const { data: existing, error: exErr } = await supabaseClient.from('deposits').select('id').eq('user_email', app.user_email).eq('gateway', 'Job Payment').eq('trx', trx).limit(1);
+                    if (exErr) throw exErr;
+                    if (!existing || !existing.length) {
+                        const { error: credErr } = await insertSafe('deposits', { user_email: app.user_email, gateway: 'Job Payment', amount: amount, fee: 0, net_amount: amount, sender: 'job', trx: trx, status: 'Approved' });
+                        if (credErr) throw credErr;
+                    }
+                } catch (e) {
+                    // roll back so the worker is not left Approved without a credit
+                    await supabaseClient.from('job_applications').update({ status: prevStatus }).eq('id', appId);
+                    alert('Could not credit the worker, approval cancelled: ' + (e && e.message ? e.message : e));
+                    await refreshAfterReview();
+                    return;
+                }
+            }
+            await refreshAfterReview();
+        }
+
 
         function openAccountPage(tabId) {
             closeModal('accountModal');
@@ -1209,8 +1320,8 @@
             const already = getLocalList('taskflex_applications').some(a => a.email === (currentUser && currentUser.email) && Number(a.job_id) === Number(job.id));
             const btn = document.getElementById('applyJobBtn');
             btn.innerText = already ? 'Already submitted' : 'Submit';
-            document.getElementById('proofPanel').classList.add('hidden');
-            resetProofForm();
+            document.getElementById('proofPanel').classList.toggle('hidden', already);
+            renderProofPanel(job);
             btn.disabled = already;
             btn.className = already ? "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60" : "btn-amber w-full font-bold py-3.5 rounded-2xl text-sm";
             switchTab('jobdetail');
@@ -1467,7 +1578,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             setTimeout(() => { const c = document.getElementById('kycCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
         }
 
-        let proofImageData = '';
+        let proofAnswers = {};
+        let proofRowsCurrent = [];
+        const LEGACY_PROOF_ROWS = [{ title: 'Screenshot', types: ['screenshot'] }, { title: 'Text Report', types: ['text'] }];
 
         function setProofError(msg) {
             const e = document.getElementById('proofError');
@@ -1476,19 +1589,56 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             e.classList.toggle('hidden', !msg);
         }
 
-        function resetProofForm() {
-            proofImageData = '';
-            const f = document.getElementById('proofImgInput'); if (f) f.value = '';
-            const p = document.getElementById('proofImgPreview'); if (p) { p.removeAttribute('src'); p.classList.add('hidden'); }
-            const t = document.getElementById('proofText'); if (t) t.value = '';
+        // Normalises micro_jobs.proof_requirements (jsonb array or JSON string) into [{title, types}].
+        // Returns null when the job predates the builder (no array stored).
+        function getJobProofRows(job) {
+            let r = job && job.proof_requirements;
+            if (typeof r === 'string') { try { r = JSON.parse(r); } catch (e) { r = null; } }
+            if (!Array.isArray(r)) return null;
+            return r
+                .filter(x => x && Array.isArray(x.types))
+                .map(x => ({ title: String(x.title || 'Proof').trim() || 'Proof', types: x.types.filter(t => PROOF_TYPE_LABELS[t]) }))
+                .filter(x => x.types.length);
+        }
+
+        function proofFieldHtml(ri, ti, t) {
+            const k = ri + '_' + ti;
+            const label = '<label class="block text-[11px] font-semibold text-violet-100 mb-1">' + esc(PROOF_TYPE_LABELS[t]) + ' <span class="text-rose-300">*</span></label>';
+            let input;
+            if (t === 'screenshot' || t === 'message') {
+                input = '<input type="file" id="pf_' + k + '" accept="image/*" onchange="previewProofAnswer(this, \'' + k + '\')" class="field w-full rounded-2xl px-3 py-2.5 text-sm">'
+                    + '<img id="pfp_' + k + '" alt="" class="hidden w-full max-h-48 object-contain rounded-xl border border-white/10 mt-2">';
+            } else if (t === 'text') {
+                input = '<textarea id="pf_' + k + '" rows="4" oninput="setProofAnswer(\'' + k + '\', this.value)" placeholder="Describe what you did" class="field w-full rounded-2xl px-4 py-3 text-sm"></textarea>';
+            } else if (t === 'link') {
+                input = '<input type="url" id="pf_' + k + '" oninput="setProofAnswer(\'' + k + '\', this.value)" placeholder="https://" class="field w-full rounded-2xl px-3.5 py-2.5 text-sm">';
+            } else {
+                input = '<input type="text" id="pf_' + k + '" oninput="setProofAnswer(\'' + k + '\', this.value)" placeholder="Type your answer" class="field w-full rounded-2xl px-3.5 py-2.5 text-sm">';
+            }
+            return '<div>' + label + input + '</div>';
+        }
+
+        // Renders one input per (requirement, type) pair, so each required type is its own answer.
+        function renderProofPanel(job) {
+            const parsed = getJobProofRows(job);
+            const rows = parsed === null ? LEGACY_PROOF_ROWS : parsed;
+            proofRowsCurrent = rows;
+            proofAnswers = {};
+            const title = document.getElementById('proofTitle');
+            const wrap = document.getElementById('proofFields');
+            if (!wrap) return;
+            if (title) title.textContent = rows.length ? 'Submit your proof' : 'No proof required for this job';
+            wrap.innerHTML = rows.map((r, ri) =>
+                '<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2.5">'
+                + '<p class="text-[12px] font-bold text-white break-words">' + esc(r.title) + '</p>'
+                + r.types.map((t, ti) => proofFieldHtml(ri, ti, t)).join('')
+                + '</div>'
+            ).join('');
             setProofError('');
         }
 
-        function openProofPanel() {
-            if (!currentUser) { alert('Please log in first.'); return; }
-            const panel = document.getElementById('proofPanel');
-            panel.classList.remove('hidden');
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        function setProofAnswer(k, v) {
+            proofAnswers[k] = { kind: 'text', value: String(v == null ? '' : v) };
         }
 
         // Resize to max 800px wide, re-encode as JPEG, return a base64 data URL.
@@ -1513,20 +1663,31 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             });
         }
 
-        async function previewProofImage(input) {
+        async function previewProofAnswer(input, k) {
             const file = input.files && input.files[0];
-            proofImageData = '';
-            const prev = document.getElementById('proofImgPreview');
-            if (!file) { prev.classList.add('hidden'); return; }
+            const prev = document.getElementById('pfp_' + k);
+            const tok = Math.random();
+            if (!file) { delete proofAnswers[k]; if (prev) { prev.classList.add('hidden'); prev.removeAttribute('src'); } return; }
+            proofAnswers[k] = { kind: 'image', value: '', pending: true, tok: tok };
             try {
-                proofImageData = await compressImageToDataUrl(file);
-                prev.src = proofImageData;
-                prev.classList.remove('hidden');
+                const data = await compressImageToDataUrl(file);
+                if (!proofAnswers[k] || proofAnswers[k].tok !== tok) return;
+                proofAnswers[k] = { kind: 'image', value: data };
+                if (prev) { prev.src = data; prev.classList.remove('hidden'); }
                 setProofError('');
             } catch (err) {
-                prev.classList.add('hidden');
+                if (!proofAnswers[k] || proofAnswers[k].tok !== tok) return;
+                delete proofAnswers[k];
+                if (prev) prev.classList.add('hidden');
                 setProofError('Screenshot could not be processed. Try another image.');
             }
+        }
+
+        function normaliseProofLink(v) {
+            let s = String(v || '').trim();
+            if (!s) return null;
+            if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+            try { const u = new URL(s); if (u.protocol !== 'https:' && u.protocol !== 'http:') return null; return u.href; } catch (e) { return null; }
         }
 
         async function submitJobWork() {
@@ -1537,25 +1698,53 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const apps = getLocalList('taskflex_applications');
             if (apps.some(a => a.email === currentUser.email && Number(a.job_id) === Number(job.id))) { alert('You have already submitted this job.'); return; }
 
-            const reportText = (document.getElementById('proofText').value || '').trim();
-            if (!proofImageData && !document.getElementById('proofImgInput').files.length) { setProofError('Screenshot is required. Please attach an image.'); return; }
-            if (!proofImageData) { setProofError('Screenshot is still processing. Try again in a moment.'); return; }
-            if (!reportText) { setProofError('Text Report is required. Please write your report.'); return; }
+            // Validate every required (requirement, type) pair before saving anything.
+            const images = [];
+            const lines = [];
+            for (let ri = 0; ri < proofRowsCurrent.length; ri++) {
+                const r = proofRowsCurrent[ri];
+                for (let ti = 0; ti < r.types.length; ti++) {
+                    const t = r.types[ti];
+                    const k = ri + '_' + ti;
+                    const a = proofAnswers[k];
+                    const label = PROOF_TYPE_LABELS[t];
+                    const tag = r.title + ' (' + label + ')';
+                    if (t === 'screenshot' || t === 'message') {
+                        if (a && a.pending) { setProofError('Screenshot is still processing. Try again in a moment.'); return; }
+                        if (!a || !a.value) { setProofError('Please attach an image for "' + r.title + '" (' + label + ').'); return; }
+                        images.push(a.value);
+                        lines.push(tag + ': [image ' + images.length + ']');
+                    } else if (t === 'link') {
+                        const url = normaliseProofLink(a && a.value);
+                        if (!url) { setProofError('Enter a valid link for "' + r.title + '" (' + label + ').'); return; }
+                        lines.push(tag + ': ' + url);
+                    } else {
+                        const v = String((a && a.value) || '').trim();
+                        if (!v) { setProofError((t === 'text' ? 'Text Report' : label) + ' is required for "' + r.title + '".'); return; }
+                        lines.push(tag + ': ' + v);
+                    }
+                }
+            }
             setProofError('');
 
-            const btn = document.getElementById('proofSubmitBtn');
+            // proof_image: one data URL, or a JSON array when there are several images.
+            // proof_text: one labelled line per answer (URLs included), so the employer sees every answer.
+            const proofImage = images.length === 0 ? '' : images.length === 1 ? images[0] : JSON.stringify(images);
+            const proofText = lines.join('\n');
+
+            const btn = document.getElementById('applyJobBtn');
             btn.disabled = true; btn.textContent = 'Submitting...';
             let savedOnServer = false;
             let serverErr = null;
             if (supabaseClient) {
                 const { error } = await supabaseClient.from('job_applications').insert([{
                     user_email: currentUser.email, job_id: job.id, status: 'Pending',
-                    proof_image: proofImageData, proof_text: reportText
+                    proof_image: proofImage, proof_text: proofText
                 }]);
                 savedOnServer = !error;
                 serverErr = error;
             }
-            btn.disabled = false; btn.textContent = 'Confirm Submit';
+            btn.disabled = false; btn.textContent = 'Submit';
             if (!savedOnServer) {
                 setProofError('Submit failed: ' + (serverErr ? serverErr.message : 'no server connection') + '. Your work was not saved.');
                 return;
@@ -1566,6 +1755,13 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             openJobDetail(job.id);
             renderMyApplications();
             renderEarnings();
+        }
+
+        function openProofPanel() {
+            if (!currentUser) { alert('Please log in first.'); return; }
+            const panel = document.getElementById('proofPanel');
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         async function applyToJob() {
