@@ -113,13 +113,29 @@
         <!-- AUTH OVERLAY (Login / Register) -->
         <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col justify-center px-6 py-8 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
             <div class="text-center mb-7">
-                <div class="logo-orb w-16 h-16 mx-auto rounded-[22px] p-[2px] mb-4">
-                    <div class="w-full h-full bg-bgDark rounded-[20px] flex items-center justify-center">
-                        <i class="fa-solid fa-bolt text-amber-400 text-2xl"></i>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]">
+                        <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center">
+                            <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
+                        </div>
                     </div>
+                    <span class="text-[11px] font-bold text-violet-200/70 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">Micro job TaskFlex</span>
                 </div>
-                <h2 class="text-3xl font-black tracking-tight"><span class="hero-title">Micro job</span> <span class="text-white">TaskFlex</span></h2>
-                <p class="text-xs text-violet-200/70 mt-1.5 tracking-wide">Complete micro-jobs or promote your business</p>
+                <div class="text-left">
+                    <h2 class="text-3xl font-black leading-tight">Best Microjob &amp; Freelancing Site To <span class="hero-title">Make Money Online</span></h2>
+                    <p class="text-sm text-violet-200/75 mt-3">Small Gigs. Big Results.</p>
+                    <p class="text-xs text-violet-200/60 mt-1 underline underline-offset-2">We Are Waiting For You !</p>
+                </div>
+                <button type="button" onclick="document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="btn-amber w-full font-black py-4 rounded-full text-sm mt-6 flex items-center justify-center gap-2">Earn Money <i class="fa-solid fa-arrow-right"></i></button>
+                <div class="mt-7 mb-2">
+                    <div class="logo-orb w-16 h-16 mx-auto rounded-[22px] p-[2px] mb-4">
+                        <div class="w-full h-full bg-bgDark rounded-[20px] flex items-center justify-center">
+                            <i class="fa-solid fa-bolt text-amber-400 text-2xl"></i>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-black tracking-tight"><span class="hero-title">Micro job</span> <span class="text-white">TaskFlex</span></h2>
+                    <p class="text-xs text-violet-200/70 mt-1.5 tracking-wide">Complete micro-jobs or promote your business</p>
+                </div>
             </div>
 
             <!-- LOGIN CARD -->
@@ -1189,7 +1205,7 @@
                     : s === 'Rejected' ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-400/15 text-rose-200">Rejected</span>'
                     : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-400/15 text-amber-200">Pending</span>';
                 const imgs = proofImagesOf(a.proof_image);
-                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" onclick="openProofZoom(this.src)" class="w-full max-h-[260px] object-contain rounded-xl bg-black/30 cursor-zoom-in">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
+                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" onclick="openProofZoom(this.src)" class="w-full max-h-[420px] object-contain rounded-xl bg-black/30 cursor-zoom-in">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
                 const txt = a.proof_text ? `<div class="space-y-1.5">${proofLinesHtml(a.proof_text)}</div>` : `<p class="text-[11px] text-violet-200/50">No text report</p>`;
                 const actions = s === 'Pending'
                     ? `<div class="flex gap-2 mt-2"><button onclick="reviewApplication(${Number(a.id)}, 'Approved')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Approve</button><button onclick="reviewApplication(${Number(a.id)}, 'Rejected')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-rose-400/20 text-rose-200 border border-rose-300/30">Reject</button></div>`
@@ -1396,8 +1412,6 @@
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
                 </div>
                 ${job.description ? `<div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">What to do</p><p class="text-violet-100/85 leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
-                <div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">Proof required</p><p class="text-violet-100/85 leading-relaxed">${esc(job.proof_requirement || 'Not specified')}</p></div>
-                <div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">Location</p><p class="text-violet-100/85">${esc(job.location || 'International')}</p></div>
             `;
             const already = getLocalList('taskflex_applications').some(a => a.email === (currentUser && currentUser.email) && Number(a.job_id) === Number(job.id));
             const btn = document.getElementById('applyJobBtn');
@@ -1696,9 +1710,11 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const k = ri + '_' + ti;
             const label = '<label class="block text-[11px] font-semibold text-violet-100 mb-1">' + esc(PROOF_TYPE_LABELS[t]) + ' <span class="text-rose-300">*</span></label>';
             let input;
-            if (t === 'screenshot' || t === 'message') {
+            if (t === 'screenshot') {
                 input = '<input type="file" id="pf_' + k + '" accept="image/*" onchange="previewProofAnswer(this, \'' + k + '\')" class="field w-full rounded-2xl px-3 py-2.5 text-sm">'
                     + '<img id="pfp_' + k + '" alt="" class="hidden w-full max-h-48 object-contain rounded-xl border border-white/10 mt-2">';
+            } else if (t === 'message') {
+                input = '<input type="text" id="pf_' + k + '" oninput="setProofAnswer(\'' + k + '\', this.value)" placeholder="Paste the chat/message proof (username, group link or copied text)" class="field w-full rounded-2xl px-3.5 py-2.5 text-sm">';
             } else if (t === 'text') {
                 input = '<textarea id="pf_' + k + '" rows="4" oninput="setProofAnswer(\'' + k + '\', this.value)" placeholder="Describe what you did" class="field w-full rounded-2xl px-4 py-3 text-sm"></textarea>';
             } else if (t === 'link') {
@@ -1800,7 +1816,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                     const a = proofAnswers[k];
                     const label = PROOF_TYPE_LABELS[t];
                     const tag = r.title + ' (' + label + ')';
-                    if (t === 'screenshot' || t === 'message') {
+                    if (t === 'screenshot') {
                         if (a && a.pending) { setProofError('Screenshot is still processing. Try again in a moment.'); return; }
                         if (!a || !a.value) { setProofError('Please attach an image for "' + r.title + '" (' + label + ').'); return; }
                         images.push(a.value);
