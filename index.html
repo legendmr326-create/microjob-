@@ -268,7 +268,7 @@
                 </button>
                 <button onclick="openModal('accountModal')" class="relative w-9 h-9 rounded-full logo-orb p-[2px]">
                     <img id="headerUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="Avatar" class="w-full h-full rounded-full bg-cardDark">
-                    <span id="headerVerifiedTick" title="Verified" class="hidden absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 text-bgDark text-[8px] items-center justify-center border border-bgDark"><i class="fa-solid fa-check"></i></span>
+                    <span id="headerVerifiedTick" title="Verified" class="verified-icon hidden absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 text-bgDark text-[8px] items-center justify-center border border-bgDark"><i class="fa-solid fa-check"></i></span>
                 </button>
             </div>
         </header>
@@ -536,7 +536,7 @@
                 </button>
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-400/15 px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
+                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="verified-badge hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
                     <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
@@ -1620,7 +1620,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const st = kycTableMissing ? 'missing' : (kycLoadFailed ? 'error' : kycStatusKey());
             const badges = {
                 pending: ['Pending review', 'bg-amber-400/15 text-amber-200'],
-                approved: ['Verified', 'bg-emerald-400/15 text-emerald-200'],
+                approved: ['Verified', 'verified-badge'],
                 rejected: ['Rejected', 'bg-rose-400/15 text-rose-200']
             };
             const b = badges[st];
@@ -2764,6 +2764,20 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] #accountModal > div, body.theme-light #accountModal > div { background-color: #F6F4FB !important; }
     html[data-theme-effective="light"] #accountModal > div > div:first-child, body.theme-light #accountModal > div > div:first-child { background: rgba(246,244,251,.96) !important; border-color: rgba(76,62,105,.14) !important; }
     html[data-theme-effective="light"] .field:focus, body.theme-light .field:focus { border-color: #D69A24 !important; box-shadow: 0 0 0 3px rgba(214,154,36,.16) !important; }
+    /* Keep all body copy and low-opacity utility text readable against light cards. */
+    html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { color: #252033 !important; }
+    html[data-theme-effective="light"] .glass-card [class*="text-violet-"], body.theme-light .glass-card [class*="text-violet-"] { color: #494258 !important; }
+    html[data-theme-effective="light"] .glass-card [class*="text-gray-"], html[data-theme-effective="light"] .glass-card [class*="text-slate-"], body.theme-light .glass-card [class*="text-gray-"], body.theme-light .glass-card [class*="text-slate-"] { color: #494258 !important; }
+    html[data-theme-effective="light"] label[class*="uppercase"], body.theme-light label[class*="uppercase"] { color: #302A3D !important; }
+    html[data-theme-effective="light"] #personalView, html[data-theme-effective="light"] #personalView *, body.theme-light #personalView, body.theme-light #personalView * { color: #302A3D !important; }
+    html[data-theme-effective="light"] #personalView [class*="text-violet-"], body.theme-light #personalView [class*="text-violet-"] { color: #302A3D !important; }
+    html[data-theme-effective="light"] .balance-card .text-amber-200, html[data-theme-effective="light"] .balance-card [class*="text-amber-200/"], body.theme-light .balance-card .text-amber-200, body.theme-light .balance-card [class*="text-amber-200/"] { color: #59400A !important; }
+    html[data-theme-effective="light"] #tab-dashboard .glass-card [class*="text-violet-"], body.theme-light #tab-dashboard .glass-card [class*="text-violet-"] { color: #383247 !important; }
+    html[data-theme-effective="light"] .text-emerald-200, html[data-theme-effective="light"] .text-emerald-300, body.theme-light .text-emerald-200, body.theme-light .text-emerald-300 { color: #16723D !important; }
+    html[data-theme-effective="light"] .text-rose-200, html[data-theme-effective="light"] .text-rose-300, body.theme-light .text-rose-200, body.theme-light .text-rose-300 { color: #A12640 !important; }
+    /* Verified indicators use legible green lettering on a soft green surface in both themes. */
+    .verified-badge { color: #18723D !important; background-color: rgba(34,197,94,.16) !important; }
+    .verified-icon { color: #18723D !important; background-color: rgba(34,197,94,.18) !important; border-color: rgba(34,197,94,.36) !important; }
 </style>
 <script>
     (function () {
