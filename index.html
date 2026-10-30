@@ -583,24 +583,25 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <h2 class="text-base font-bold text-white">Refer & Earn</h2>
             <div class="glass-card rounded-2xl p-4 space-y-2.5">
                 <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">YOUR REFERRAL LINK</label>
-                <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs">
+                <input type="text" id="referralLink" readonly class="field w-full rounded-2xl px-4 py-3 text-xs" placeholder="Loading referral link..." aria-describedby="referralStatus">
                 <button onclick="copyReferral()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Link</button>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div class="glass-card rounded-2xl p-4 space-y-2.5">
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70" for="referralCodeDisplay">REFERRAL CODE</label>
-                    <input type="text" id="referralCodeDisplay" readonly class="field w-full rounded-2xl px-4 py-3 text-sm font-black tracking-widest text-center" placeholder="Loading code...">
+                    <input type="text" id="referralCodeDisplay" readonly class="field w-full rounded-2xl px-4 py-3 text-sm font-black tracking-widest text-center" placeholder="Loading code..." aria-describedby="referralStatus">
                     <button onclick="copyReferralCode()" class="btn-amber w-full font-bold py-3 rounded-2xl text-sm">Copy Code</button>
                 </div>
-                <div class="referral-count-card glass-card rounded-2xl p-4 grid grid-cols-2 gap-3 text-center" aria-live="polite">
-                    <div class="flex flex-col items-center justify-center">
-                        <span class="text-xs font-semibold uppercase tracking-wider">Referrals</span>
-                        <span id="referredCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
-                    </div>
-                    <div class="flex flex-col items-center justify-center border-l border-violet-300/20 pl-3">
-                        <span class="text-xs font-semibold uppercase tracking-wider">Successful Referrals</span>
-                        <span id="successfulReferralCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
-                    </div>
+            </div>
+            <p id="referralStatus" class="text-xs text-violet-200/70 px-1" role="status" aria-live="polite"></p>
+            <div class="referral-count-card glass-card rounded-2xl p-4 grid grid-cols-2 gap-3 text-center" aria-live="polite">
+                <div class="flex flex-col items-center justify-center">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Referrals</span>
+                    <span id="referredCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
+                </div>
+                <div class="flex flex-col items-center justify-center border-l border-violet-300/20 pl-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider">Successful Referrals</span>
+                    <span id="successfulReferralCount" class="text-3xl font-black text-amber-300 mt-1">0</span>
                 </div>
             </div>
             <div class="relative overflow-hidden rounded-3xl p-5 referral-bonus-card border border-amber-300/25 shadow-xl">
@@ -1682,19 +1683,83 @@ Check your Browserslist config to be sure that your targets are set up correctly
             window.__countdownTimer = setInterval(tick, 1000);
         }
         async function loadReferralSection() {
-            if (!currentUser || !supabaseClient) { renderDailyState(); return; }
+            const link = document.getElementById('referralLink');
+            const display = document.getElementById('referralCodeDisplay');
+            const status = document.getElementById('referralStatus');
+            const setStatus = (message, isError) => {
+                if (!status) return;
+                status.replaceChildren();
+                if (message) {
+                    const text = document.createElement('span');
+                    text.textContent = message + ' ';
+                    status.appendChild(text);
+                }
+                if (isError) {
+                    const retry = document.createElement('button');
+                    retry.type = 'button';
+                    retry.textContent = 'Retry';
+                    retry.className = 'underline font-bold';
+                    retry.addEventListener('click', retryLoadReferralSection);
+                    status.appendChild(retry);
+                }
+                status.classList.toggle('text-rose-300', !!isError);
+                status.classList.toggle('text-violet-200/70', !isError);
+            };
+            if (link) { link.value = ''; link.placeholder = 'Loading referral link...'; }
+            if (display) { display.value = ''; display.placeholder = 'Loading code...'; }
+            const referredCount = document.getElementById('referredCount');
+            const successfulCount = document.getElementById('successfulReferralCount');
+            if (referredCount) referredCount.textContent = '0';
+            if (successfulCount) successfulCount.textContent = '0';
+            if (status) {
+                const text = document.createElement('span');
+                text.textContent = 'Loading referral details...';
+                status.replaceChildren(text);
+            }
+            if (!currentUser || !currentUser.email) {
+                setStatus('Please log in to view your referral details.');
+                renderDailyState();
+                return;
+            }
             const email = String(currentUser.email).trim().toLowerCase();
+            let kycChecked = false;
             try {
-                const [claimRes, code] = await Promise.all([
-                    supabaseClient.from('bonus_claims').select('*').eq('email', email).maybeSingle(),
-                    ensureReferralCode(currentUser)
-                ]);
+                const client = await waitForSupabase();
+                if (!client) throw new Error('Supabase is not available');
+                const kycResult = await client.from(KYC_TABLE).select('status').eq('user_email', email).order('created_at', { ascending: false }).limit(1);
+                if (kycResult.error) throw kycResult.error;
+                const kycRows = Array.isArray(kycResult.data) ? kycResult.data : (kycResult.data ? [kycResult.data] : []);
+                const kycStatus = String((kycRows[0] && kycRows[0].status) || '').trim().toLowerCase();
+                myKyc = kycRows[0] || null;
+                kycLoadFailed = false;
+                kycTableMissing = false;
+                kycChecked = true;
+                renderKycCard();
+                if (kycStatus !== 'approved') {
+                    if (link) { link.value = ''; link.placeholder = 'KYC ভেরিফিকেশনের পর চালু হবে'; }
+                    if (display) { display.value = ''; display.placeholder = 'KYC ভেরিফিকেশনের পর চালু হবে'; }
+                    setStatus('আপনার KYC ভেরিফিকেশনের পর রেফারেল লিংক ও কোড চালু হবে।');
+                    window.__bonusRow = null;
+                    renderDailyState();
+                    return;
+                }
+
+                const profile = await client.from('users').select('email, referral_code').eq('email', email).maybeSingle();
+                if (profile.error) throw profile.error;
+                if (!profile.data) throw new Error('User profile not found for referral code');
+                let code = String(profile.data.referral_code || '').trim();
+                if (!code) code = await ensureReferralCode({ ...currentUser, email });
+                if (!code) throw new Error('Referral code missing or could not be created');
+                currentUser.referral_code = code;
+                localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+                if (link) { link.value = 'https://taskflexbd.vercel.app/?ref=' + encodeURIComponent(code); link.placeholder = ''; }
+                if (display) { display.value = code; display.placeholder = ''; }
+                setStatus('');
+
+                const claimRes = await client.from('bonus_claims').select('*').eq('email', email).maybeSingle();
+                if (claimRes.error) throw claimRes.error;
                 window.__bonusRow = claimRes.data || null;
-                const link = document.getElementById('referralLink');
-                if (link && code) link.value = 'https://taskflexbd.vercel.app/?ref=' + encodeURIComponent(code);
-                const display = document.getElementById('referralCodeDisplay');
-                if (display && code) display.value = code;
-                const refRes = code ? await supabaseClient.from('referrals').select('*').eq('referrer_code', code) : { data: [] };
+                const refRes = await client.from('referrals').select('*').eq('referrer_code', code);
                 if (refRes.error) throw refRes.error;
                 const referrals = refRes.data || [];
                 const rc = document.getElementById('referredCount');
@@ -1703,20 +1768,32 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 if (referrals.length) {
                     const refereeEmails = [...new Set(referrals.map(r => String(r.referee_email || r.referred_email || '').trim().toLowerCase()).filter(Boolean))];
                     if (refereeEmails.length) {
-                        const approvedKyc = await supabaseClient.from('kyc_verifications').select('user_email, status').in('user_email', refereeEmails);
+                        const approvedKyc = await client.from(KYC_TABLE).select('user_email, status').in('user_email', refereeEmails);
                         if (approvedKyc.error) throw approvedKyc.error;
                         const approvedEmails = new Set((approvedKyc.data || [])
                             .filter(k => String(k.status || '').trim().toLowerCase() === 'approved')
                             .map(k => String(k.user_email || '').trim().toLowerCase()));
-                        successfulCount = refereeEmails.filter(email => approvedEmails.has(email)).length;
+                        successfulCount = refereeEmails.filter(refEmail => approvedEmails.has(refEmail)).length;
                     }
                 }
                 const successfulEl = document.getElementById('successfulReferralCount');
                 if (successfulEl) successfulEl.innerText = successfulCount;
-            } catch (e) { console.warn('referral load failed', e); }
+            } catch (e) {
+                console.warn('referral load failed', e);
+                if (!kycChecked && currentUser) {
+                    kycLoadFailed = true;
+                    kycTableMissing = isMissingKycTableError(e);
+                    renderKycCard();
+                }
+                if (link) { link.value = ''; link.placeholder = 'Referral link unavailable'; }
+                if (display) { display.value = ''; display.placeholder = 'Referral code unavailable'; }
+                if (e && e.code === 'PGRST116') setStatus('Could not load referral details. Please retry.', true);
+                else setStatus('রেফারেল তথ্য লোড হয়নি। আবার চেষ্টা করুন।', true);
+            }
             renderDailyState();
             loadLeaderboard();
         }
+        function retryLoadReferralSection() { loadReferralSection(); }
         async function claimDailyBonus() {
             if (!currentUser || !supabaseClient) { niceAlert('Log in and wait for the server connection first.'); return; }
             const email = String(currentUser.email).trim().toLowerCase();
@@ -1864,7 +1941,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 }
             };
             safeLoad('balance', fetchUserBalance, () => { currentBalance = 0; setMoney('workerBalance', 0); setMoney('clientBalance', 0); });
-            safeLoad('referral', loadReferralSection, renderDailyState);
+            safeLoad('referral', loadReferralSection, () => {
+                const status = document.getElementById('referralStatus');
+                if (status) {
+                    const retry = document.createElement('button');
+                    retry.type = 'button'; retry.textContent = 'Could not load referral details. Retry';
+                    retry.className = 'text-rose-300 underline font-bold';
+                    retry.addEventListener('click', retryLoadReferralSection);
+                    status.replaceChildren(retry);
+                }
+                renderDailyState();
+            });
             safeLoad('taken jobs', renderMyTakenJobs);
             safeLoad('profile form', renderProfileForm);
             safeLoad('referral card', renderReferral);
@@ -1896,6 +1983,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (tabId === 'profile') { loadMyKyc(); renderPersonalDetails(); }
             if (tabId === 'deposit') renderDepositHistory();
             if (tabId === 'withdraw') renderWithdrawHistory();
+            if (tabId === 'refer' && currentUser) loadReferralSection();
         }
 
         // ---- Employer: My Posted Jobs + application review ----
@@ -3229,23 +3317,27 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
 
         function renderReferral() {
-            if (!currentUser) return;
-            const code = currentUser.referral_code || '';
             const link = document.getElementById('referralLink');
             const display = document.getElementById('referralCodeDisplay');
-            if (link) link.value = code ? 'https://taskflexbd.vercel.app/?ref=' + encodeURIComponent(code) : 'Loading referral link...';
-            if (display) display.value = code || '';
+            const status = document.getElementById('referralStatus');
+            if (link) { link.value = ''; link.placeholder = 'Loading referral link...'; }
+            if (display) { display.value = ''; display.placeholder = 'Loading code...'; }
+            if (status) {
+                status.textContent = currentUser ? 'Loading referral details...' : 'Please log in to view your referral details.';
+                status.classList.remove('text-rose-300');
+                status.classList.add('text-violet-200/70');
+            }
         }
         async function copyReferralCode() {
             const el = document.getElementById('referralCodeDisplay');
-            if (!el || !el.value) { niceAlert('Referral code is still loading.'); return; }
+            if (!el || !el.value) { niceAlert('Referral code is not available yet. Please retry.'); return; }
             try { await navigator.clipboard.writeText(el.value); niceAlert('Code copied!'); }
             catch (e) { el.select(); document.execCommand('copy'); niceAlert('Code copied!'); }
         }
 
         function copyReferral() {
             const el = document.getElementById('referralLink');
-            if (!el) return;
+            if (!el || !el.value) { niceAlert('Referral link is not available yet. Please retry.'); return; }
             el.select();
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(el.value).then(() => niceAlert('Link copied!')).catch(() => { document.execCommand('copy'); niceAlert('Link copied!'); });
