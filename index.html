@@ -4,6 +4,9 @@
     <meta name="google-site-verification" content="rWSyhcnN_up8vsSX8Yl4F-d1xNYT7MDSSbkGfjzJgQk" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#100A22">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <script>
         // Apply the saved appearance before the page paints. First-time visitors start in light mode.
         (function () {
@@ -3772,6 +3775,13 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         }
         document.addEventListener('DOMContentLoaded', () => applyTheme(getThemeChoice()));
     })();
+</script>
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+        });
+    }
 </script>
 </body>
 </html>
