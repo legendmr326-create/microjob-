@@ -1147,7 +1147,13 @@
                 startPasswordResetCooldown();
                 if (isResend) showPasswordResetMessage('A new code has been sent.', false);
             } catch (error) {
-                showPasswordResetMessage(error.message || 'Could not send the reset code. Please try again.', true);
+                const details = [
+                    error && error.message,
+                    error && error.code && `Code: ${error.code}`,
+                    error && error.status && `HTTP ${error.status}`,
+                    error && error.hint
+                ].filter(Boolean).join(' | ');
+                showPasswordResetMessage(details || 'Could not send the reset code. Please try again.', true);
                 if (button) button.disabled = false;
             }
         }
@@ -1181,9 +1187,9 @@
                 const { error: updateError } = await client.auth.updateUser({ password });
                 if (updateError) throw updateError;
 
-                // Password update succeeded. A local sign-out error must not hide that fact.
-                const { error: signOutError } = await client.auth.signOut({ scope: 'local' });
-                if (signOutError) console.warn('Password changed, but local sign-out failed:', signOutError);
+                // Revoke refresh tokens for every session after a successful password reset.
+                const { error: signOutError } = await client.auth.signOut({ scope: 'global' });
+                if (signOutError) console.warn('Password changed, but global sign-out failed:', signOutError);
                 currentUser = null;
                 localStorage.removeItem('taskflex_user');
                 document.getElementById('loginUser').value = email;
