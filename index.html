@@ -396,10 +396,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <input type="email" id="regEmail" placeholder="user@gmail.com" class="field w-full rounded-2xl px-4 py-3 text-sm">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Phone Number</label>
-                    <input type="text" id="regPhone" placeholder="017xxxxxxxx" class="field w-full rounded-2xl px-4 py-3 text-sm">
-                </div>
-                <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Password</label>
                     <div class="relative"><input type="password" id="regPass" placeholder="••••••••" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('regPass', this)" aria-label="Show/hide password" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
                 </div>
@@ -1371,7 +1367,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         async function handleRegister() {
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const phone = document.getElementById('regPhone').value.trim();
+            const phone = '';
             const pass = document.getElementById('regPass').value;
             const refInput = document.getElementById('regReferralCode');
             const referralCode = String(refInput ? refInput.value : '').trim();
