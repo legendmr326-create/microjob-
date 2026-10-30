@@ -378,9 +378,14 @@
                             <p class="balance-label uppercase tracking-widest">Available Balance</p>
                             <h3 id="workerBalance" class="text-3xl balance-value mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                         </div>
-                        <button onclick="switchTab('deposit')" class="btn-violet balance-add-funds text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
-                            <i class="fa-solid fa-plus text-xs"></i> Add Funds
-                        </button>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="switchTab('withdraw')" class="balance-cash-out text-[10px] font-bold px-2.5 py-2 rounded-xl flex items-center gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-wallet"></i> Cash Out
+                            </button>
+                            <button type="button" onclick="switchTab('deposit')" class="btn-violet balance-add-funds text-[10px] font-bold px-2.5 py-2 rounded-xl flex items-center gap-1 whitespace-nowrap">
+                                <i class="fa-solid fa-plus"></i> Add Funds
+                            </button>
+                        </div>
                     </div>
                     </div>
 
@@ -417,9 +422,14 @@
                         <p class="balance-label text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Available Balance</p>
                 <h3 id="clientBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                     </div>
-                    <button onclick="switchTab('deposit')" class="btn-violet balance-add-funds text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
-                        <i class="fa-solid fa-plus text-xs"></i> Add Funds
-                    </button>
+                    <div class="flex gap-1.5">
+                        <button type="button" onclick="switchTab('withdraw')" class="balance-cash-out text-[10px] font-bold px-2.5 py-2 rounded-xl flex items-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-wallet"></i> Cash Out
+                        </button>
+                        <button type="button" onclick="switchTab('deposit')" class="btn-violet balance-add-funds text-[10px] font-bold px-2.5 py-2 rounded-xl flex items-center gap-1 whitespace-nowrap">
+                            <i class="fa-solid fa-plus"></i> Add Funds
+                        </button>
+                    </div>
                 </div>
             </div>
             <button onclick="openPostJobModal()" class="glass-card w-full rounded-2xl p-4 flex items-center gap-3 text-left">
@@ -3396,6 +3406,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: #4B258F !important; background-image: none !important; border: 1px solid rgba(255,255,255,.16) !important; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
     html[data-theme-effective="light"] .balance-card .balance-label, body.theme-light .balance-card .balance-label { color: #FFFFFF !important; font-size: .875rem !important; font-weight: 800 !important; letter-spacing: .08em; }
     html[data-theme-effective="light"] .balance-card .balance-value, html[data-theme-effective="light"] .balance-card .balance-value *, body.theme-light .balance-card .balance-value, body.theme-light .balance-card .balance-value * { color: #FFFFFF !important; text-shadow: none !important; }
+    html[data-theme-effective="light"] .balance-card .balance-cash-out, body.theme-light .balance-card .balance-cash-out { background: #FFFFFF !important; color: #4B258F !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
     html[data-theme-effective="light"] .balance-card .balance-add-funds, body.theme-light .balance-card .balance-add-funds { background: #FFFFFF !important; color: #4B258F !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
 
     html[data-theme-effective="light"] .custom-scrollbar::-webkit-scrollbar-thumb, body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background: #C8C0D8 !important; }
