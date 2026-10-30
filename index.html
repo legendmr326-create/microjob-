@@ -373,7 +373,7 @@
                         <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-amber-400/20 blur-2xl"></div>
                         <div class="relative flex justify-between items-end gap-3">
                             <div>
-                                <p class="text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Available Balance</p>
+                                <p class="balance-label text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Available Balance</p>
                                 <h3 id="workerBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                             </div>
                         </div>
@@ -409,10 +409,10 @@
                 <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-400/25 blur-2xl"></div>
                 <div class="relative flex justify-between items-end gap-3">
                     <div>
-                        <p class="text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Available Balance</p>
+                        <p class="balance-label text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Available Balance</p>
                 <h3 id="clientBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                     </div>
-                    <button onclick="switchTab('deposit')" class="btn-violet text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
+                    <button onclick="switchTab('deposit')" class="btn-violet balance-add-funds text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
                         <i class="fa-solid fa-plus text-xs"></i> Add Funds
                     </button>
                 </div>
@@ -3388,7 +3388,11 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] body header#appHeader .logo-orb, body.theme-light header#appHeader .logo-orb { box-shadow: none !important; }
     html[data-theme-effective="light"] body header#appHeader .logo-orb > div, body.theme-light header#appHeader .logo-orb > div { background: #FFFFFF !important; background-color: #FFFFFF !important; color: #302A3D !important; }
     html[data-theme-effective="light"] #accountModal > div > div:first-child, body.theme-light #accountModal > div > div:first-child { background: #E4E1EE !important; background-color: #E4E1EE !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: rgba(76,62,105,.14) !important; }
-    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: linear-gradient(140deg,rgba(255,246,220,.98),rgba(247,241,255,.98) 65%,rgba(255,255,255,.96)) !important; border-color: rgba(194,139,35,.3) !important; box-shadow: 0 14px 32px -22px rgba(135,96,24,.32), inset 0 1px 0 white !important; }
+    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: linear-gradient(118deg, #4B258F 0%, #6738B7 50%, #A75D63 76%, #D18A2B 100%) !important; border: 1px solid rgba(255,224,160,.72) !important; box-shadow: 0 14px 32px -18px rgba(75,37,143,.5), inset 0 1px 0 rgba(255,255,255,.28) !important; }
+    html[data-theme-effective="light"] .balance-card .balance-label, body.theme-light .balance-card .balance-label { color: #FFF4D6 !important; }
+    html[data-theme-effective="light"] .balance-card .balance-value, html[data-theme-effective="light"] .balance-card .balance-value *, body.theme-light .balance-card .balance-value, body.theme-light .balance-card .balance-value * { color: #FFFFFF !important; text-shadow: 0 1px 8px rgba(34,16,63,.35); }
+    html[data-theme-effective="light"] .balance-card .balance-add-funds, body.theme-light .balance-card .balance-add-funds { background: #FFF0C2 !important; color: #43217F !important; border: 1px solid rgba(255,255,255,.75); box-shadow: 0 4px 12px rgba(35,17,65,.24); }
+
     html[data-theme-effective="light"] .custom-scrollbar::-webkit-scrollbar-thumb, body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background: #C8C0D8 !important; }
     html[data-theme-effective="light"] .appearance-card .text-white, body.theme-light .appearance-card .text-white { color: #211A32 !important; }
     html[data-theme-effective="light"] .appearance-toggle, body.theme-light .appearance-toggle { background: #EEEAF5; border-color: rgba(89,72,130,.12); }
