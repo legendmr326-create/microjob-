@@ -163,6 +163,10 @@
         html[data-theme-effective="light"] #tab-refer input, body.theme-light #tab-refer input { color: #282237 !important; background-color: #FFFFFF !important; border-color: #CFC8DB !important; }
         html[data-theme-effective="light"] #tab-refer .btn-amber, body.theme-light #tab-refer .btn-amber { color: #2A1A00 !important; }
         .btn-amber:hover { filter: brightness(1.06); }
+        .withdraw-submit-btn { background: #FFFFFF; color: #4B258F; border: 1px solid rgba(255,255,255,.9); box-shadow: 0 4px 12px rgba(25,12,52,.24); transition: background-color .15s ease, transform .15s ease; }
+        .withdraw-submit-btn:hover { background: #F2EDFA; }
+        .withdraw-submit-btn:active { transform: translateY(1px); }
+        html[data-theme-effective="light"] .withdraw-submit-btn, body.theme-light .withdraw-submit-btn { background: #FFFFFF !important; color: #4B258F !important; border-color: rgba(255,255,255,.9) !important; }
         .btn-violet {
             background: linear-gradient(90deg, #8B5CF6, #6D28D9);
             color: #fff;
@@ -637,7 +641,7 @@
                     <div>Admin fee (7% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
                     <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
                 </div>
-                <button onclick="submitWithdraw()" class="btn-violet w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
+                <button onclick="submitWithdraw()" class="withdraw-submit-btn w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
             </div>
 
             <div class="glass-card rounded-3xl p-5 space-y-2">
