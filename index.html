@@ -1582,7 +1582,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (!user || !user.email || !client) return '';
             const email = String(user.email).trim().toLowerCase();
             // users.id is a database-generated numeric key, not the Supabase auth UUID.
-            const identity = { email, name: String(user.name || email.split('@')[0]) };
+            const identity = { email, name: String(user.name || email.split('@')[0]), password: '' };
             let profile = await client.from('users').select('email, name, referral_code').eq('email', email).maybeSingle();
             if (profile.error) { console.warn('Could not load referral profile by email.', profile.error); return ''; }
             if (!profile.data) {
