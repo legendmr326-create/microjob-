@@ -3778,9 +3778,10 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 </script>
 <script>
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js').catch(() => {});
-        });
+        // Register as soon as this script runs instead of waiting for window load.
+        // This lets Chrome activate the worker before the user tries to install.
+        navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
+            .catch((error) => console.error('TaskFlex service worker registration failed:', error));
     }
 </script>
 </body>
