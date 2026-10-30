@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taskflex-shell-v1';
+const CACHE_NAME = 'taskflex-shell-v2';
 const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
@@ -16,16 +16,19 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
+  if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).then((response) => {
+      if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put('/', response.clone()));
+      return response;
+    }).catch(() => caches.match(request).then((cached) => cached || caches.match('/'))));
+    return;
+  }
+
   const isShellAsset = SHELL.includes(url.pathname);
   if (isShellAsset) {
     event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => {
       if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
       return response;
     })));
-    return;
-  }
-
-  if (request.mode === 'navigate') {
-    event.respondWith(fetch(request).catch(() => caches.match('/')));
   }
 });
