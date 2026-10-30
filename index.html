@@ -283,6 +283,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay:has(#registerCard:not(.hidden)) { display: flex !important; flex-direction: column; align-items: center !important; justify-content: safe center !important; }
         #authOverlay:has(#registerCard:not(.hidden)) #landingHero { display: none; }
         #authOverlay:has(#registerCard:not(.hidden)) #registerCard { width: 100%; max-width: 28rem; margin: auto 0; }
+        #authOverlay:has(#loginCard:not(.hidden)) { align-items: center !important; justify-content: safe center !important; }
+        #authOverlay:has(#loginCard:not(.hidden)) #landingHero { display: none; }
+        #authOverlay:has(#loginCard:not(.hidden)) #loginCard { width: 100%; max-width: 28rem; margin: auto 0; }
     </style>
     <style>
         @media (max-width: 768px) {
@@ -300,7 +303,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-cardBorder">
 
         <!-- AUTH OVERLAY (Login / Register) -->
-        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-start justify-start px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
+        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-center justify-center px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
             <div id="landingHero" class="landing-hero text-left mb-7 w-full">
                 <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
                     <div class="flex min-w-0 items-center gap-2.5">
