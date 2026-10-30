@@ -476,7 +476,7 @@
 
         <!-- TAB: NOTIFICATIONS -->
         <div id="tab-notifications" class="space-y-3 hidden">
-            <h2 class="text-base font-bold text-white">Notifications</h2>
+            <h2 class="text-xl font-bold text-white">Notifications</h2>
             <div id="notificationsList" class="space-y-2.5"></div>
         </div>
 
@@ -2816,7 +2816,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 items = ['Welcome! Welcome to Micro job TaskFlex.', 'To see new jobs, open the Dashboard.', 'To deposit, use the Deposit page in the Account & Settings menu.'];
             }
             container.innerHTML = items.map(t => `
-                <div class="glass-card rounded-2xl p-3.5 text-xs text-violet-100/85 flex gap-3"><i class="fa-solid fa-bell text-amber-300 mt-0.5"></i><span>${esc(t)}</span></div>
+                <div class="glass-card rounded-2xl p-4 text-sm text-violet-100/90 flex gap-3 items-start"><i class="fa-solid fa-bell text-amber-300 mt-0.5 text-base"></i><span>${esc(t)}</span></div>
             `).join('');
         }
 
