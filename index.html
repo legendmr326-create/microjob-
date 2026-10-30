@@ -185,8 +185,11 @@
         .money-amount { display: inline-flex; align-items: baseline; gap: .08em; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; font-weight: 600; letter-spacing: -.035em; }
         .money-symbol { font-size: .58em; font-weight: 500; opacity: .82; letter-spacing: 0; }
         .money-decimal { font-size: .72em; font-weight: 500; opacity: .86; letter-spacing: -.01em; }
-        .balance-card { background: linear-gradient(140deg, rgba(245,185,66,.17) 0%, rgba(139,92,246,.12) 44%, rgba(26,18,51,.9) 100%); border: 1px solid rgba(252,217,122,.27); box-shadow: 0 16px 38px -22px rgba(245,185,66,.48), 0 14px 32px -22px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.1); }
-        .balance-value { font-variant-numeric: tabular-nums lining-nums; font-weight: 600 !important; letter-spacing: -.045em; text-shadow: 0 1px 18px rgba(252,217,122,.12); }
+        .balance-card { background: #4B258F !important; border: 1px solid rgba(255,255,255,.16) !important; border-radius: 1.5rem; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        .balance-card .balance-label { color: #FFFFFF !important; font-size: .875rem !important; font-weight: 800 !important; letter-spacing: .08em; }
+        .balance-value { color: #FFFFFF !important; font-variant-numeric: tabular-nums lining-nums; font-weight: 700 !important; letter-spacing: -.045em; text-shadow: none !important; }
+        .balance-card .balance-add-funds { flex: 0 0 auto; background: #FFFFFF !important; color: #4B258F !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
+        .balance-card .balance-add-funds:hover { background: #F2EDFA !important; }
         .balance-value .money-symbol { font-size: .53em; vertical-align: .12em; }
         .balance-value .money-decimal { font-size: .66em; }
         /* Center signup in the real auth overlay and fall back to top alignment if it overflows. */
@@ -370,13 +373,15 @@
 
                 <div id="workerDashboard" class="space-y-3.5">
                     <div class="relative overflow-hidden rounded-3xl p-5 balance-card">
-                        <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-amber-400/20 blur-2xl"></div>
                         <div class="relative flex justify-between items-end gap-3">
-                            <div>
-                                <p class="balance-label text-[11px] uppercase tracking-widest text-amber-200/80 font-semibold">Available Balance</p>
-                                <h3 id="workerBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
-                            </div>
+                        <div>
+                            <p class="balance-label uppercase tracking-widest">Available Balance</p>
+                            <h3 id="workerBalance" class="text-3xl balance-value mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                         </div>
+                        <button onclick="switchTab('deposit')" class="btn-violet balance-add-funds text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 whitespace-nowrap">
+                            <i class="fa-solid fa-plus text-xs"></i> Add Funds
+                        </button>
+                    </div>
                     </div>
 
                     <div class="grid grid-cols-3 gap-2.5 text-center">
@@ -3388,10 +3393,10 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] body header#appHeader .logo-orb, body.theme-light header#appHeader .logo-orb { box-shadow: none !important; }
     html[data-theme-effective="light"] body header#appHeader .logo-orb > div, body.theme-light header#appHeader .logo-orb > div { background: #FFFFFF !important; background-color: #FFFFFF !important; color: #302A3D !important; }
     html[data-theme-effective="light"] #accountModal > div > div:first-child, body.theme-light #accountModal > div > div:first-child { background: #E4E1EE !important; background-color: #E4E1EE !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: rgba(76,62,105,.14) !important; }
-    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: linear-gradient(118deg, #4B258F 0%, #6738B7 50%, #A75D63 76%, #D18A2B 100%) !important; border: 1px solid rgba(255,224,160,.72) !important; box-shadow: 0 14px 32px -18px rgba(75,37,143,.5), inset 0 1px 0 rgba(255,255,255,.28) !important; }
-    html[data-theme-effective="light"] .balance-card .balance-label, body.theme-light .balance-card .balance-label { color: #FFF4D6 !important; }
-    html[data-theme-effective="light"] .balance-card .balance-value, html[data-theme-effective="light"] .balance-card .balance-value *, body.theme-light .balance-card .balance-value, body.theme-light .balance-card .balance-value * { color: #FFFFFF !important; text-shadow: 0 1px 8px rgba(34,16,63,.35); }
-    html[data-theme-effective="light"] .balance-card .balance-add-funds, body.theme-light .balance-card .balance-add-funds { background: #FFF0C2 !important; color: #43217F !important; border: 1px solid rgba(255,255,255,.75); box-shadow: 0 4px 12px rgba(35,17,65,.24); }
+    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: #4B258F !important; background-image: none !important; border: 1px solid rgba(255,255,255,.16) !important; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+    html[data-theme-effective="light"] .balance-card .balance-label, body.theme-light .balance-card .balance-label { color: #FFFFFF !important; font-size: .875rem !important; font-weight: 800 !important; letter-spacing: .08em; }
+    html[data-theme-effective="light"] .balance-card .balance-value, html[data-theme-effective="light"] .balance-card .balance-value *, body.theme-light .balance-card .balance-value, body.theme-light .balance-card .balance-value * { color: #FFFFFF !important; text-shadow: none !important; }
+    html[data-theme-effective="light"] .balance-card .balance-add-funds, body.theme-light .balance-card .balance-add-funds { background: #FFFFFF !important; color: #4B258F !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
 
     html[data-theme-effective="light"] .custom-scrollbar::-webkit-scrollbar-thumb, body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background: #C8C0D8 !important; }
     html[data-theme-effective="light"] .appearance-card .text-white, body.theme-light .appearance-card .text-white { color: #211A32 !important; }
