@@ -1739,10 +1739,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     return;
                 }
 
+                // Auth users can be KYC-approved and hold a referral code even when there is no
+                // matching public.users row (legacy accounts or restrictive profile visibility).
+                // Prefer the signed-in user's existing code, then consult/create a public profile.
+                let code = String(currentUser.referral_code || '').trim();
                 const profile = await client.from('users').select('email, referral_code').eq('email', email).maybeSingle();
                 if (profile.error) throw profile.error;
-                if (!profile.data) throw new Error('User profile not found for referral code');
-                let code = String(profile.data.referral_code || '').trim();
+                if (profile.data && profile.data.referral_code) code = String(profile.data.referral_code).trim();
                 if (!code) code = await ensureReferralCode({ ...currentUser, email });
                 if (!code) throw new Error('Referral code missing or could not be created');
                 currentUser.referral_code = code;
