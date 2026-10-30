@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://microjob-user-website.vercel.app/sitemap.xml
+Sitemap: https://taskflexbd.vercel.app/sitemap.xml
