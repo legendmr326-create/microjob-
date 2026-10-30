@@ -1396,13 +1396,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
         function toggleAuthForm(form) {
             var overlay = document.getElementById('authOverlay');
             var hero = document.getElementById('landingHero');
+            var cards = ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'];
             if (overlay) overlay.classList.toggle('auth-login-centered', form === 'login');
-            if (hero && form === 'login') hero.style.display = 'none';
-            ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
-            if (form === 'register') document.getElementById('registerCard').classList.remove('hidden');
-            else if (form === 'forgot') document.getElementById('forgotPasswordCard').classList.remove('hidden');
-            else if (form === 'verify') document.getElementById('verifyEmailCard').classList.remove('hidden');
-            else document.getElementById('loginCard').classList.remove('hidden');
+            // Auth views are mutually exclusive: hide the landing hero and every card first.
+            if (hero) hero.style.display = 'none';
+            cards.forEach(id => {
+                const card = document.getElementById(id);
+                if (card) card.classList.add('hidden');
+            });
+            const activeCardId = ({ login: 'loginCard', register: 'registerCard', forgot: 'forgotPasswordCard', verify: 'verifyEmailCard' })[form] || 'loginCard';
+            const activeCard = document.getElementById(activeCardId);
+            if (activeCard) activeCard.classList.remove('hidden');
         }
 
         async function handleRegister() {
@@ -1427,9 +1431,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     await finishSignup(data.user);
                     return;
                 }
-                document.getElementById('registerCard').classList.add('hidden');
-                document.getElementById('loginCard').classList.add('hidden');
-                document.getElementById('verifyEmailCard').classList.remove('hidden');
+                toggleAuthForm('verify');
                 document.getElementById('verifyEmailAddress').textContent = email;
                 document.getElementById('signupOtp').value = '';
                 setSignupOtpMessage('');
@@ -2001,12 +2003,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         window.niceAlert = niceAlert;
 
         function showAuthLogin() {
-            var overlay = document.getElementById('authOverlay');
-            if (overlay) overlay.classList.add('auth-login-centered');
-            var h = document.getElementById('landingHero');
-            if (h) h.style.display = 'none';
-            document.getElementById('loginCard').classList.remove('hidden');
-            document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});
+            toggleAuthForm('login');
+            var loginCard = document.getElementById('loginCard');
+            if (loginCard) loginCard.scrollIntoView({behavior:'smooth'});
         }
         function toggleAuthMenu() { var m = document.getElementById('authMenu'); if (m) m.classList.toggle('hidden'); }
         function closeAuthMenu() { var m = document.getElementById('authMenu'); if (m) m.classList.add('hidden'); }
@@ -2030,6 +2029,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (!targetId) return;
             const target = document.getElementById(targetId);
             if (!target) return;
+            if (destination === 'support') {
+                // Support is public; let logged-out visitors open it directly, without dumping them at login.
+                const authOverlay = document.getElementById('authOverlay');
+                const appHeader = document.getElementById('appHeader');
+                const appMain = document.getElementById('appMain');
+                if (authOverlay) authOverlay.classList.add('hidden');
+                if (appHeader) appHeader.classList.remove('hidden');
+                if (appMain) appMain.classList.remove('hidden');
+                switchTab('support');
+                return;
+            }
             const appMain = document.getElementById('appMain');
             if (destination === 'dashboard' && (!currentUser || !appMain || appMain.classList.contains('hidden'))) {
                 closeAuthMenuToHome();
