@@ -2267,18 +2267,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
             const container = document.getElementById('availableJobsList');
             if (!list || list.length === 0) { container.innerHTML = `<div class="text-center py-10 text-violet-200/60 text-xs">No jobs yet.</div>`; return; }
             container.innerHTML = list.map(job => `
-                <div onclick="openJobDetail(${Number(job.id)})" class="glass-card rounded-2xl p-4 cursor-pointer hover:border-amber-300/40 transition">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                            <h4 class="text-sm font-bold text-white truncate">${esc(job.title)}</h4>
+                <div onclick="openJobDetail(${Number(job.id)})" class="glass-card relative overflow-hidden rounded-[1.35rem] p-4 cursor-pointer transition duration-200 hover:-translate-y-0.5 hover:border-amber-300/40 hover:shadow-xl">
+                    <div class="absolute inset-y-4 left-0 w-1 rounded-r-full bg-gradient-to-b from-amber-300 via-amber-400 to-violet-400"></div>
+                    <div class="pl-2 space-y-3.5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0 flex-1">
+                                <span class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-violet-300/20 bg-violet-400/10 px-2.5 py-1 text-[10px] font-bold tracking-wide text-violet-100/90">
+                                    <i class="fa-solid fa-layer-group text-[9px] text-amber-300"></i><span class="truncate">${esc(job.category || 'Microjob')}</span>
+                                </span>
+                                <h4 class="mt-2.5 break-words text-[15px] font-bold leading-snug text-white">${esc(job.title)}</h4>
+                            </div>
+                            <span class="shrink-0 rounded-xl border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-sm font-extrabold tabular-nums text-amber-200 whitespace-nowrap">${formatMoney(job.reward || 0)}</span>
                         </div>
-                        <span class="text-sm text-amber-300 whitespace-nowrap">${formatMoney(job.reward || 0)}</span>
+                        ${job.limit_count ? (() => { const taken = Math.min(Number(job.slots || 0), Number(job.limit_count)); const pct = Math.min(100, Math.round((taken / Number(job.limit_count)) * 100)); return `
+                        <div class="flex items-center gap-3 border-t border-white/10 pt-3">
+                            <span class="shrink-0 text-[11px] font-semibold text-violet-100/80">${taken} of ${esc(job.limit_count)} completed</span>
+                            <div class="h-2 flex-1 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-amber-300 to-amber-500 transition-all duration-500" style="width:${pct}%"></div></div>
+                        </div>`; })() : ''}
                     </div>
-                    ${job.limit_count ? (() => { const taken = Math.min(Number(job.slots || 0), Number(job.limit_count)); const pct = Math.min(100, Math.round((taken / Number(job.limit_count)) * 100)); return `
-                    <div class="mt-3">
-                        <p class="text-center text-[11px] font-bold text-violet-200/70 tracking-wide">${taken} OF ${esc(job.limit_count)}</p>
-                        <div class="mt-1.5 h-2 w-full rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width:${pct}%"></div></div>
-                    </div>`; })() : ''}
                 </div>
             `).join('');
         }
