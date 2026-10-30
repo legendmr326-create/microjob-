@@ -161,6 +161,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
         /* Logged-out landing top row */
         #authOverlay { background: #100A22; }
+        #authOverlay.auth-login-centered { justify-content: center; }
+        #authOverlay.auth-login-centered #loginCard { margin-block: auto; }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
         #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
@@ -1361,6 +1363,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
 
         function toggleAuthForm(form) {
+            var overlay = document.getElementById('authOverlay');
+            var hero = document.getElementById('landingHero');
+            if (overlay) overlay.classList.toggle('auth-login-centered', form === 'login');
+            if (hero && form === 'login') hero.style.display = 'none';
             ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
             if (form === 'register') document.getElementById('registerCard').classList.remove('hidden');
             else if (form === 'forgot') document.getElementById('forgotPasswordCard').classList.remove('hidden');
@@ -1964,6 +1970,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
         window.niceAlert = niceAlert;
 
         function showAuthLogin() {
+            var overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.classList.add('auth-login-centered');
             var h = document.getElementById('landingHero');
             if (h) h.style.display = 'none';
             document.getElementById('loginCard').classList.remove('hidden');
