@@ -870,11 +870,11 @@
                 </div>
             </section>
 
-            <div class="flex items-center gap-2 pt-1">
-                <i class="fa-solid fa-lock text-amber-300 text-sm"></i>
-                <h3 class="text-sm font-bold text-white">Security (পাসওয়ার্ড)</h3>
-            </div>
-            <section class="glass-card rounded-3xl p-5 space-y-4" aria-label="Change password">
+            <button type="button" id="secToggle" onclick="toggleSecurityCard()" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between text-sm font-bold hover:bg-white/5">
+                <span class="flex items-center gap-3"><i class="fa-solid fa-lock text-amber-300 w-4"></i> Security (পাসওয়ার্ড)</span>
+                <i id="secToggleChevron" class="fa-solid fa-chevron-down text-violet-200/50 text-xs"></i>
+            </button>
+            <section id="secPasswordCard" class="glass-card rounded-3xl p-5 space-y-4 hidden" aria-label="Change password">
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <h3 class="text-sm font-bold text-white">Change Password</h3>
@@ -2011,6 +2011,15 @@
             switchTab(tabId);
         }
 
+
+        function toggleSecurityCard() {
+            const card = document.getElementById('secPasswordCard');
+            const chev = document.getElementById('secToggleChevron');
+            if (!card) return;
+            const show = card.classList.contains('hidden');
+            card.classList.toggle('hidden');
+            if (chev) chev.className = show ? 'fa-solid fa-chevron-up text-violet-200/50 text-xs' : 'fa-solid fa-chevron-down text-violet-200/50 text-xs';
+        }
 
         function togglePassVis(inputId, btn) {
             const inp = document.getElementById(inputId);
