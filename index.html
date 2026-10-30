@@ -865,6 +865,38 @@
             </section>
         </div>
 
+        <!-- TAB: SECURITY -->
+        <div id="tab-security" class="space-y-3.5 hidden">
+            <div class="flex items-center gap-3">
+                <button type="button" onclick="document.getElementById('accountModal').classList.remove('hidden');" aria-label="Back to account menu" class="w-9 h-9 rounded-xl glass-card flex items-center justify-center text-violet-100"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-base font-bold text-white">Security <span class="text-violet-200/70">(সিকিউরিটি)</span></h2>
+            </div>
+            <section class="glass-card rounded-3xl p-5 space-y-4" aria-label="Change password">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Change Password</h3>
+                        <p class="text-xs text-violet-200/70 mt-0.5">Manage your password and security settings</p>
+                    </div>
+                    <i class="fa-solid fa-shield-halved text-amber-300" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <label for="secCurrentPass" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Current Password</label>
+                    <div class="relative"><input type="password" id="secCurrentPass" autocomplete="current-password" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('secCurrentPass', this)" aria-label="Show/hide password" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><i class="fa-regular fa-eye" aria-hidden="true"></i></button></div>
+                </div>
+                <div>
+                    <label for="secNewPass" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">New Password</label>
+                    <div class="relative"><input type="password" id="secNewPass" autocomplete="new-password" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('secNewPass', this)" aria-label="Show/hide password" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><i class="fa-regular fa-eye" aria-hidden="true"></i></button></div>
+                    <p class="text-[11px] text-violet-200/60 mt-1">Must be at least 8 characters with lowercase and numbers</p>
+                </div>
+                <div>
+                    <label for="secConfirmPass" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Confirm New Password</label>
+                    <div class="relative"><input type="password" id="secConfirmPass" autocomplete="new-password" class="field w-full rounded-2xl px-4 py-3 pr-12 text-sm"><button type="button" onclick="togglePassVis('secConfirmPass', this)" aria-label="Show/hide password" class="absolute inset-y-0 right-3 flex items-center text-violet-200/70 hover:text-amber-300"><i class="fa-regular fa-eye" aria-hidden="true"></i></button></div>
+                </div>
+                <p id="secPassMsg" class="text-xs font-semibold hidden"></p>
+                <button type="button" id="secPassBtn" onclick="changePassword()" class="w-full bg-amber-400 text-amber-950 font-bold py-3.5 rounded-2xl transition hover:bg-amber-300">Change Password</button>
+            </section>
+        </div>
+
         <!-- TAB: TERMS & PRIVACY -->
         <div id="tab-terms" class="space-y-3 hidden">
             <h2 class="text-base font-bold text-white">Terms & Privacy</h2>
@@ -988,6 +1020,7 @@
                         <div onclick="openAccountPage('terms')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-amber-300 w-4"></i> Terms & Privacy</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                     </div>
                     <button type="button" onclick="openAccountPage('settings')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between text-sm font-bold hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gear text-amber-300 w-4"></i> Settings (সেটিংস)</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></button>
+                    <button type="button" onclick="openAccountPage('security')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between text-sm font-bold hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-lock text-amber-300 w-4"></i> Security (পাসওয়ার্ড)</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></button>
                     <button onclick="handleLogout()" class="w-full border border-rose-400/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-3.5 rounded-2xl transition mt-4">Logout</button>
                 </div>
             </div>
@@ -1025,7 +1058,7 @@
         let passwordResetEmail = '';
         let passwordResetResendAt = 0;
         let passwordResetResendTimer = null;
-        const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support', 'settings'];
+        const ALL_TABS = ['dashboard', 'newjob', 'jobdetail', 'applications', 'notifications', 'history', 'deposit', 'withdraw', 'refer', 'profile', 'help', 'about', 'terms', 'support', 'settings, 'security'];
         // Keep job categories centralized so the form and dashboard filters stay in sync.
         const JOB_CATEGORIES = [
             { value: 'YouTube', label: 'YouTube Video Watch & Like', chip: 'YouTube' },
@@ -1974,6 +2007,57 @@
         function openAccountPage(tabId) {
             closeModal('accountModal');
             switchTab(tabId);
+        }
+
+
+        function togglePassVis(inputId, btn) {
+            const inp = document.getElementById(inputId);
+            if (!inp) return;
+            const show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) icon.className = show ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+            }
+        }
+
+        function secPassMsg(text, ok) {
+            const el = document.getElementById('secPassMsg');
+            if (!el) return;
+            el.textContent = text;
+            el.className = 'text-xs font-semibold ' + (ok ? 'text-emerald-400' : 'text-rose-400');
+        }
+
+        async function changePassword() {
+            if (!supabaseClient) { secPassMsg('Connection not ready, try again', false); return; }
+            const cur = document.getElementById('secCurrentPass').value;
+            const np = document.getElementById('secNewPass').value;
+            const cp = document.getElementById('secConfirmPass').value;
+            if (!cur || !np || !cp) { secPassMsg('Please fill all three fields', false); return; }
+            if (np.length < 8 || !/[a-z]/.test(np) || !/[0-9]/.test(np)) { secPassMsg('New password must be at least 8 characters with lowercase and numbers', false); return; }
+            if (np !== cp) { secPassMsg('New passwords do not match', false); return; }
+            const btn = document.getElementById('secPassBtn');
+            btn.disabled = true;
+            const oldLabel = btn.textContent;
+            btn.textContent = 'Changing...';
+            try {
+                const sessData = await supabaseClient.auth.getSession();
+                const email = sessData?.data?.session?.user?.email;
+                if (!email) { secPassMsg('Please log in again', false); return; }
+                const verifyRes = await supabaseClient.auth.signInWithPassword({ email: email, password: cur });
+                if (verifyRes.error) { secPassMsg('Current password is incorrect', false); return; }
+                const upRes = await supabaseClient.auth.updateUser({ password: np });
+                if (upRes.error) { secPassMsg(upRes.error.message || 'Could not change password', false); return; }
+                secPassMsg('Password changed successfully', true);
+                document.getElementById('secCurrentPass').value = '';
+                document.getElementById('secNewPass').value = '';
+                document.getElementById('secConfirmPass').value = '';
+            } catch (e) {
+                secPassMsg((e?.message) || 'Something went wrong', false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = oldLabel;
+            }
         }
 
         function filterGateways(type) {
