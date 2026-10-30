@@ -1578,31 +1578,35 @@ Check your Browserslist config to be sure that your targets are set up correctly
             return supabaseClient;
         }
         async function ensureReferralCode(user) {
-            if (!user || !user.email || !(await waitForSupabase())) return '';
+            const client = await waitForSupabase();
+            if (!user || !user.email || !client) return '';
             const email = String(user.email).trim().toLowerCase();
-            let profile = await supabaseClient.from('users').select('referral_code').eq('email', email).maybeSingle();
-            if (profile.error) { console.warn('Could not load referral code.', profile.error); return ''; }
-            let code = profile.data && profile.data.referral_code;
+            // users.id is a database-generated numeric key, not the Supabase auth UUID.
+            const identity = { email, name: String(user.name || email.split('@')[0]) };
+            let profile = await client.from('users').select('email, name, referral_code').eq('email', email).maybeSingle();
+            if (profile.error) { console.warn('Could not load referral profile by email.', profile.error); return ''; }
             if (!profile.data) {
-                const created = await supabaseClient.from('users').insert([{ email, referral_code: null }]).select('referral_code').maybeSingle();
+                // Create the missing public row from authenticated identity. If another session
+                // creates it concurrently, re-read the row rather than failing the referral flow.
+                const created = await client.from('users').insert([identity]).select('email, name, referral_code').maybeSingle();
                 if (created.error && created.error.code !== '23505') { console.warn('Could not create user profile.', created.error); return ''; }
-                profile = await supabaseClient.from('users').select('referral_code').eq('email', email).maybeSingle();
-                if (profile.error || !profile.data) return '';
-                code = profile.data.referral_code;
+                profile = await client.from('users').select('email, name, referral_code').eq('email', email).maybeSingle();
+                if (profile.error || !profile.data) { console.warn('Could not reload created user profile.', profile.error); return ''; }
             }
+            let code = profile.data.referral_code;
             const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
             if (!code) for (let attempt = 0; attempt < 24; attempt++) {
                 const bytes = new Uint8Array(8);
                 if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
                 else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
                 const candidate = Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
-                const saved = await supabaseClient.from('users').update({ referral_code: candidate }).eq('email', email).is('referral_code', null).select('referral_code').maybeSingle();
+                const saved = await client.from('users').update({ referral_code: candidate }).eq('email', email).is('referral_code', null).select('referral_code').maybeSingle();
                 if (saved.error) {
                     if (saved.error.code === '23505') continue;
                     console.warn('Could not save referral code.', saved.error); return '';
                 }
                 if (saved.data && saved.data.referral_code) { code = saved.data.referral_code; break; }
-                const reread = await supabaseClient.from('users').select('referral_code').eq('email', email).maybeSingle();
+                const reread = await client.from('users').select('referral_code').eq('email', email).maybeSingle();
                 if (reread.error) return '';
                 if (reread.data && reread.data.referral_code) { code = reread.data.referral_code; break; }
             }
@@ -1739,15 +1743,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     return;
                 }
 
-                // Auth users can be KYC-approved and hold a referral code even when there is no
-                // matching public.users row (legacy accounts or restrictive profile visibility).
-                // Prefer the signed-in user's existing code, then consult/create a public profile.
-                let code = String(currentUser.referral_code || '').trim();
-                const profile = await client.from('users').select('email, referral_code').eq('email', email).maybeSingle();
-                if (profile.error) throw profile.error;
-                if (profile.data && profile.data.referral_code) code = String(profile.data.referral_code).trim();
-                if (!code) code = await ensureReferralCode({ ...currentUser, email });
-                if (!code) throw new Error('Referral code missing or could not be created');
+                // Always ensure this authenticated account has a public profile row and referral code.
+                const code = await ensureReferralCode({ ...currentUser, email });
+                if (!code) throw new Error('Referral profile/code could not be created or loaded');
                 currentUser.referral_code = code;
                 localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
                 if (link) { link.value = 'https://taskflexbd.vercel.app/?ref=' + encodeURIComponent(code); link.placeholder = ''; }
