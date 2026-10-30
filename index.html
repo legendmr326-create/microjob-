@@ -293,6 +293,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay:has(#loginCard:not(.hidden)) { align-items: center !important; justify-content: safe center !important; }
         #authOverlay:has(#loginCard:not(.hidden)) #landingHero { display: none; }
         #authOverlay:has(#loginCard:not(.hidden)) #loginCard { width: 100%; max-width: 28rem; margin: auto 0; }
+        #authMenu { background: #E4E1EE; color: #211A32; padding: 24px 22px; overflow-y: auto; }
+        #authMenu .auth-menu-brand { display: inline-flex; align-items: center; min-height: 48px; }
+        .auth-menu-items { display: grid; gap: 8px; width: 100%; }
+        .auth-menu-item { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 13px 16px; border: 1px solid rgba(76, 43, 132, .14); border-radius: 16px; background: rgba(255,255,255,.68); color: #211A32; font-size: 20px; font-weight: 750; line-height: 1.25; text-align: left; text-decoration: none; touch-action: manipulation; transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
+        .auth-menu-item:hover, .auth-menu-item:focus-visible { background: #F5F1FF; color: #4B258F; border-color: rgba(124, 58, 237, .38); outline: none; }
+        .auth-menu-item:active { background: #E9DFFF; transform: scale(.99); }
+        .auth-menu-brand { color: #211A32; border: 0; background: transparent; padding: 0; cursor: pointer; }
+        .auth-menu-close { color: #4B258F; border-radius: 12px; }
+        .auth-menu-close:hover, .auth-menu-close:focus-visible { background: rgba(124, 58, 237, .12); outline: 2px solid rgba(124, 58, 237, .3); }
     </style>
     <style>
         @media (max-width: 768px) {
@@ -321,22 +330,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     </div>
                     <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
                 </div>
-                <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;background:#E4E1EE;color:#211A32;padding:28px 30px;overflow-y:auto;">
-                    <div class="flex items-center justify-between mb-10">
-                        <div class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg"></i></div></div>
-                        <button type="button" onclick="closeAuthMenu()" aria-label="Close menu" class="auth-menu-close text-violet-100 text-2xl p-2"><i class="fa-solid fa-xmark"></i></button>
+                <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;">
+                    <div class="flex items-center justify-between mb-5">
+                        <button type="button" onclick="closeAuthMenuToHome()" aria-label="TaskFlex home" class="auth-menu-brand flex items-center gap-3 text-lg font-black"><span class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><span class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg"></i></span></span><span>TaskFlex</span></button>
+                        <button type="button" onclick="closeAuthMenuToHome()" aria-label="Close menu" class="auth-menu-close text-2xl p-3"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-                    <div class="auth-menu-items space-y-6 font-black text-3xl text-white">
-                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Home</button>
-                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Withdraw</button>
-                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">History</button>
-                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Referral Program</button>
-                        <button type="button" onclick="toggleAuthMenu(); document.getElementById('loginCard').classList.remove('hidden'); document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});" class="block text-left w-full">Live Support</button>
-                        <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('register');" class="block text-left w-full">Register</button>
-                        <button type="button" onclick="toggleAuthMenu(); toggleAuthForm('login');" class="block text-left w-full">Login</button>
-                        <button type="button" onclick="toggleAuthMenu(); openForgotPassword();" class="block text-left w-full">Reset Password</button>
-                    </div>
-                    <p class="auth-menu-footer mt-12 text-xs text-violet-200/50">&copy;2026 Micro job TaskFlex</p>
+                    <nav class="auth-menu-items" aria-label="Main menu">
+                        <button type="button" onclick="navigateAuthMenu('dashboard')" class="auth-menu-item">Home</button>
+                        <button type="button" onclick="navigateAuthMenu('withdraw')" class="auth-menu-item">Withdraw</button>
+                        <button type="button" onclick="navigateAuthMenu('history')" class="auth-menu-item">History</button>
+                        <button type="button" onclick="navigateAuthMenu('refer')" class="auth-menu-item">Referral Program</button>
+                        <button type="button" onclick="navigateAuthMenu('support')" class="auth-menu-item">Live Support</button>
+                        <button type="button" onclick="navigateAuthMenu('register')" class="auth-menu-item">Register</button>
+                        <button type="button" onclick="navigateAuthMenu('login')" class="auth-menu-item">Login</button>
+                        <button type="button" onclick="navigateAuthMenu('forgot')" class="auth-menu-item">Reset Password</button>
+                    </nav>
+                    <p class="auth-menu-footer mt-6 text-xs text-violet-700/60">&copy;2026 Micro job TaskFlex</p>
                 </div>
                 <section class="landing-copy" aria-label="TaskFlex introduction">
                     <h2 class="landing-title font-black"><span>Best Microjob &amp;</span><span>Freelancing Site To</span><span class="hero-title">Make Money Online</span></h2>
@@ -1984,6 +1993,45 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
         function toggleAuthMenu() { var m = document.getElementById('authMenu'); if (m) m.classList.toggle('hidden'); }
         function closeAuthMenu() { var m = document.getElementById('authMenu'); if (m) m.classList.add('hidden'); }
+        function closeAuthMenuToHome() {
+            closeAuthMenu();
+            var appMain = document.getElementById('appMain');
+            if (currentUser && appMain && !appMain.classList.contains('hidden')) { switchTab('dashboard'); return; }
+            ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'].forEach(id => { var card = document.getElementById(id); if (card) card.classList.add('hidden'); });
+            var hero = document.getElementById('landingHero');
+            if (hero) hero.style.display = '';
+            var overlay = document.getElementById('authOverlay');
+            if (overlay) overlay.classList.remove('auth-login-centered');
+            window.scrollTo(0, 0);
+        }
+        function navigateAuthMenu(destination) {
+            closeAuthMenu();
+            if (destination === 'register') { toggleAuthForm('register'); return; }
+            if (destination === 'login') { toggleAuthForm('login'); return; }
+            if (destination === 'forgot') { openForgotPassword(); return; }
+            const targetId = ({ dashboard: 'tab-dashboard', withdraw: 'tab-withdraw', history: 'tab-history', refer: 'tab-refer', support: 'tab-support' })[destination];
+            if (!targetId) return;
+            const target = document.getElementById(targetId);
+            if (!target) return;
+            const appMain = document.getElementById('appMain');
+            if (destination === 'dashboard' && (!currentUser || !appMain || appMain.classList.contains('hidden'))) {
+                closeAuthMenuToHome();
+                return;
+            }
+            if (currentUser && appMain && !appMain.classList.contains('hidden')) {
+                switchTab(destination);
+                return;
+            }
+            showAuthLogin();
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && document.getElementById('authMenu') && !document.getElementById('authMenu').classList.contains('hidden')) closeAuthMenuToHome();
+        });
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('authMenu');
+            if (!menu || menu.classList.contains('hidden') || event.target.closest('#authMenu') || event.target.closest('.landing-menu-button')) return;
+            closeAuthMenuToHome();
+        });
         function openProofZoom(src) {
             let z = document.getElementById('proofZoomOverlay');
             if (!z) {
