@@ -999,7 +999,7 @@
         <div id="accountModal" class="fixed inset-0 bg-black/80 z-50 flex justify-center hidden opacity-0 transition-opacity duration-300">
             <div class="w-full max-w-md bg-bgDark h-full flex flex-col overflow-y-auto custom-scrollbar">
                 <div class="flex items-center justify-between p-4 border-b border-white/10 sticky top-0 bg-bgDark/95 backdrop-blur z-10">
-                    <button onclick="closeModal('accountModal')" class="text-violet-100 p-1"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <button onclick="closeModal('accountModal'); switchTab('dashboard');" class="text-violet-100 p-1" aria-label="Close and go to Dashboard"><i class="fa-solid fa-xmark text-xl"></i></button>
                     <h2 class="text-base font-bold text-white">Account & Settings</h2>
                     <div class="w-6"></div>
                 </div>
