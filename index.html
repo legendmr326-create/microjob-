@@ -3030,6 +3030,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 if (!profile.data) throw new Error('No editable users profile row matched this account.');
                 currentUser.avatarUrl = url;
                 localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
+                localStorage.removeItem('taskflex_avatar_choice');
                 updateUserDataUI();
             } catch (e) {
                 console.warn('Avatar upload failed:', e);
