@@ -1109,6 +1109,11 @@
                     name: (savedUser && String(savedUser.email || '').trim().toLowerCase() === email && savedUser.name) || email.split('@')[0],
                     email
                 };
+                // Prefer the server profile so uploaded photos persist across devices and reloads.
+                try {
+                    const profile = await client.from('users').select('avatar_url').eq('email', email).maybeSingle();
+                    if (!profile.error && profile.data && profile.data.avatar_url) currentUser.avatarUrl = profile.data.avatar_url;
+                } catch (profileError) { console.warn('Could not load saved avatar.', profileError); }
                 localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
                 if (authOverlay) authOverlay.classList.add('hidden');
                 if (header) header.classList.remove('hidden');
@@ -3019,16 +3024,12 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
                 const url = (pub && pub.data && pub.data.publicUrl) || null;
                 if (!url) throw new Error('no public url returned');
+                // Persist the photo URL to the existing user profile row, without creating or changing any other rows.
+                const profile = await supabaseClient.from('users').update({ avatar_url: url }).eq('email', currentUser.email).select('avatar_url').maybeSingle();
+                if (profile.error) throw profile.error;
+                if (!profile.data) throw new Error('No editable users profile row matched this account.');
                 currentUser.avatarUrl = url;
                 localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-                // Also store on the user's KYC row when one exists (non-fatal if it fails).
-                try {
-                    if (myKyc && myKyc.id) {
-                        const r = await supabaseClient.from(KYC_TABLE).update({ avatar_url: url }).eq('id', myKyc.id);
-                        if (r.error) console.warn('KYC avatar_url save failed:', r.error);
-                        else myKyc.avatar_url = url;
-                    }
-                } catch (e) { console.warn('KYC avatar_url save failed:', e); }
                 updateUserDataUI();
             } catch (e) {
                 console.warn('Avatar upload failed:', e);
