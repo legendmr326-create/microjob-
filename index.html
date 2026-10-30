@@ -1090,6 +1090,22 @@ Check your Browserslist config to be sure that your targets are set up correctly
             </div>
         </div>
 
+        <!-- APP DOWNLOAD MODAL -->
+        <div id="appDownloadModal" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true" aria-labelledby="appDownloadTitle">
+            <div class="w-full max-w-sm bg-bgDark glass-card rounded-3xl p-5 text-center">
+                <button type="button" onclick="closeModal('appDownloadModal')" class="ml-auto block text-violet-100 p-1" aria-label="Close"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <img src="/icons/icon-192.png" alt="TaskFlex logo" class="w-20 h-20 rounded-2xl mx-auto mb-3 shadow-lg">
+                <h2 id="appDownloadTitle" class="text-xl font-black text-white">TaskFlex অ্যাপ ডাউনলোড</h2>
+                <p id="appDownloadMessage" class="text-sm text-violet-100/80 mt-2">হোম স্ক্রিনে TaskFlex যোগ করে অ্যাপের মতো ব্যবহার করুন।</p>
+                <button id="appInstallButton" type="button" onclick="installTaskFlexApp()" class="hidden w-full btn-violet font-bold py-3 rounded-2xl mt-4"><i class="fa-solid fa-download mr-2"></i>Install app</button>
+                <div id="appInstallInstructions" class="text-left text-sm text-violet-100/80 bg-white/5 rounded-2xl p-4 mt-4 space-y-2">
+                    <p class="font-bold text-white">ইনস্টল করার নিয়ম</p>
+                    <p>Android/Chrome: ব্রাউজারের ⋮ মেনু খুলে “Install app” বা “Add to Home screen” চাপুন।</p>
+                    <p>iPhone/Safari: Share বাটন চাপুন, তারপর “Add to Home Screen” নির্বাচন করুন।</p>
+                </div>
+            </div>
+        </div>
+
         <!-- ACCOUNT MODAL -->
         <div id="accountModal" class="fixed inset-0 bg-black/80 z-50 flex justify-center hidden opacity-0 transition-opacity duration-300">
             <div class="w-full max-w-md bg-bgDark h-full flex flex-col overflow-y-auto custom-scrollbar">
@@ -1121,7 +1137,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                         <div onclick="openAccountPage('terms')" class="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-shield-halved text-amber-300 w-4"></i> Terms & Privacy</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></div>
                     </div>
                     <button type="button" onclick="openAccountPage('settings')" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between text-sm font-bold hover:bg-white/5"><span class="flex items-center gap-3"><i class="fa-solid fa-gear text-amber-300 w-4"></i> Settings (সেটিংস)</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></button>
-                                        <button onclick="handleLogout()" class="w-full border border-rose-400/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-3.5 rounded-2xl transition mt-4">Logout</button>
+                    <button type="button" onclick="openAppDownload()" class="w-full glass-card rounded-2xl p-4 flex items-center justify-between text-sm font-bold hover:bg-white/5 mt-3"><span class="flex items-center gap-3"><i class="fa-solid fa-download text-amber-300 w-4"></i> অ্যাপ ডাউনলোড</span><i class="fa-solid fa-chevron-right text-violet-200/50 text-xs"></i></button>
+                    <button onclick="handleLogout()" class="w-full border border-rose-400/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-bold py-3.5 rounded-2xl transition mt-4">Logout</button>
                 </div>
             </div>
         </div>
@@ -2148,6 +2165,38 @@ Check your Browserslist config to be sure that your targets are set up correctly
             await refreshAfterReview();
         }
 
+
+        let deferredTaskFlexInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            deferredTaskFlexInstallPrompt = event;
+        });
+
+        function openAppDownload() {
+            closeModal('accountModal');
+            const installButton = document.getElementById('appInstallButton');
+            const instructions = document.getElementById('appInstallInstructions');
+            const message = document.getElementById('appDownloadMessage');
+            if (deferredTaskFlexInstallPrompt) {
+                installButton.classList.remove('hidden');
+                instructions.classList.remove('hidden');
+                message.textContent = 'ইনস্টল বাটনে চাপুন, অথবা নিচের নির্দেশনা অনুসরণ করুন।';
+            } else {
+                installButton.classList.add('hidden');
+                instructions.classList.remove('hidden');
+                message.textContent = 'আপনার ব্রাউজার থেকে TaskFlex ইনস্টল বা হোম স্ক্রিনে যোগ করুন।';
+            }
+            openModal('appDownloadModal');
+        }
+
+        async function installTaskFlexApp() {
+            if (!deferredTaskFlexInstallPrompt) return;
+            deferredTaskFlexInstallPrompt.prompt();
+            await deferredTaskFlexInstallPrompt.userChoice;
+            deferredTaskFlexInstallPrompt = null;
+            document.getElementById('appInstallButton').classList.add('hidden');
+            document.getElementById('appDownloadMessage').textContent = 'ইনস্টল প্রম্পট বন্ধ হয়েছে। চাইলে নিচের নির্দেশনা অনুসরণ করুন।';
+        }
 
         function openAccountPage(tabId) {
             closeModal('accountModal');
