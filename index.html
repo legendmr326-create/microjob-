@@ -137,9 +137,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             }
         }
     </script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Load optional external styles without blocking first paint on slow cellular links. -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
     <style>
         body {
             font-family: 'Outfit', sans-serif;
@@ -1158,8 +1160,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             }
         }
     </script>
-    <!-- Supabase Client (with CDN fallback so one failed script can't kill the whole site) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';s.onload=__initSupabase;document.head.appendChild(s);" onload="__initSupabase()"></script>
+    <!-- Keep CDN fetches from blocking the initial HTML parse on slow cellular links. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="var s=document.createElement('script');s.src='https://unpkg.com/@supabase/supabase-js@2';s.onload=__initSupabase;document.head.appendChild(s);" onload="__initSupabase()"></script>
 
     <script>
         let currentUser = null;
@@ -2520,7 +2522,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="text-amber-300 mt-0.5">${formatMoney(job.reward || 0)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
                 </div>
-                ${job.description ? `<div class="text-xs"><p class="text-violet-200/60 text-[10px] mb-1">What to do</p><p class="text-violet-100/85 text-[18px] leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
+                ${job.description ? `<div class="text-sm"><p class="text-violet-200/70 text-xs font-semibold mb-1">What to do</p><p class="text-violet-100/90 text-[18px] leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
             `;
             const already = getLocalList('taskflex_applications').some(a => a.email === (currentUser && currentUser.email) && Number(a.job_id) === Number(job.id));
             const btn = document.getElementById('applyJobBtn');
@@ -2876,7 +2878,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 
         function proofFieldHtml(ri, ti, t) {
             const k = ri + '_' + ti;
-            const label = '<label class="block text-sm font-semibold text-violet-100 mb-1">' + esc(PROOF_TYPE_LABELS[t]) + ' <span class="text-rose-300">*</span></label>';
+            const label = '<label class="block text-base font-semibold text-violet-100 mb-1">' + esc(PROOF_TYPE_LABELS[t]) + ' <span class="text-rose-300">*</span></label>';
             let input;
             if (t === 'screenshot') {
                 input = '<input type="file" id="pf_' + k + '" accept="image/*" onchange="previewProofAnswer(this, \'' + k + '\')" class="field w-full rounded-2xl px-3 py-2.5 text-base">'
