@@ -1,5 +1,11 @@
 {
   "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/public/.well-known/assetlinks.json"
+    }
+  ],
   "headers": [
     {
       "source": "/app/(.*)\\.apk",
