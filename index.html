@@ -2280,11 +2280,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             const message = document.getElementById('appDownloadMessage');
             if (deferredTaskFlexInstallPrompt) {
                 installButton.classList.remove('hidden');
-                instructions.classList.remove('hidden');
+                if (instructions) instructions.classList.remove('hidden');
                 message.textContent = 'ইনস্টল বাটনে চাপুন, অথবা নিচের নির্দেশনা অনুসরণ করুন।';
             } else {
                 installButton.classList.add('hidden');
-                instructions.classList.remove('hidden');
+                if (instructions) instructions.classList.remove('hidden');
                 message.textContent = 'আপনার ব্রাউজার থেকে TaskFlex ইনস্টল বা হোম স্ক্রিনে যোগ করুন।';
             }
             openModal('appDownloadModal');
