@@ -1,1 +1,14 @@
-[{"relation":["android_app"],"target":{"namespace":"android_app","package_name":"bd.taskflex.app","sha256_cert_fingerprints":["CE:85:7C:4A:C4:D8:64:48:ED:1E:32:0D:D0:D9:A8:83:0D:D3:7F:39:EA:51:44:C0:64:94:05:74:EB:4E:BA:37"]}}]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "bd.taskflex.app",
+      "sha256_cert_fingerprints": [
+        "CE:85:7C:4A:C4:D8:64:48:ED:1E:32:0D:D0:D9:A8:83:0D:D3:7F:39:EA:51:44:C0:64:94:05:74:EB:4E:BA:37"
+      ]
+    }
+  }
+]
