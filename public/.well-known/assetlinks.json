@@ -1,6 +1,7 @@
 [
   {
     "relation": [
+      "android_app",
       "delegate_permission/common.handle_all_urls"
     ],
     "target": {
