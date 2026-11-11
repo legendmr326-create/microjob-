@@ -2268,7 +2268,31 @@ Check your Browserslist config to be sure that your targets are set up correctly
             const app = cur[0];
             const prevStatus = app.status;
             if (appStatusNorm(prevStatus) !== 'Pending') { niceAlert('This application is already ' + appStatusNorm(prevStatus) + '.'); await refreshAfterReview(); return; }
-            // claim the row: only an update that still sees the old status succeeds
+            // Preferred path: one SECURITY DEFINER RPC does status change + worker
+            // credit atomically inside Postgres. The caller is verified as the job
+            // owner (auth.jwt email = micro_jobs.client_email) against a Pending
+            // row, then a single idempotent 'Job Payment' deposit is credited to
+            // the worker (dedupe on trx JOB-<job_id>). No broad deposits INSERT is
+            // granted to clients, approval can never roll back from a failed
+            // client-side credit insert, and reject is just the status update.
+            try {
+                const { data: rpcData, error: rpcErr } = await supabaseClient.rpc('review_job_application', { p_application_id: Number(appId), p_new_status: newStatus });
+                if (!rpcErr && rpcData) {
+                    const st = (rpcData && rpcData.status) || null;
+                    if (st === 'Approved') {
+                        niceAlert(rpcData.credited === false ? 'Approved! Payment will credit when the worker opens History.' : 'Approved! Worker has been credited.');
+                    } else if (st === 'Rejected') {
+                        niceAlert('Rejected.');
+                    } else if (rpcData.already) {
+                        niceAlert('This application is already ' + rpcData.already + '.');
+                    }
+                    await refreshAfterReview();
+                    return;
+                }
+            } catch (_) {}
+            // Fallback when the RPC is not deployed yet: status change only.
+            // Credit is claimed by the worker themselves on History. Employer
+            // must never insert into another user's deposits (RLS owner-only).
             let claimQ = supabaseClient.from('job_applications').update({ status: newStatus }).eq('id', appId);
             claimQ = prevStatus == null ? claimQ.is('status', null) : claimQ.eq('status', prevStatus);
             const { data: claimed, error: claimErr } = await claimQ.select('id');
@@ -2276,11 +2300,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (!claimed || !claimed.length) { niceAlert('This application was already changed. Refreshing.'); await refreshAfterReview(); return; }
 
             if (newStatus === 'Approved') {
-                // The worker's pay credit is claimed by the worker themselves when they
-                // open History. The employer cannot insert into another user's deposits
-                // row: deposits RLS only allows user_email = own email, so crediting
-                // here always failed and its rollback undid every approval.
                 niceAlert('Approved! The worker will get paid when they open History.');
+            } else {
+                niceAlert('Rejected.');
             }
             await refreshAfterReview();
         }
