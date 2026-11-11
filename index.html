@@ -1999,7 +1999,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             safeLoad('KYC', loadMyKyc, () => { myKyc = null; try { renderKycCard(); } catch (_) {} });
         }
 
-        function switchTab(tabId) {
+        async function switchTab(tabId) {
             ALL_TABS.forEach(id => {
                 const tabElem = document.getElementById('tab-' + id);
                 if (tabElem) tabElem.classList.add('hidden');
@@ -2015,7 +2015,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             window.scrollTo(0, 0);
             if (tabId === 'notifications') loadNotifications();
             if (tabId === 'applications') renderMyApplications();
-            if (tabId === 'history') { renderEarningsSummary(); renderApprovedJobs(); }
+            if (tabId === 'history') { await claimApprovedJobCredit(); renderEarningsSummary(); renderApprovedJobs(); }
             if (tabId === 'newjob') loadMyPostedJobs();
             if (tabId === 'profile') { loadMyKyc(); renderPersonalDetails(); }
             if (tabId === 'deposit') renderDepositHistory();
@@ -2276,27 +2276,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (!claimed || !claimed.length) { niceAlert('This application was already changed. Refreshing.'); await refreshAfterReview(); return; }
 
             if (newStatus === 'Approved') {
-                const trx = 'JOB-' + app.job_id;
-                try {
-                    const { data: job, error: jobErr } = await supabaseClient.from('micro_jobs').select('id,reward').eq('id', app.job_id).limit(1);
-                    if (jobErr) throw jobErr;
-                    if (!job || !job.length) throw new Error('job not found');
-                    const amount = Math.round((parseFloat(job[0].reward) || 0) * 100) / 100;
-                    if (!(amount > 0)) throw new Error('job reward is not set');
-                    // never credit the same worker twice for the same job
-                    const { data: existing, error: exErr } = await supabaseClient.from('deposits').select('id').eq('user_email', app.user_email).eq('gateway', 'Job Payment').eq('trx', trx).limit(1);
-                    if (exErr) throw exErr;
-                    if (!existing || !existing.length) {
-                        const { error: credErr } = await insertSafe('deposits', { user_email: app.user_email, gateway: 'Job Payment', amount: amount, fee: 0, net_amount: amount, sender: 'job', trx: trx, status: 'Approved' });
-                        if (credErr) throw credErr;
-                    }
-                } catch (e) {
-                    // roll back so the worker is not left Approved without a credit
-                    await supabaseClient.from('job_applications').update({ status: prevStatus }).eq('id', appId);
-                    niceAlert('Could not credit the worker, approval cancelled: ' + (e && e.message ? e.message : e));
-                    await refreshAfterReview();
-                    return;
-                }
+                // The worker's pay credit is claimed by the worker themselves when they
+                // open History. The employer cannot insert into another user's deposits
+                // row: deposits RLS only allows user_email = own email, so crediting
+                // here always failed and its rollback undid every approval.
+                niceAlert('Approved! The worker will get paid when they open History.');
             }
             await refreshAfterReview();
         }
@@ -3168,6 +3152,43 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 </div>`;
             if (list) {
                 list.innerHTML = rows.length === 0 ? `<div class="text-center py-6 text-violet-200/60 text-xs">No transactions yet.</div>` : rows.map(rowHtml).join('');
+            }
+        }
+
+        // Worker claims their own pay: an approved job means the worker can see the
+        // job reward now, so the credit row is inserted with their own email, which
+        // deposits RLS allows. The employer-side insert used to fail RLS and roll
+        // back every approval. Dedupe on trx = JOB-<job_id> prevents doubles.
+        let claimingJobCredit = false;
+        async function claimApprovedJobCredit() {
+            if (!currentUser || !supabaseClient || claimingJobCredit) return;
+            claimingJobCredit = true;
+            try {
+                const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('id,job_id,status').eq('user_email', currentUser.email).eq('status', 'Approved');
+                if (appErr || !apps || !apps.length) return;
+                const ids = [...new Set(apps.map(a => a.job_id).filter(v => v !== null && v !== undefined))];
+                if (!ids.length) return;
+                const { data: jobs, error: jobErr } = await supabaseClient.from('micro_jobs').select('id,reward').in('id', ids);
+                if (jobErr || !jobs || !jobs.length) return;
+                const jobMap = {};
+                jobs.forEach(j => { jobMap[String(j.id)] = j; });
+                const trxs = ids.map(id => 'JOB-' + id);
+                const { data: existing } = await supabaseClient.from('deposits').select('trx').eq('user_email', currentUser.email).eq('gateway', 'Job Payment').in('trx', trxs);
+                const have = new Set((existing || []).map(d => d.trx));
+                let credited = false;
+                for (const id of ids) {
+                    const trx = 'JOB-' + id;
+                    if (have.has(trx)) continue;
+                    const amount = Math.round((parseFloat((jobMap[String(id)] || {}).reward) || 0) * 100) / 100;
+                    if (!(amount > 0)) continue;
+                    const { error: credErr } = await insertSafe('deposits', { user_email: currentUser.email, gateway: 'Job Payment', amount: amount, fee: 0, net_amount: amount, sender: 'job', trx: trx, status: 'Approved' });
+                    if (!credErr) credited = true;
+                }
+                if (credited) await loadUserData(true);
+            } catch (e) {
+                console.warn('job credit claim failed', e);
+            } finally {
+                claimingJobCredit = false;
             }
         }
 
