@@ -776,7 +776,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="verified-badge hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
-                    <p class="text-xs text-violet-200/70 truncate" id="profHeaderEmail">email@gmail.com</p>
+                    <p class="text-xs text-violet-200/70 truncate hidden" id="profHeaderEmail"></p>
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
             </div>
@@ -1959,7 +1959,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 renderAvatarPicker();
                 renderVerifiedTick();
                 safeSetText('profHeaderName', getDisplayName());
-                safeSetText('profHeaderEmail', currentUser.email || '');
+                // Task: hide email in this profile identity card only (account email stays elsewhere for login/KYC)
+                safeSetText('profHeaderEmail', '');
             } catch (e) { console.warn('Profile shell render failed:', e); }
 
             // Each data-backed panel is isolated. A rejected Supabase request must not abort
@@ -2629,6 +2630,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (kycStatusKey() === 'approved') { try { await payReferralBonusIfDue(); } catch (e) { console.warn('referral bonus', e); } }
             renderKycCard();
             renderPersonalDetails();
+            updateProfileNameUI();
             return myKyc;
         }
         // Auto ৳10 referral bonus: runs once, when the referred user's own KYC is Approved.
@@ -3521,6 +3523,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             setText('profHeaderName', displayName);
             setText('profileName', displayName);
             setText('profInitial', String(displayName || 'U').charAt(0).toUpperCase());
+            setText('profHeaderEmail', '');
             const editName = document.getElementById('profEditName');
             if (editName) editName.value = displayName;
         }
