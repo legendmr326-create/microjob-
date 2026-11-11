@@ -498,6 +498,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     </div>
                     </div>
 
+                    <div class="glass-card rounded-2xl p-4 flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-[10px] uppercase tracking-wider text-violet-200/60">Deposit Balance (Job Posting)</p>
+                            <h4 id="dashDepositBalance" class="text-xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h4>
+                            <p class="text-[10px] text-violet-200/60 mt-1">জব পোস্টের খরচ এখান থেকে কাটবে। Available Balance শুধু কাজের ইনকাম + রেফারাল বোনাস।</p>
+                        </div>
+                        <button type="button" onclick="switchTab('deposit')" class="balance-add-funds shrink-0 text-[10px] font-bold px-2.5 py-2 rounded-xl flex items-center gap-1 whitespace-nowrap"><i class="fa-solid fa-plus"></i> Add Funds</button>
+                    </div>
+
                     <div class="grid grid-cols-3 gap-2.5 text-center">
                         <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Pending</p><h4 id="statPending" class="text-lg money-amount text-amber-300 mt-0.5"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></h4></div>
                         <div class="glass-card rounded-2xl p-3"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Approved</p><h4 id="statApproved" class="text-lg font-black text-emerald-300 mt-0.5">0</h4></div>
@@ -553,7 +562,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="grid grid-cols-2 gap-3">
             <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Earned</p><h4 id="earnSummaryTotal" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
                 <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Completed Jobs</p><h4 id="earnSummaryCount" class="text-lg font-black text-violet-200 mt-1">0</h4></div>
-                <div class="glass-card rounded-2xl p-4 col-span-2"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Wallet Balance</p><h4 id="earnBalance" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
+                <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Deposit Balance</p><h4 id="earnDepositBalance" class="text-lg text-violet-100 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
+                <div class="glass-card rounded-2xl p-4 col-span-2"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Wallet Balance (Available)</p><h4 id="earnBalance" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
             </div>
             <div class="glass-card rounded-3xl p-5 space-y-1">
                 <div class="flex items-center justify-between pb-2">
@@ -1923,6 +1933,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             setMoney('clientBalance', depBalance);
             setMoney('depositBalance', depBalance);
             setMoney('jobDepositBalance', depBalance);
+            setMoney('dashDepositBalance', depBalance);
+            setMoney('earnDepositBalance', depBalance);
             const wdTot = document.getElementById('wdTotalBalance');
             if (wdTot) wdTot.innerHTML = formatMoney(totalBalance);
             renderWallet();
@@ -1966,7 +1978,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     try { if (fallback) fallback(); } catch (fallbackError) { console.warn(name + ' fallback failed:', fallbackError); }
                 }
             };
-            safeLoad('balance', fetchUserBalance, () => { currentBalance = 0; depositBalance = 0; setMoney('workerBalance', 0); setMoney('clientBalance', 0); setMoney('depositBalance', 0); setMoney('jobDepositBalance', 0); });
+            safeLoad('balance', fetchUserBalance, () => { currentBalance = 0; depositBalance = 0; setMoney('workerBalance', 0); setMoney('clientBalance', 0); setMoney('depositBalance', 0); setMoney('jobDepositBalance', 0); setMoney('dashDepositBalance', 0); });
             safeLoad('referral', loadReferralSection, () => {
                 const status = document.getElementById('referralStatus');
                 if (status) {
@@ -3194,6 +3206,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         async function renderEarningsSummary() {
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
             setMoney('earnBalance', currentBalance);
+            setMoney('earnDepositBalance', depositBalance);
             if (!currentUser || !supabaseClient) { setMoney('earnSummaryTotal', 0); set('earnSummaryCount', '0'); return; }
             const { data: apps, error: appErr } = await supabaseClient.from('job_applications').select('*').eq('user_email', currentUser.email);
             if (appErr) { setMoney('earnSummaryTotal', 0); set('earnSummaryCount', '0'); return; }
@@ -3308,6 +3321,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const set = (id, v) => { const el = document.getElementById(id); if (!el) return; if (id === 'statPending') el.innerHTML = formatMoney(v); else el.innerText = v; };
             renderRecentActivity();
             setMoney('earnBalance', currentBalance);
+            setMoney('earnDepositBalance', depositBalance);
             const mine = getLocalList('taskflex_applications').filter(a => currentUser && a.email === currentUser.email);
             set('earnApplied', String(mine.length));
             set('earnPendingDeposits', String(allDeposits.filter(d => d.status === 'Pending').length));
