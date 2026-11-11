@@ -522,7 +522,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-violet-400/25 blur-2xl"></div>
                 <div class="relative flex justify-between items-end gap-3">
                     <div>
-                        <p class="balance-label text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Available Balance</p>
+                        <p class="balance-label text-[11px] uppercase tracking-widest text-violet-200/80 font-semibold">Deposit Balance (Job Posting)</p>
                 <h3 id="clientBalance" class="text-3xl balance-value text-white mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
                     </div>
                     <div class="flex gap-1.5">
@@ -636,6 +636,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- TAB: DEPOSIT -->
         <div id="tab-deposit" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Deposit</h2>
+            <div class="relative overflow-hidden rounded-3xl p-5 balance-card">
+                <p class="balance-label uppercase tracking-widest">Deposit Balance (Job Posting)</p>
+                <h3 id="depositBalance" class="text-3xl balance-value mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
+                <p class="text-[11px] text-violet-200/70 mt-1">Approved deposits only. This fund is used for posting jobs. Your main Available Balance is separate: it is only job earnings + referral bonuses minus cash-outs.</p>
+            </div>
 
         <div id="depositSection" class="glass-card rounded-3xl p-5 space-y-4">
                 <div class="flex justify-between items-center pb-3 border-b border-white/10">
@@ -1088,6 +1093,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-3 text-[12px] text-violet-100 space-y-1">
                         <div>Net Amount: <span id="jobReward" class="font-bold text-white">৳ 0.00</span></div>
                         <div>Admin Fee (10.00%): <span id="jobFee" class="font-bold text-amber-300">৳ 0.00</span></div>
+                        <div>Deposit Balance: <span id="jobDepositBalance" class="font-bold text-emerald-300">৳ 0.00</span></div>
                         <div class="pt-1 border-t border-white/10 flex justify-between items-baseline">
                             <span class="font-bold text-white">Total Payable</span>
                             <span id="jobTotal" class="font-black text-lg text-amber-300">৳ 0.00</span>
@@ -1176,6 +1182,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         let jobCategory = 'all';
         let currentJobId = null;
         let currentBalance = 0;
+        let depositBalance = 0;
         let pendingSignup = null;
         let resendSignupAt = 0;
         let resendSignupTimer = null;
@@ -1879,36 +1886,43 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (error) { console.error(error); return; }
             allDeposits = deposits || [];
 
-            // Main balance comes ONLY from earned rewards (Approved job payments) and referral bonuses.
-            // Manual deposits (bKash/Nagad/Rocket/Upay) are recorded in the deposits table and shown
-            // in Deposit History, but they must NEVER be added to the main balance.
+            // Two separate pockets:
+            // 1) Earned / Available Balance = Approved Job Payment + Referral Bonus ONLY, minus withdrawals (non-Rejected).
+            //    Job posting costs are NEVER subtracted here, so it cannot go negative from posting.
+            // 2) Deposit Balance = Approved manual deposits (bKash/Nagad/Rocket/Upay) minus posted-job costs (non-Rejected micro_jobs).
+            //    This is the fund spent when posting jobs. Manual deposits never enter pocket 1.
             const CREDIT_GATEWAYS = ['job payment', 'referral bonus'];
-            let totalBalance = 0;
+            let earned = 0, approvedManual = 0;
             allDeposits.forEach(d => {
-                if (d.status === 'Approved' && CREDIT_GATEWAYS.includes(String(d.gateway || '').trim().toLowerCase())) {
-                    totalBalance += parseFloat(d.amount || 0);
-                }
+                if (String(d.status || '') !== 'Approved') return;
+                const gw = String(d.gateway || '').trim().toLowerCase();
+                const amt = parseFloat(d.amount || 0) || 0;
+                if (CREDIT_GATEWAYS.includes(gw)) earned += amt;
+                else approvedManual += amt;
             });
-            // deduct withdrawals (Pending or Paid count; Rejected returns money) and posted-job costs
+            let postedCosts = 0, wdPending = 0;
             try {
                 const [wdRes, jobRes] = await Promise.all([
                     supabaseClient.from('withdrawals').select('amount,status').eq('user_email', currentUser.email),
                     supabaseClient.from('micro_jobs').select('total_cost,status').eq('client_email', currentUser.email)
                 ]);
-                window.__wdPending = 0;
                 (wdRes.data || []).forEach(w => {
-                    if (String(w.status || 'Pending').toLowerCase() !== 'rejected') totalBalance -= parseFloat(w.amount || 0);
-                    if (/pending/i.test(w.status || 'Pending')) window.__wdPending += parseFloat(w.amount || 0);
+                    if (String(w.status || 'Pending').toLowerCase() !== 'rejected') earned -= parseFloat(w.amount || 0);
+                    if (/pending/i.test(w.status || 'Pending')) wdPending += parseFloat(w.amount || 0);
                 });
                 (jobRes.data || []).forEach(j => {
-                    if (String(j.status || '') !== 'Rejected') totalBalance -= parseFloat(j.total_cost || 0);
+                    if (String(j.status || '') !== 'Rejected') postedCosts += parseFloat(j.total_cost || 0);
                 });
-                window.__wdPending = 0;
-                (wdRes.data || []).forEach(w => { if (/pending/i.test(w.status || 'Pending')) window.__wdPending += parseFloat(w.amount || 0); });
             } catch (e) { console.warn('balance deduction fetch failed', e); }
+            window.__wdPending = wdPending;
+            let totalBalance = Math.max(0, earned);
+            let depBalance = Math.max(0, approvedManual - postedCosts);
             currentBalance = totalBalance;
+            depositBalance = depBalance;
             setMoney('workerBalance', totalBalance);
-            setMoney('clientBalance', totalBalance);
+            setMoney('clientBalance', depBalance);
+            setMoney('depositBalance', depBalance);
+            setMoney('jobDepositBalance', depBalance);
             const wdTot = document.getElementById('wdTotalBalance');
             if (wdTot) wdTot.innerHTML = formatMoney(totalBalance);
             renderWallet();
@@ -1952,7 +1966,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     try { if (fallback) fallback(); } catch (fallbackError) { console.warn(name + ' fallback failed:', fallbackError); }
                 }
             };
-            safeLoad('balance', fetchUserBalance, () => { currentBalance = 0; setMoney('workerBalance', 0); setMoney('clientBalance', 0); });
+            safeLoad('balance', fetchUserBalance, () => { currentBalance = 0; depositBalance = 0; setMoney('workerBalance', 0); setMoney('clientBalance', 0); setMoney('depositBalance', 0); setMoney('jobDepositBalance', 0); });
             safeLoad('referral', loadReferralSection, () => {
                 const status = document.getElementById('referralStatus');
                 if (status) {
@@ -3156,7 +3170,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (rows.length === 0) { el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">No deposits yet.</div>`; return; }
             el.innerHTML = rows.map(d => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
-                    <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}</p></div>
+                    <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}${['job payment','referral bonus'].includes(String(d.gateway||'').trim().toLowerCase()) ? ' • Earned (main balance)' : ' • Deposit fund'}</p></div>
                     <div class="text-right"><span class="text-white">${formatMoney(d.amount || 0)}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(d.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(d.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(d.status || 'Pending')}</p></div>
                 </div>`).join('');
         }
@@ -3589,7 +3603,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (budget < JOB_MIN_TOTAL_BUDGET) { niceAlert('Minimum total job cost is ৳' + JOB_MIN_TOTAL_BUDGET + ' (reward x workers).'); return; }
             const jobFee = Math.round(budget * 10) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
-            if (jobTotal > currentBalance) { niceAlert('Insufficient balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee)'); return; }
+            if (jobTotal > depositBalance) { niceAlert('Insufficient deposit balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee). Deposit Balance: ৳' + depositBalance.toFixed(2) + '. Please add funds in Deposit tab.'); return; }
             const description = (document.getElementById('newJobDescription').value || '').trim();
             jobPublishInFlight = true;
             if (publishButton) {
