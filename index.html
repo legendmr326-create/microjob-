@@ -1948,17 +1948,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (shell) shell.classList.remove('hidden');
             const safeSetText = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
             const safeSetSrc = (id, value) => { const el = document.getElementById(id); if (el) el.src = value; };
-            safeSetText('profileName', currentUser.email || currentUser.name || 'User');
+            safeSetText('profileName', getDisplayName());
             safeSetText('profilePhone', currentUser.phone || currentUser.email || '');
             try {
                 const avatarUrl = getAvatarUrl();
                 safeSetSrc('headerUserAvatar', avatarUrl);
                 safeSetSrc('modalUserAvatar', avatarUrl);
-                safeSetText('profInitial', String(currentUser.name || 'U').charAt(0).toUpperCase());
+                safeSetText('profInitial', String(getDisplayName() || 'U').charAt(0).toUpperCase());
                 renderProfileAvatar();
                 renderAvatarPicker();
                 renderVerifiedTick();
-                safeSetText('profHeaderName', currentUser.name || 'User');
+                safeSetText('profHeaderName', getDisplayName());
                 safeSetText('profHeaderEmail', currentUser.email || '');
             } catch (e) { console.warn('Profile shell render failed:', e); }
 
@@ -3505,6 +3505,25 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function personalLocalKey() {
             return 'personal_details_' + String((currentUser && currentUser.email) || 'guest').toLowerCase();
         }
+        function getDisplayName() {
+            // Once Personal Details are saved, the profile header/account name shows the saved Full Name.
+            // The login username (currentUser.name) is kept only as a fallback.
+            try {
+                const fullName = getPersonalDetails().fullName;
+                if (fullName && String(fullName).trim()) return String(fullName).trim();
+            } catch (e) {}
+            return (currentUser && currentUser.name) || 'User';
+        }
+        function updateProfileNameUI() {
+            if (!currentUser) return;
+            const displayName = getDisplayName();
+            const setText = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+            setText('profHeaderName', displayName);
+            setText('profileName', displayName);
+            setText('profInitial', String(displayName || 'U').charAt(0).toUpperCase());
+            const editName = document.getElementById('profEditName');
+            if (editName) editName.value = displayName;
+        }
         function getPersonalDetails() {
             // Prefer the KYC row when present, otherwise the local copy.
             if (myKyc && myKyc.personal_details_json) {
@@ -3560,6 +3579,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             }
             btn.disabled = false; btn.textContent = 'Save';
             renderPersonalDetails();
+            updateProfileNameUI();
             togglePersonalEdit(false);
             if (savedTo === 'local' && myKyc) niceAlert('Saved on this device. Server save will work once the personal_details_json column is added to kyc_verifications.');
             else niceAlert('Personal details saved!');
