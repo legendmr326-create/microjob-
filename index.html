@@ -1879,9 +1879,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (error) { console.error(error); return; }
             allDeposits = deposits || [];
 
+            // Main balance comes ONLY from earned rewards (Approved job payments) and referral bonuses.
+            // Manual deposits (bKash/Nagad/Rocket/Upay) are recorded in the deposits table and shown
+            // in Deposit History, but they must NEVER be added to the main balance.
+            const CREDIT_GATEWAYS = ['job payment', 'referral bonus'];
             let totalBalance = 0;
             allDeposits.forEach(d => {
-                if (d.status === 'Approved') totalBalance += parseFloat(d.amount || 0);
+                if (d.status === 'Approved' && CREDIT_GATEWAYS.includes(String(d.gateway || '').trim().toLowerCase())) {
+                    totalBalance += parseFloat(d.amount || 0);
+                }
             });
             // deduct withdrawals (Pending or Paid count; Rejected returns money) and posted-job costs
             try {
