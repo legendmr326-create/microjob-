@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taskflex-shell-v12';
+const CACHE_NAME = 'taskflex-shell-v13';
 const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
 const NAVIGATION_TIMEOUT_MS = 8000;
 const PRECACHE_TIMEOUT_MS = 12000;
