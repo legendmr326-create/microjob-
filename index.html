@@ -649,7 +649,6 @@ Check your Browserslist config to be sure that your targets are set up correctly
             <div class="relative overflow-hidden rounded-3xl p-5 balance-card">
                 <p class="balance-label uppercase tracking-widest">Deposit Balance (Job Posting)</p>
                 <h3 id="depositBalance" class="text-3xl balance-value mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
-                <p class="text-[11px] text-violet-200/70 mt-1">Approved deposits only. This fund is used for posting jobs. Your main Available Balance is separate: it is only job earnings + referral bonuses minus cash-outs.</p>
             </div>
 
         <div id="depositSection" class="glass-card rounded-3xl p-5 space-y-4">
@@ -3179,10 +3178,13 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 const { data } = await supabaseClient.from('deposits').select('amount,gateway,status,created_at').eq('user_email', currentUser.email).order('id', { ascending: false }).limit(30);
                 rows = data || [];
             }
+            // Display-only: Deposit History shows real deposit fund entries only.
+            // Earned-balance credits (Job Payment / Referral Bonus) stay in DB/accounting, just not here.
+            rows = rows.filter(d => !['job payment', 'referral bonus'].includes(String(d.gateway || '').trim().toLowerCase()));
             if (rows.length === 0) { el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">No deposits yet.</div>`; return; }
             el.innerHTML = rows.map(d => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
-                    <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}${['job payment','referral bonus'].includes(String(d.gateway||'').trim().toLowerCase()) ? ' • Earned (main balance)' : ' • Deposit fund'}</p></div>
+                    <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}${' • Deposit fund'}</p></div>
                     <div class="text-right"><span class="text-white">${formatMoney(d.amount || 0)}</span><p class="text-[10px] font-bold ${/^approved$/i.test(String(d.status||'')) ? 'text-emerald-300' : /^rejected$/i.test(String(d.status||'')) ? 'text-rose-300' : 'text-white'}">${esc(d.status || 'Pending')}</p></div>
                 </div>`).join('');
         }
