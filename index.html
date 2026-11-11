@@ -3352,7 +3352,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (!amount || amount <= 0 || !number) { niceAlert('Please enter amount and number!'); return; }
             if (!validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')) return;
             if (amount > currentBalance) { niceAlert('You cannot withdraw more than your balance.'); return; }
-            const wFee = Math.round(amount * 10) / 100;
+            const wFee = Math.round(amount * 7) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
 
             let savedOnServer = false;
@@ -3365,7 +3365,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                 list.push({ email: currentUser.email, amount: amount, fee: wFee, net_amount: wNet, method: method, account: number, status: 'Pending (this device)' });
                 setLocalList('taskflex_withdrawals', list);
             }
-            niceAlert((savedOnServer ? 'Withdraw request sent!' : 'Request saved on this device. Not sent to server.') + '\nTotal: ৳' + amount.toFixed(2) + ' | Fee (5%): ৳' + wFee.toFixed(2) + ' | You receive: ৳' + wNet.toFixed(2));
+            niceAlert((savedOnServer ? 'Withdraw request sent!' : 'Request saved on this device. Not sent to server.') + '\nTotal: ৳' + amount.toFixed(2) + ' | Fee (7%): ৳' + wFee.toFixed(2) + ' | You receive: ৳' + wNet.toFixed(2));
             document.getElementById('withdrawAmount').value = '';
             document.getElementById('withdrawNumber').value = '';
             renderWallet();
@@ -3749,7 +3749,13 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             if (thumbFile) {
                 try {
                     const path = 'thumbnails/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ((thumbFile.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg');
-                    const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
+                    let up;
+                    try { up = await supabaseClient.storage.from('job-thumbs').upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type }); }
+                    catch (e) { up = { error: e }; }
+                    if (up.error) {
+                        // Fallback: legacy bucket if job-thumbs is not created yet
+                        up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
+                    }
                     if (up.error) throw up.error;
                     const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
                     thumbnailUrl = (pub && pub.data && pub.data.publicUrl) || null;
