@@ -4224,5 +4224,29 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 
 
 </script>
+<style id="tf-identity">
+/* TaskFlex identity: teal-violet accent, left rail nav on wide screens, accent-edged cards */
+:root{--tf-a:#14B8A6;--tf-b:#8B5CF6}
+.glass-card{position:relative;overflow:hidden}
+.glass-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--tf-a),var(--tf-b));opacity:.85;pointer-events:none}
+header#appHeader{border-bottom:2px solid transparent!important;border-image:linear-gradient(90deg,var(--tf-a),var(--tf-b),#F59E0B) 1!important}
+.nav-btn{position:relative}
+.nav-btn.text-amber-300{background:linear-gradient(180deg,rgba(20,184,166,.18),rgba(139,92,246,.14))}
+.nav-btn.text-amber-300::after{content:"";position:absolute;top:-2px;left:28%;right:28%;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--tf-a),var(--tf-b))}
+html[data-theme-effective="light"] .nav-btn.text-amber-300{color:#0F766E!important;background:rgba(20,184,166,.14)}
+html[data-theme-effective="light"] .glass-card::before{opacity:.7}
+@media (min-width:1024px){
+  body>div.w-full.max-w-md{max-width:780px!important;margin-left:260px;padding-bottom:2rem!important}
+  body{justify-content:center}
+  body>div.w-full.max-w-md>nav.nav-glass{position:fixed!important;left:0!important;top:0!important;bottom:0!important;transform:none!important;width:240px!important;max-width:240px!important;height:100vh;display:flex!important;flex-direction:column;justify-content:flex-start;gap:6px;padding:92px 14px 14px!important;border-top:0!important;border-right:1px solid rgba(196,181,253,.16);box-shadow:8px 0 30px -18px rgba(0,0,0,.5)!important}
+  body>div.w-full.max-w-md>nav.nav-glass::before{content:"TaskFlex";position:absolute;top:26px;left:20px;font-weight:900;font-size:22px;letter-spacing:-.02em;background:linear-gradient(90deg,var(--tf-a),var(--tf-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn{flex-direction:row!important;justify-content:flex-start;gap:12px;padding:12px 14px!important;border-radius:14px;text-align:left}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn i{margin:0!important;width:20px;text-align:center}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn span{font-size:13px!important}
+  .nav-btn.text-amber-300::after{top:20%;bottom:20%;left:-14px;right:auto;width:4px;height:auto}
+  .nav-btn:hover{background:rgba(139,92,246,.1)}
+  header#appHeader .flex.items-center.gap-2\.5 span{background:linear-gradient(90deg,var(--tf-a),var(--tf-b));-webkit-background-clip:text;background-clip:text;color:transparent!important}
+}
+</style>
 </body>
 </html>
