@@ -745,7 +745,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
                 <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
                 <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
-                <select id="withdrawMethod" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                <div id="withdrawMethodPicker" class="grid grid-cols-4 gap-2" role="radiogroup" aria-label="Withdraw method">
+                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">bKash</span></button><button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Nagad</span></button><button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Rocket</span></button><button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Upay</span></button>
+                </div>
+                <script>
+                function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');b.style.borderColor=on?'#fcd34d':'';b.style.boxShadow=on?'0 0 0 2px rgba(252,211,77,.6)':'';});}
+                document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
+                </script>
+                <select id="withdrawMethod" class="hidden field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     <option value="bKash">bKash</option>
                     <option value="Nagad">Nagad</option>
                     <option value="Rocket">Rocket</option>
