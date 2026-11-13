@@ -4,7 +4,7 @@
     <meta name="google-site-verification" content="rWSyhcnN_up8vsSX8Yl4F-d1xNYT7MDSSbkGfjzJgQk" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#100A22">
+    <meta name="theme-color" content="#0B0F17">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,16 +118,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
+                        sans: ['"Plus Jakarta Sans"', 'Hind Siliguri', 'sans-serif'],
                     },
                     colors: {
-                        bgDark: '#100A22',
-                        cardDark: '#1A1233',
-                        cardBorder: '#2E2358',
-                        brandGreen: '#F5B942',
+                        bgDark: '#0B0F17',
+                        cardDark: '#131926',
+                        cardBorder: '#1F2937',
+                        brandGreen: '#10B981',
                         // Remap the old green/indigo accents to the new amber + violet palette
+                        violet: {50:'#F1F5F9',100:'#E2E8F0',200:'#CBD5E1',300:'#94A3B8',400:'#94A3B8',500:'#64748B',600:'#475569',700:'#334155',800:'#1F2937',900:'#131926'},
+                        amber: {50:'#ECFDF5',100:'#D1FAE5',200:'#6EE7B7',300:'#34D399',400:'#10B981',500:'#10B981',600:'#059669'},
                         emerald: {
-                            300: '#FCD97A', 400: '#FBBF4A', 500: '#F5B942', 600: '#E0A22E', 950: '#2A1A00'
+                            300: '#6EE7B7', 400: '#34D399', 500: '#10B981', 600: '#059669', 950: '#052E1F'
                         },
                         indigo: {
                             300: '#C4B5FD', 400: '#A78BFA', 500: '#8B5CF6', 600: '#7C3AED', 900: '#2E1065'
@@ -140,15 +142,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
     <!-- Load optional external styles without blocking first paint on slow cellular links. -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     <style>
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Plus Jakarta Sans','Hind Siliguri', sans-serif;
             color: #F5F3FF;
             background: radial-gradient(1200px 600px at 10% -10%, #4C1D95 0%, transparent 60%),
                         radial-gradient(900px 500px at 110% 10%, #7C2D12 0%, transparent 55%),
-                        #100A22;
+                        #0B0F17;
             background-attachment: fixed;
             -webkit-tap-highlight-color: transparent;
         }
@@ -161,23 +163,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
             box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
         .hero-title {
-            background: linear-gradient(90deg, #FDE68A 0%, #F5B942 45%, #C4B5FD 100%);
+            background: linear-gradient(90deg, #FDE68A 0%, #10B981 45%, #C4B5FD 100%);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
         .logo-orb {
-            background: conic-gradient(from 200deg, #F5B942, #8B5CF6, #F5B942);
+            background: conic-gradient(from 200deg, #10B981, #8B5CF6, #10B981);
             box-shadow: 0 0 28px rgba(245, 185, 66, 0.35);
         }
         /* Logged-out landing top row */
-        #authOverlay { background: #100A22; }
+        #authOverlay { background: #0B0F17; }
         #authOverlay.auth-login-centered { justify-content: center; }
         #authOverlay.auth-login-centered #loginCard { margin-block: auto; }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
         #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
-        #landingHero .landing-menu-button { background: #1A1233; border: 1px solid rgba(196,181,253,.38); color: #F5F3FF; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
+        #landingHero .landing-menu-button { background: #131926; border: 1px solid rgba(196,181,253,.38); color: #F5F3FF; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
         #landingHero .landing-menu-button i { display: block; font-size: 1rem; line-height: 1; }
         /* Landing hero, tuned to the supplied mobile reference */
         body:has(#landingHero) { background: #0b1230; }
@@ -207,7 +209,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             color: #F5F3FF;
             outline: none;
         }
-        .field:focus { border-color: #F5B942; box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.18); }
+        .field:focus { border-color: #10B981; box-shadow: 0 0 0 3px rgba(245, 185, 66, 0.18); }
         .field::placeholder { color: #8B7FB0; }
         .kyc-capture-card { background: rgba(16, 10, 34, .55); border: 1px solid rgba(196,181,253,.2); color: #F5F3FF; transition: border-color .2s, background .2s, transform .2s; }
         .kyc-capture-card:hover { border-color: rgba(245,185,66,.65); }
@@ -259,10 +261,58 @@ Check your Browserslist config to be sure that your targets are set up correctly
         html[data-theme-effective="light"] #tab-refer input, body.theme-light #tab-refer input { color: #282237 !important; background-color: #FFFFFF !important; border-color: #CFC8DB !important; }
         html[data-theme-effective="light"] #tab-refer .btn-amber, body.theme-light #tab-refer .btn-amber { color: #2A1A00 !important; }
         .btn-amber:hover { filter: brightness(1.06); }
-        .withdraw-submit-btn { background: #FFFFFF; color: #4B258F; border: 1px solid rgba(255,255,255,.9); box-shadow: 0 4px 12px rgba(25,12,52,.24); transition: background-color .15s ease, transform .15s ease; }
+        .dep-compact { background: linear-gradient(135deg, rgba(139,92,246,.28), rgba(16,10,34,.85) 75%); border: 1px solid rgba(245,185,66,.28); }
+        .dep-compact-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1a1030; background: linear-gradient(135deg,#fcd34d,#f5b942); }
+        html[data-theme-effective="light"] .dep-compact, body.theme-light .dep-compact { background: linear-gradient(135deg,#EAE3F8,#F5F3FA 75%); border-color: rgba(168,120,20,.3); }
+        /* compact layout: withdraw + deposit */
+        #tab-withdraw, #tab-deposit { max-width: 560px; }
+        #tab-withdraw .wd-hero { padding: 12px 16px; border-radius: 18px; }
+        #tab-withdraw .wd-hero h4 { font-size: 1.5rem; margin-top: 2px; }
+        #tab-withdraw .wd-hero-icon { width: 36px; height: 36px; border-radius: 12px; font-size: 15px; }
+        #tab-withdraw .wd-card, #tab-deposit #depositSection { padding: 14px; border-radius: 20px; gap: 0; }
+        #tab-withdraw .wd-card > * + *, #tab-deposit #depositSection > * + * { margin-top: 10px !important; }
+        #tab-withdraw .wd-card .wd-step { width: 18px; height: 18px; font-size: 10px; }
+        #tab-withdraw .wd-card h3 { font-size: 12px; }
+        #tab-withdraw .wd-card input, #tab-deposit #depositSection input.field { padding-top: 8px; padding-bottom: 8px; }
+        #tab-withdraw .wd-card p, #tab-deposit #depositSection p { margin-top: 4px !important; }
+        #withdrawMethodPicker { gap: 6px; }
+        #withdrawMethodPicker .wm-btn { padding: 6px 2px; gap: 3px; border-radius: 14px; }
+        #withdrawMethodPicker .wm-btn img { width: 28px; height: 28px; border-radius: 9px; }
+        #withdrawMethodPicker .wm-btn span { font-size: 10px; }
+        #tab-withdraw .wd-summary { padding: 10px 12px; font-size: 11px; }
+        #tab-withdraw .wd-summary > * + * { margin-top: 4px; }
+        #tab-withdraw .withdraw-submit-btn, #tab-deposit #depositSection .btn-amber { padding-top: 10px; padding-bottom: 10px; }
+        #tab-deposit .dep-compact { padding: 8px 14px; }
+        #tab-deposit #depositSection > div:first-child { padding-bottom: 8px; }
+        #tab-deposit #depositSection .space-y-2\.5 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px !important; }
+        #tab-deposit #depositSection .space-y-2\.5 > * { margin: 0 !important; }
+        #tab-deposit .gateway-item { padding: 8px 10px; border-radius: 14px; flex-direction: column; align-items: flex-start !important; gap: 6px; }
+        #tab-deposit .gateway-item img { width: 30px; height: 30px; border-radius: 9px; }
+        #tab-deposit .gateway-item h4 { font-size: 12px; }
+        #tab-deposit .gateway-item p { font-size: 9.5px; margin-top: 0 !important; }
+        #tab-deposit .gateway-item > span { display: none; }
+        #tab-deposit #depositFormContainer { padding: 12px; gap: 0; }
+        #tab-deposit #depositFormContainer > * + * { margin-top: 8px !important; }
+        #tab-deposit #depositFeeBox { padding: 6px 10px; display: flex; justify-content: space-between; gap: 8px; }
+        #tab-withdraw > .glass-card:last-child, #tab-deposit > .glass-card:last-child { padding: 12px 14px; border-radius: 20px; }
+        @media (max-width: 380px) { #tab-deposit #depositSection .space-y-2\.5 { grid-template-columns: 1fr; } }
+        .wd-hero { background: linear-gradient(135deg, rgba(139,92,246,.35), rgba(16,10,34,.85) 70%); border: 1px solid rgba(245,185,66,.28); box-shadow: 0 14px 34px -16px rgba(0,0,0,.55); }
+        .wd-hero-glow { position: absolute; right: -40px; top: -50px; width: 160px; height: 160px; border-radius: 9999px; background: radial-gradient(circle, rgba(245,185,66,.28), transparent 70%); }
+        .wd-hero-icon { width: 46px; height: 46px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #1a1030; background: linear-gradient(135deg,#fcd34d,#f5b942); box-shadow: 0 6px 16px -6px rgba(245,185,66,.7); }
+        .wd-step { width: 22px; height: 22px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #1a1030; background: #fcd34d; }
+        .wd-all { background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.4); color: #fcd34d; }
+        .wd-all:hover { background: rgba(245,185,66,.2); }
+        .wm-btn { cursor: pointer; }
+        .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.1) !important; }
+        .wd-summary { background: rgba(16,10,34,.6); border: 1px dashed rgba(245,185,66,.35); }
+        .wd-divider { border-top: 1px dashed rgba(196,181,253,.25); }
+        html[data-theme-effective="light"] .wd-hero, body.theme-light .wd-hero { background: linear-gradient(135deg,#EAE3F8,#F5F3FA 70%); border-color: rgba(168,120,20,.3); }
+        html[data-theme-effective="light"] .wd-summary, body.theme-light .wd-summary { background: #fff; border-color: rgba(168,120,20,.35); color: #282237; }
+        html[data-theme-effective="light"] .wd-all, body.theme-light .wd-all { color: #8a5a00; background: rgba(245,185,66,.18); }
+        .withdraw-submit-btn { background: #FFFFFF; color: #0F5C63; border: 1px solid rgba(255,255,255,.9); box-shadow: 0 4px 12px rgba(25,12,52,.24); transition: background-color .15s ease, transform .15s ease; }
         .withdraw-submit-btn:hover { background: #F2EDFA; }
         .withdraw-submit-btn:active { transform: translateY(1px); }
-        html[data-theme-effective="light"] .withdraw-submit-btn, body.theme-light .withdraw-submit-btn { background: #FFFFFF !important; color: #4B258F !important; border-color: rgba(255,255,255,.9) !important; }
+        html[data-theme-effective="light"] .withdraw-submit-btn, body.theme-light .withdraw-submit-btn { background: #FFFFFF !important; color: #0F5C63 !important; border-color: rgba(255,255,255,.9) !important; }
         .btn-violet {
             background: linear-gradient(90deg, #8B5CF6, #6D28D9);
             color: #fff;
@@ -285,14 +335,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .money-amount { display: inline-flex; align-items: baseline; gap: .08em; white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; font-weight: 600; letter-spacing: -.035em; }
         .money-symbol { font-size: .58em; font-weight: 500; opacity: .82; letter-spacing: 0; }
         .money-decimal { font-size: .72em; font-weight: 500; opacity: .86; letter-spacing: -.01em; }
-        .balance-card { background: #4B258F !important; border: 1px solid rgba(255,255,255,.16) !important; border-radius: 1.5rem; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+        .balance-card { background: #0F5C63 !important; border: 1px solid rgba(255,255,255,.16) !important; border-radius: 1.5rem; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
         .balance-card .balance-label { color: #FFFFFF !important; font-size: .875rem !important; font-weight: 800 !important; letter-spacing: .08em; }
         .balance-value { color: #FFFFFF !important; font-variant-numeric: tabular-nums lining-nums; font-weight: 700 !important; letter-spacing: -.045em; text-shadow: none !important; }
-        .balance-card .balance-add-funds { flex: 0 0 auto; background: #FFFFFF !important; color: #4B258F !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
+        .balance-card .balance-add-funds { flex: 0 0 auto; background: #FFFFFF !important; color: #0F5C63 !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
         .balance-card .balance-add-funds:hover { background: #F2EDFA !important; }
         /* Cash Out must look identical in both themes: white pill, dark purple text/icon. */
-        .balance-card .balance-cash-out { background: #FFFFFF !important; background-image: none !important; color: #3B1470 !important; border: 1px solid rgba(255,255,255,.9) !important; opacity: 1 !important; filter: none !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
-        .balance-card .balance-cash-out i, .balance-card .balance-cash-out * { color: #3B1470 !important; opacity: 1 !important; }
+        .balance-card .balance-cash-out { background: #FFFFFF !important; background-image: none !important; color: #0B3F45 !important; border: 1px solid rgba(255,255,255,.9) !important; opacity: 1 !important; filter: none !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
+        .balance-card .balance-cash-out i, .balance-card .balance-cash-out * { color: #0B3F45 !important; opacity: 1 !important; }
         .balance-card .balance-cash-out:hover { background: #F2EDFA !important; }
         .balance-value .money-symbol { font-size: .53em; vertical-align: .12em; }
         .balance-value .money-decimal { font-size: .66em; }
@@ -307,10 +357,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authMenu .auth-menu-brand { display: inline-flex; align-items: center; min-height: 48px; }
         .auth-menu-items { display: grid; gap: 8px; width: 100%; }
         .auth-menu-item { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 13px 16px; border: 1px solid rgba(76, 43, 132, .14); border-radius: 16px; background: rgba(255,255,255,.68); color: #211A32; font-size: 20px; font-weight: 750; line-height: 1.25; text-align: left; text-decoration: none; touch-action: manipulation; transition: background-color .16s ease, color .16s ease, border-color .16s ease, transform .12s ease; }
-        .auth-menu-item:hover, .auth-menu-item:focus-visible { background: #F5F1FF; color: #4B258F; border-color: rgba(124, 58, 237, .38); outline: none; }
+        .auth-menu-item:hover, .auth-menu-item:focus-visible { background: #F5F1FF; color: #0F5C63; border-color: rgba(124, 58, 237, .38); outline: none; }
         .auth-menu-item:active { background: #E9DFFF; transform: scale(.99); }
         .auth-menu-brand { color: #211A32; border: 0; background: transparent; padding: 0; cursor: pointer; }
-        .auth-menu-close { color: #4B258F; border-radius: 12px; }
+        .auth-menu-close { color: #0F5C63; border-radius: 12px; }
         .auth-menu-close:hover, .auth-menu-close:focus-visible { background: rgba(124, 58, 237, .12); outline: 2px solid rgba(124, 58, 237, .3); }
     </style>
     <style>
@@ -472,7 +522,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </button>
                 <button onclick="openModal('accountModal')" class="relative w-13 h-13 rounded-full logo-orb p-[2px] shrink-0" style="width:3.25rem;height:3.25rem">
                     <img id="headerUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" alt="Avatar" class="w-full h-full aspect-square rounded-full object-cover bg-cardDark">
-                    <span id="headerVerifiedTick" title="Verified" class="verified-icon hidden absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-400 text-bgDark text-[8px] items-center justify-center border border-bgDark"><i class="fa-solid fa-check"></i></span>
+                    <span id="headerVerifiedTick" title="Verified" class="verified-icon hidden absolute -bottom-1 -right-1 w-4 h-4"><svg viewBox="0 0 100 100" class="w-full h-full" aria-hidden="true"><polygon points="50.0,0.0 58.4,7.8 69.1,3.8 73.9,14.2 85.4,14.6 85.8,26.1 96.2,30.9 92.2,41.6 100.0,50.0 92.2,58.4 96.2,69.1 85.8,73.9 85.4,85.4 73.9,85.8 69.1,96.2 58.4,92.2 50.0,100.0 41.6,92.2 30.9,96.2 26.1,85.8 14.6,85.4 14.2,73.9 3.8,69.1 7.8,58.4 0.0,50.0 7.8,41.6 3.8,30.9 14.2,26.1 14.6,14.6 26.1,14.2 30.9,3.8 41.6,7.8" fill="#1D9BF0" stroke="#1D9BF0" stroke-width="6" stroke-linejoin="round"/><path d="M28 52 L44 67 L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                 </button>
             </div>
         </header>
@@ -645,9 +695,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- TAB: DEPOSIT -->
         <div id="tab-deposit" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Deposit</h2>
-            <div class="relative overflow-hidden rounded-3xl p-5 balance-card">
-                <p class="balance-label uppercase tracking-widest">Deposit Balance (Job Posting)</p>
-                <h3 id="depositBalance" class="text-3xl balance-value mt-1"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
+            <div class="dep-compact rounded-2xl px-4 py-2.5 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0"><span class="dep-compact-icon shrink-0"><i class="fa-solid fa-briefcase"></i></span><p class="text-[10px] font-bold uppercase tracking-wider text-violet-200/75 leading-tight">Deposit Balance <span class="text-amber-300">(Job Posting)</span></p></div>
+                <h3 id="depositBalance" class="text-lg font-black text-amber-300 whitespace-nowrap"><span class="money-symbol">৳</span>0<span class="money-decimal">.00</span></h3>
             </div>
 
         <div id="depositSection" class="glass-card rounded-3xl p-5 space-y-4">
@@ -736,17 +786,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- TAB: WITHDRAW -->
         <div id="tab-withdraw" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Withdraw</h2>
-            <div class="glass-card rounded-2xl p-4"><p class="text-[10px] uppercase tracking-wider text-violet-200/60">Total Balance</p><h4 id="wdTotalBalance" class="text-lg text-amber-300 mt-1"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div>
-            <div id="withdrawSection" class="glass-card rounded-3xl p-5 space-y-3">
-                <h3 class="text-base font-bold text-white">Withdraw Request</h3>
+            <div class="wd-hero rounded-3xl p-5 relative overflow-hidden"><div class="wd-hero-glow"></div><div class="relative flex items-center justify-between gap-3"><div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-200/70">Available to withdraw</p><h4 id="wdTotalBalance" class="text-3xl font-black text-amber-300 mt-1.5"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div><div class="wd-hero-icon shrink-0"><i class="fa-solid fa-wallet"></i></div></div></div>
+            <div id="withdrawSection" class="glass-card wd-card rounded-3xl p-5 space-y-4">
+                <div class="flex items-center gap-2.5"><span class="wd-step">1</span><h3 class="text-sm font-bold text-white">Amount</h3></div>
                 <div class="flex gap-2">
                     <input type="number" id="withdrawAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
-                    <button type="button" onclick="withdrawAll()" class="bg-bgDark/70 border border-white/10 rounded-2xl px-3 text-[11px] font-bold text-amber-200 whitespace-nowrap">Withdraw All</button>
+                    <button type="button" onclick="withdrawAll()" class="wd-all rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap">Withdraw All</button>
                 </div>
                 <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
                 <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
+                <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
                 <div id="withdrawMethodPicker" class="grid grid-cols-4 gap-2" role="radiogroup" aria-label="Withdraw method">
-                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">bKash</span></button><button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Nagad</span></button><button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Rocket</span></button><button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn flex flex-col items-center gap-1 rounded-2xl p-2 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Upay</span></button>
+                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">bKash</span></button><button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Nagad</span></button><button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Rocket</span></button><button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Upay</span></button>
                 </div>
                 <script>
                 function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');b.style.borderColor=on?'#fcd34d':'';b.style.boxShadow=on?'0 0 0 2px rgba(252,211,77,.6)':'';});}
@@ -758,17 +809,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <option value="Rocket">Rocket</option>
                     <option value="Upay">Upay</option>
                 </select>
-                <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
-                <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
-                    <div>Withdraw amount: <span id="withdrawGross">৳ 0.00</span></div>
-                    <div>Admin fee (7% deducted): <span id="withdrawFee" class="text-rose-300">৳ 0.00</span></div>
-                    <div>You receive: <span id="withdrawNet" class="font-bold text-amber-300">৳ 0.00</span></div>
+                <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
+                <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"></div>
+                <div class="wd-summary rounded-2xl p-4 text-[12px] text-violet-100 space-y-2">
+                    <div class="flex items-center justify-between"><span class="text-violet-200/75">Withdraw amount</span><span id="withdrawGross" class="font-semibold">৳ 0.00</span></div>
+                    <div class="flex items-center justify-between"><span class="text-violet-200/75">Admin fee (7% deducted)</span><span id="withdrawFee" class="text-rose-300 font-semibold">৳ 0.00</span></div>
+                    <div class="wd-divider"></div>
+                    <div class="flex items-center justify-between"><span class="font-bold text-white">You receive</span><span id="withdrawNet" class="text-base font-black text-amber-300">৳ 0.00</span></div>
                 </div>
                 <button onclick="submitWithdraw()" class="withdraw-submit-btn w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
             </div>
 
             <div class="glass-card rounded-3xl p-5 space-y-2">
-                <h3 class="text-sm font-bold text-white">Withdraw History</h3>
+                <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-amber-300 text-xs"></i>Withdraw History</h3>
                 <div id="withdrawHistoryList" class="divide-y divide-white/5"></div>
             </div>
         </div>
@@ -779,10 +832,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <button type="button" onclick="pickAvatarPhoto()" title="Change photo" class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 group">
                     <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300 overflow-hidden"><span id="profInitial">U</span><img id="profAvatarImg" alt="" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></div>
                     <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-amber-300 text-bgDark flex items-center justify-center text-[9px]"><i class="fa-solid fa-camera"></i></span>
-                </button>
+                <span id="profPhotoVerifiedTick" class="verified-icon hidden absolute -top-1 -right-1 w-5 h-5"><svg viewBox="0 0 100 100" class="w-full h-full" aria-hidden="true"><polygon points="50.0,0.0 58.4,7.8 69.1,3.8 73.9,14.2 85.4,14.6 85.8,26.1 96.2,30.9 92.2,41.6 100.0,50.0 92.2,58.4 96.2,69.1 85.8,73.9 85.4,85.4 73.9,85.8 69.1,96.2 58.4,92.2 50.0,100.0 41.6,92.2 30.9,96.2 26.1,85.8 14.6,85.4 14.2,73.9 3.8,69.1 7.8,58.4 0.0,50.0 7.8,41.6 3.8,30.9 14.2,26.1 14.6,14.6 26.1,14.2 30.9,3.8 41.6,7.8" fill="#1D9BF0" stroke="#1D9BF0" stroke-width="6" stroke-linejoin="round"/><path d="M28 52 L44 67 L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
                 <input type="file" id="avatarFileInput" accept="image/*" class="hidden" onchange="handleAvatarFile(this)">
                 <div class="min-w-0 flex-1">
-                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" class="verified-badge hidden shrink-0 inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i>Verified</span></p>
+                    <p class="text-sm font-bold text-white truncate flex items-center gap-1.5 min-w-0"><span class="truncate" id="profHeaderName">User</span><span id="profVerifiedTick" title="Verified" aria-label="Verified" class="verified-icon hidden shrink-0 w-5 h-5"><svg viewBox="0 0 100 100" class="w-full h-full" aria-hidden="true"><polygon points="50.0,0.0 58.4,7.8 69.1,3.8 73.9,14.2 85.4,14.6 85.8,26.1 96.2,30.9 92.2,41.6 100.0,50.0 92.2,58.4 96.2,69.1 85.8,73.9 85.4,85.4 73.9,85.8 69.1,96.2 58.4,92.2 50.0,100.0 41.6,92.2 30.9,96.2 26.1,85.8 14.6,85.4 14.2,73.9 3.8,69.1 7.8,58.4 0.0,50.0 7.8,41.6 3.8,30.9 14.2,26.1 14.6,14.6 26.1,14.2 30.9,3.8 41.6,7.8" fill="#1D9BF0" stroke="#1D9BF0" stroke-width="6" stroke-linejoin="round"/><path d="M28 52 L44 67 L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></span></p>
                     <p class="text-xs text-violet-200/70 truncate hidden" id="profHeaderEmail"></p>
                 </div>
                 <button type="button" onclick="toggleProfileEdit()" id="profEditToggle" class="btn-amber text-xs font-bold px-3.5 py-2 rounded-xl shrink-0"><i class="fa-solid fa-pen text-[10px] mr-1"></i> Edit</button>
@@ -1160,7 +1213,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <div class="relative overflow-hidden glass-card rounded-3xl p-5 flex items-center gap-4">
                         <div class="logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 relative">
                             <img id="modalUserAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="w-full h-full aspect-square rounded-full object-cover bg-cardDark">
-                            <span id="accountVerifiedTick" title="Verified" aria-label="Verified" class="verified-icon hidden absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full text-[9px] items-center justify-center border border-white"><i class="fa-solid fa-check"></i></span>
+                            <span id="accountVerifiedTick" title="Verified" aria-label="Verified" class="verified-icon hidden absolute -bottom-1 -right-1 w-5 h-5"><svg viewBox="0 0 100 100" class="w-full h-full" aria-hidden="true"><polygon points="50.0,0.0 58.4,7.8 69.1,3.8 73.9,14.2 85.4,14.6 85.8,26.1 96.2,30.9 92.2,41.6 100.0,50.0 92.2,58.4 96.2,69.1 85.8,73.9 85.4,85.4 73.9,85.8 69.1,96.2 58.4,92.2 50.0,100.0 41.6,92.2 30.9,96.2 26.1,85.8 14.6,85.4 14.2,73.9 3.8,69.1 7.8,58.4 0.0,50.0 7.8,41.6 3.8,30.9 14.2,26.1 14.6,14.6 26.1,14.2 30.9,3.8 41.6,7.8" fill="#1D9BF0" stroke="#1D9BF0" stroke-width="6" stroke-linejoin="round"/><path d="M28 52 L44 67 L73 36" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
                         </div>
                         <div class="min-w-0">
                             <h3 id="profileName" class="text-base font-bold text-white truncate">User</h3>
@@ -1879,7 +1932,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
             if (!inp) return;
             const show = inp.type === 'password';
             inp.type = show ? 'text' : 'password';
-            btn.style.color = show ? '#F5B942' : '';
+            btn.style.color = show ? '#10B981' : '';
         }
 
         async function handleLogout() {
@@ -2699,7 +2752,9 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
         function renderVerifiedTick() {
             const on = !!currentUser && !kycTableMissing && !kycLoadFailed && kycStatusKey() === 'approved';
             const name = document.getElementById('profVerifiedTick');
-            if (name) name.classList.toggle('hidden', !on);
+            if (name) { name.classList.toggle('hidden', !on); name.classList.toggle('inline-flex', on); }
+            const pp = document.getElementById('profPhotoVerifiedTick');
+            if (pp) { pp.classList.toggle('hidden', !on); pp.classList.toggle('flex', on); }
             const hdr = document.getElementById('headerVerifiedTick');
             if (hdr) { hdr.classList.toggle('hidden', !on); hdr.classList.toggle('flex', on); }
             const account = document.getElementById('accountVerifiedTick');
@@ -2716,7 +2771,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             const formPanel = document.getElementById('kycFormPanel');
             const st = kycTableMissing ? 'missing' : (kycLoadFailed ? 'error' : kycStatusKey());
             const badges = {
-                pending: ['Pending review', 'bg-amber-400/15 text-amber-200'],
+                pending: ['In Review', 'bg-amber-400/15 text-amber-200'],
                 approved: ['Verified', 'verified-badge'],
                 rejected: ['Rejected', 'bg-rose-400/15 text-rose-200']
             };
@@ -2925,7 +2980,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
             resetKycPhotos();
             document.getElementById('kycFormPanel').classList.add('hidden');
             await loadMyKyc();
-            niceAlert('KYC submitted! Status: Pending review.');
+            niceAlert('KYC submitted! Status: In Review.');
         }
         async function isKycApproved() {
             if (!currentUser) return false;
@@ -3983,7 +4038,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     .appearance-toggle { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid rgba(196,181,253,.16); border-radius: 16px; background: rgba(16,10,34,.62); }
     .appearance-option { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; border: 1px solid transparent; border-radius: 12px; padding: 7px 5px; color: #C4B5FD; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease; }
     .appearance-option[aria-pressed="true"] { color: #2A1A00; background: linear-gradient(90deg,#FCD34D,#F59E0B); box-shadow: 0 4px 12px rgba(245,158,11,.2); }
-    .appearance-option:focus-visible { outline: 2px solid #F5B942; outline-offset: 2px; }
+    .appearance-option:focus-visible { outline: 2px solid #10B981; outline-offset: 2px; }
     html[data-theme-effective="light"] body,
     body.theme-light { color: #201A31 !important; background: radial-gradient(1100px 600px at 10% -10%, rgba(196,181,253,.22) 0%, transparent 60%), radial-gradient(900px 500px at 110% 10%, rgba(253,230,138,.16) 0%, transparent 55%), #E4E1EE !important; }
     html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { background: linear-gradient(160deg,#EEEBF5,#EBE8F2) !important; border-color: rgba(89,72,130,.14) !important; box-shadow: 0 10px 28px -14px rgba(52,38,83,.2), inset 0 1px 0 rgba(255,255,255,.55) !important; }
@@ -4000,12 +4055,12 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] body header#appHeader .logo-orb, body.theme-light header#appHeader .logo-orb { box-shadow: none !important; }
     html[data-theme-effective="light"] body header#appHeader .logo-orb > div, body.theme-light header#appHeader .logo-orb > div { background: #FFFFFF !important; background-color: #FFFFFF !important; color: #302A3D !important; }
     html[data-theme-effective="light"] #accountModal > div > div:first-child, body.theme-light #accountModal > div > div:first-child { background: #E4E1EE !important; background-color: #E4E1EE !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: rgba(76,62,105,.14) !important; }
-    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: #4B258F !important; background-image: none !important; border: 1px solid rgba(255,255,255,.16) !important; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
+    html[data-theme-effective="light"] .balance-card, body.theme-light .balance-card { background: #0F5C63 !important; background-image: none !important; border: 1px solid rgba(255,255,255,.16) !important; box-shadow: 0 12px 28px -16px rgba(39,18,77,.48), inset 0 1px 0 rgba(255,255,255,.08) !important; }
     html[data-theme-effective="light"] .balance-card .balance-label, body.theme-light .balance-card .balance-label { color: #FFFFFF !important; font-size: .875rem !important; font-weight: 800 !important; letter-spacing: .08em; }
     html[data-theme-effective="light"] .balance-card .balance-value, html[data-theme-effective="light"] .balance-card .balance-value *, body.theme-light .balance-card .balance-value, body.theme-light .balance-card .balance-value * { color: #FFFFFF !important; text-shadow: none !important; }
-    html[data-theme-effective="light"] .balance-card .balance-cash-out, body.theme-light .balance-card .balance-cash-out { background: #FFFFFF !important; background-image: none !important; color: #3B1470 !important; border: 1px solid rgba(255,255,255,.9) !important; opacity: 1 !important; filter: none !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
-    html[data-theme-effective="light"] .balance-card .balance-cash-out i, html[data-theme-effective="light"] .balance-card .balance-cash-out *, body.theme-light .balance-card .balance-cash-out i, body.theme-light .balance-card .balance-cash-out * { color: #3B1470 !important; opacity: 1 !important; }
-    html[data-theme-effective="light"] .balance-card .balance-add-funds, body.theme-light .balance-card .balance-add-funds { background: #FFFFFF !important; color: #4B258F !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
+    html[data-theme-effective="light"] .balance-card .balance-cash-out, body.theme-light .balance-card .balance-cash-out { background: #FFFFFF !important; background-image: none !important; color: #0B3F45 !important; border: 1px solid rgba(255,255,255,.9) !important; opacity: 1 !important; filter: none !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
+    html[data-theme-effective="light"] .balance-card .balance-cash-out i, html[data-theme-effective="light"] .balance-card .balance-cash-out *, body.theme-light .balance-card .balance-cash-out i, body.theme-light .balance-card .balance-cash-out * { color: #0B3F45 !important; opacity: 1 !important; }
+    html[data-theme-effective="light"] .balance-card .balance-add-funds, body.theme-light .balance-card .balance-add-funds { background: #FFFFFF !important; color: #0F5C63 !important; border: 1px solid rgba(255,255,255,.9) !important; box-shadow: 0 4px 12px rgba(25,12,52,.24) !important; }
 
     html[data-theme-effective="light"] .custom-scrollbar::-webkit-scrollbar-thumb, body.theme-light .custom-scrollbar::-webkit-scrollbar-thumb { background: #C8C0D8 !important; }
     html[data-theme-effective="light"] .appearance-card .text-white, body.theme-light .appearance-card .text-white { color: #211A32 !important; }
@@ -4044,8 +4099,8 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
     html[data-theme-effective="light"] .text-rose-200, html[data-theme-effective="light"] .text-rose-300, body.theme-light .text-rose-200, body.theme-light .text-rose-300 { color: #A12640 !important; }
     html[data-theme-effective="light"] [class*="text-amber-100"], html[data-theme-effective="light"] [class*="text-amber-200"], html[data-theme-effective="light"] [class*="text-amber-300"], html[data-theme-effective="light"] [class*="text-amber-400"], body.theme-light [class*="text-amber-100"], body.theme-light [class*="text-amber-200"], body.theme-light [class*="text-amber-300"], body.theme-light [class*="text-amber-400"] { color: #59400A !important; }
     /* Verified indicators use legible green lettering on a soft green surface in both themes. */
-    .verified-badge { color: #18723D !important; background-color: rgba(34,197,94,.16) !important; }
-    .verified-icon { color: #FFFFFF !important; background-color: #059669 !important; border-color: #047857 !important; box-shadow: 0 1px 3px rgba(0,0,0,.28) !important; }
+    .verified-badge { color: #1478C8 !important; background-color: rgba(29,155,240,.14) !important; }
+    .verified-icon { background: transparent !important; border: 0 !important; color: inherit !important; filter: drop-shadow(0 1px 2px rgba(0,0,0,.3)); }
     /* Softer light palette: keep page, cards, controls and fixed chrome off-white, with dark text. */
     html[data-theme-effective="light"] body, body.theme-light { background-color: #F5F3FA !important; }
     html[data-theme-effective="light"] .glass-card, body.theme-light .glass-card { background: linear-gradient(160deg, #F5F3FA, #EDEAF5) !important; color: #252033 !important; }
@@ -4226,7 +4281,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
 </script>
 <style id="tf-identity">
 /* TaskFlex identity: teal-violet accent, left rail nav on wide screens, accent-edged cards */
-:root{--tf-a:#14B8A6;--tf-b:#8B5CF6}
+:root{--tf-a:#10B981;--tf-b:#22D3EE}
 .glass-card{position:relative;overflow:hidden}
 .glass-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--tf-a),var(--tf-b));opacity:.85;pointer-events:none}
 header#appHeader{border-bottom:2px solid transparent!important;border-image:linear-gradient(90deg,var(--tf-a),var(--tf-b),#F59E0B) 1!important}
@@ -4249,6 +4304,55 @@ html[data-theme-effective="light"] .glass-card::before{opacity:.7}
 }
 body:has(#appMain.hidden)>div.w-full.max-w-md>nav.nav-glass{display:none!important}
 body:has(#appMain.hidden)>div.w-full.max-w-md{margin-left:auto!important}
+
+/* admin-palette pass */
+body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:#0B0F17!important}
+h1,h2,h3,h4{font-weight:800;letter-spacing:-.01em}
+.glass-card{background:#131926!important;border:1px solid #1F2937!important;backdrop-filter:none}
+.field{background:#0B0F17!important;border-color:#1F2937!important}
+.field:focus{border-color:#10B981!important;box-shadow:0 0 0 3px rgba(16,185,129,.18)!important}
+.btn-amber{background:#10B981!important;color:#04130d!important;box-shadow:none!important}
+.btn-violet{background:#1F2937!important;color:#E5E7EB!important;box-shadow:none!important}
+.hero-title{background:linear-gradient(90deg,#34D399,#22D3EE)!important;-webkit-background-clip:text;background-clip:text}
+.nav-glass{background:rgba(11,15,23,.92)!important;border-top:1px solid #1F2937!important}
+.nav-btn span{font-weight:700;letter-spacing:.01em}
+.nav-btn.text-amber-300{color:#04130d!important;background:#34D399!important;border-radius:999px!important;margin:0 3px}
+.nav-btn.text-amber-300::after{top:auto;bottom:-6px;left:22%;right:22%;height:2px;background:linear-gradient(90deg,#10B981,#22D3EE)}
+/* unique balance hero: deep teal to indigo */
+.balance-card{background:linear-gradient(135deg,#0E7490 0%,#312E81 100%)!important;padding:.9rem 1rem!important}
+.balance-card .balance-label{font-size:.7rem!important}
+.balance-card .balance-value{font-size:1.6rem!important;color:#A7F3D0!important;line-height:1.15}
+.balance-card .balance-cash-out,.balance-card .balance-add-funds{color:#0B3F45!important}
+/* approved = deep green, rejected = deep red */
+.bg-emerald-400\/15,.bg-emerald-400\/20,.bg-emerald-500\/20{background:rgba(5,150,105,.28)!important}
+.bg-rose-400\/15,.bg-rose-500\/20{background:rgba(153,27,27,.45)!important}
+.text-emerald-200,.text-emerald-100,.text-emerald-300{color:#34D399!important}
+.text-rose-200,.text-rose-100,.text-rose-300{color:#F87171!important}
+html[data-theme-effective="light"] .nav-btn.text-amber-300{color:#04130d!important;background:#34D399!important}
+@media(min-width:1024px){body>div.w-full.max-w-md>nav.nav-glass .nav-btn{margin:0}}
+
+/* tf-nav v2: unique side/nav design (admin palette). CSS only, no markup/behavior change */
+nav.nav-glass{background:rgba(19,25,38,.94)!important;border:1px solid #1F2937!important;border-radius:22px 22px 0 0!important;box-shadow:0 -12px 32px -14px rgba(0,0,0,.7)!important;gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important}
+nav.nav-glass .nav-btn{border-radius:16px!important;color:#9CA3AF!important;margin:0!important;padding:7px 2px!important;overflow:hidden}
+nav.nav-glass .nav-btn i{width:34px;height:26px;line-height:26px;border-radius:999px;margin-bottom:2px!important;transition:background .2s,color .2s}
+nav.nav-glass .nav-btn span{font-size:10px!important;font-weight:700;letter-spacing:.02em}
+nav.nav-glass .nav-btn.text-amber-300{background:transparent!important;color:#34D399!important;border-radius:16px!important}
+nav.nav-glass .nav-btn.text-amber-300 i{background:rgba(16,185,129,.18);color:#34D399;box-shadow:inset 0 0 0 1px rgba(52,211,153,.35)}
+nav.nav-glass .nav-btn.text-amber-300::after{content:"";top:0;bottom:auto;left:30%;right:30%;height:3px;width:auto;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#10B981,#22D3EE)}
+@media (min-width:1024px){
+  body>div.w-full.max-w-md>nav.nav-glass{width:250px!important;max-width:250px!important;background:linear-gradient(180deg,#0F1522 0%,#0B0F17 100%)!important;border:0!important;border-right:1px solid #1F2937!important;border-radius:0!important;padding:96px 14px 14px!important;gap:4px;box-shadow:none!important}
+  body>div.w-full.max-w-md>nav.nav-glass::before{content:"TaskFlex";top:28px;left:22px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(90deg,#34D399,#22D3EE);-webkit-background-clip:text;background-clip:text;color:transparent}
+  body>div.w-full.max-w-md>nav.nav-glass::after{content:"MENU";position:absolute;top:70px;left:22px;font-size:10px;font-weight:800;letter-spacing:.18em;color:#6B7280}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn{padding:9px 12px!important;border-radius:14px!important;gap:12px;color:#9CA3AF!important;border:1px solid transparent}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn i{width:34px;height:34px;line-height:34px;border-radius:11px;background:#131926;box-shadow:inset 0 0 0 1px #1F2937;font-size:14px;margin:0!important}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn span{font-size:13px!important;font-weight:700}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn:hover{background:#131926;color:#E5E7EB!important}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300{background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(34,211,238,.04))!important;border-color:rgba(52,211,153,.28);color:#34D399!important}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300 i{background:#10B981;color:#04130d;box-shadow:0 6px 16px -6px rgba(16,185,129,.7)}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300::after{top:22%;bottom:22%;left:-14px;right:auto;width:4px;height:auto;border-radius:0 4px 4px 0}
+}
+html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){color:#6B7280!important}
+@media(max-width:380px){nav.nav-glass .nav-btn span{font-size:9px!important}nav.nav-glass .nav-btn i{width:30px}}
 </style>
 </body>
 </html>
