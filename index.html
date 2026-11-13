@@ -827,7 +827,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         </div>
 
         <div id="tab-profile" class="space-y-3.5 hidden">
-            <h2 class="text-base font-bold text-white">Profile</h2>
+            <div class="flex items-center gap-2.5">
+                <button type="button" id="profileBackBtn" onclick="profileGoBack()" aria-label="Back" title="Back" class="w-9 h-9 rounded-full glass-card flex items-center justify-center text-amber-300 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"><i class="fa-solid fa-arrow-left text-sm" aria-hidden="true"></i></button>
+                <h2 class="text-base font-bold text-white">Profile</h2>
+            </div>
             <div class="glass-card rounded-3xl p-5 flex items-center gap-4">
                 <button type="button" onclick="pickAvatarPhoto()" title="Change photo" class="relative logo-orb w-14 h-14 rounded-full p-[2px] shrink-0 group">
                     <div class="w-full h-full rounded-full bg-bgDark flex items-center justify-center text-xl font-black text-amber-300 overflow-hidden"><span id="profInitial">U</span><img id="profAvatarImg" alt="" class="hidden absolute inset-0 w-full h-full rounded-full object-cover"></div>
@@ -2078,7 +2081,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
             safeLoad('KYC', loadMyKyc, () => { myKyc = null; try { renderKycCard(); } catch (_) {} });
         }
 
+        let currentTabId = 'dashboard';
+        let prevTabId = null;
+        function profileGoBack() {
+            const t = (prevTabId && prevTabId !== 'profile' && document.getElementById('tab-' + prevTabId)) ? prevTabId : 'dashboard';
+            switchTab(t);
+        }
         async function switchTab(tabId) {
+            if (tabId !== currentTabId) { prevTabId = currentTabId; currentTabId = tabId; }
             ALL_TABS.forEach(id => {
                 const tabElem = document.getElementById('tab-' + id);
                 if (tabElem) tabElem.classList.add('hidden');
