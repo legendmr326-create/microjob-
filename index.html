@@ -275,13 +275,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #tab-withdraw .wd-card h3 { font-size: 12px; }
         #tab-withdraw .wd-card input, #tab-deposit #depositSection input.field { padding-top: 8px; padding-bottom: 8px; }
         #tab-withdraw .wd-card p, #tab-deposit #depositSection p { margin-top: 4px !important; }
-        #withdrawMethodPicker { gap: 6px; }
-        #withdrawMethodPicker .wm-btn { padding: 6px 2px; gap: 3px; border-radius: 14px; }
-        #withdrawMethodPicker .wm-btn img { width: 28px; height: 28px; border-radius: 9px; }
-        #withdrawMethodPicker .wm-btn span { font-size: 10px; }
-        #tab-withdraw .wd-summary { padding: 10px 12px; font-size: 11px; }
+        #withdrawMethodPicker .wm-btn { padding: 10px 12px; border-radius: 16px; }
+        #tab-withdraw .wd-summary { padding: 10px; font-size: 11px; }
         #tab-withdraw .wd-summary > * + * { margin-top: 4px; }
-        #tab-withdraw .withdraw-submit-btn, #tab-deposit #depositSection .btn-amber { padding-top: 10px; padding-bottom: 10px; }
+        #tab-withdraw .btn-amber, #tab-deposit #depositSection .btn-amber { padding-top: 10px; padding-bottom: 10px; }
         #tab-deposit .dep-compact { padding: 8px 14px; }
         #tab-deposit #depositSection > div:first-child { padding-bottom: 8px; }
         #tab-deposit #depositSection .space-y-2\.5 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px !important; }
@@ -304,7 +301,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .wd-all:hover { background: rgba(245,185,66,.2); }
         .wm-btn { cursor: pointer; }
         .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.1) !important; }
-        .wd-summary { background: rgba(16,10,34,.6); border: 1px dashed rgba(245,185,66,.35); }
+        .wd-summary { border-style: solid; }
         .wd-divider { border-top: 1px dashed rgba(196,181,253,.25); }
         html[data-theme-effective="light"] .wd-hero, body.theme-light .wd-hero { background: linear-gradient(135deg,#EAE3F8,#F5F3FA 70%); border-color: rgba(168,120,20,.3); }
         html[data-theme-effective="light"] .wd-summary, body.theme-light .wd-summary { background: #fff; border-color: rgba(168,120,20,.35); color: #282237; }
@@ -786,19 +783,29 @@ Check your Browserslist config to be sure that your targets are set up correctly
         <!-- TAB: WITHDRAW -->
         <div id="tab-withdraw" class="space-y-3.5 hidden">
             <h2 class="text-base font-bold text-white">Withdraw</h2>
-            <div class="wd-hero rounded-3xl p-5 relative overflow-hidden"><div class="wd-hero-glow"></div><div class="relative flex items-center justify-between gap-3"><div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-200/70">Available to withdraw</p><h4 id="wdTotalBalance" class="text-3xl font-black text-amber-300 mt-1.5"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h4></div><div class="wd-hero-icon shrink-0"><i class="fa-solid fa-wallet"></i></div></div></div>
+            <div class="dep-compact rounded-2xl px-4 py-2.5 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0"><span class="dep-compact-icon shrink-0"><i class="fa-solid fa-wallet"></i></span><p class="text-[10px] font-bold uppercase tracking-wider text-violet-200/75 leading-tight">Available to withdraw</p></div>
+                <h3 id="wdTotalBalance" class="text-lg font-black text-amber-300 whitespace-nowrap"><span class="money-amount"><span class="money-symbol">৳</span><span>0</span><span class="money-decimal">.00</span></span></h3>
+            </div>
             <div id="withdrawSection" class="glass-card wd-card rounded-3xl p-5 space-y-4">
+                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+                    <h3 class="text-base font-bold text-white">Withdraw Funds</h3>
+                    <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Fee 7%</span>
+                </div>
                 <div class="flex items-center gap-2.5"><span class="wd-step">1</span><h3 class="text-sm font-bold text-white">Amount</h3></div>
                 <div class="flex gap-2">
                     <input type="number" id="withdrawAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
-                    <button type="button" onclick="withdrawAll()" class="wd-all rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap">Withdraw All</button>
+                    <button type="button" onclick="withdrawAll()" class="wd-all bg-bgDark/70 border border-white/10 text-amber-200 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap">Withdraw All</button>
                 </div>
                 <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
                 <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
-                <div id="withdrawMethodPicker" class="grid grid-cols-4 gap-2" role="radiogroup" aria-label="Withdraw method">
-                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">bKash</span></button><button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Nagad</span></button><button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Rocket</span></button><button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn flex flex-col items-center gap-1.5 rounded-2xl py-2.5 px-1 border border-white/10 bg-bgDark/40 transition"><img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover"><span class="text-[11px] font-bold text-white">Upay</span></button>
-                </div>
+                <div id="withdrawMethodPicker" class="space-y-2.5" role="radiogroup" aria-label="Withdraw method">
+                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn gateway-item glass-card w-full text-left p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition"><span class="flex items-center gap-3"><img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy"><span class="block"><span class="block text-sm font-bold text-white">bKash</span><span class="block text-[11px] text-violet-200/60">bKash Personal, Cash Out</span></span></span><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span></button>
+                    <button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn gateway-item glass-card w-full text-left p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition"><span class="flex items-center gap-3"><img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy"><span class="block"><span class="block text-sm font-bold text-white">Nagad</span><span class="block text-[11px] text-violet-200/60">Nagad Personal, Cash Out</span></span></span><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span></button>
+                    <button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn gateway-item glass-card w-full text-left p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition"><span class="flex items-center gap-3"><img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy"><span class="block"><span class="block text-sm font-bold text-white">Rocket</span><span class="block text-[11px] text-violet-200/60">Rocket Personal, Cash Out</span></span></span><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span></button>
+                    <button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn gateway-item glass-card w-full text-left p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition"><span class="flex items-center gap-3"><img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy"><span class="block"><span class="block text-sm font-bold text-white">Upay</span><span class="block text-[11px] text-violet-200/60">Upay Personal, Cash Out</span></span></span><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span></button>
+                    </div>
                 <script>
                 function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');b.style.borderColor=on?'#fcd34d':'';b.style.boxShadow=on?'0 0 0 2px rgba(252,211,77,.6)':'';});}
                 document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
@@ -811,13 +818,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </select>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
                 <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"></div>
-                <div class="wd-summary rounded-2xl p-4 text-[12px] text-violet-100 space-y-2">
+                <div class="wd-summary bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-2">
                     <div class="flex items-center justify-between"><span class="text-violet-200/75">Withdraw amount</span><span id="withdrawGross" class="font-semibold">৳ 0.00</span></div>
                     <div class="flex items-center justify-between"><span class="text-violet-200/75">Admin fee (7% deducted)</span><span id="withdrawFee" class="text-rose-300 font-semibold">৳ 0.00</span></div>
                     <div class="wd-divider"></div>
                     <div class="flex items-center justify-between"><span class="font-bold text-white">You receive</span><span id="withdrawNet" class="text-base font-black text-amber-300">৳ 0.00</span></div>
                 </div>
-                <button onclick="submitWithdraw()" class="withdraw-submit-btn w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
+                <button onclick="submitWithdraw()" class="btn-amber w-full font-bold py-3 rounded-2xl text-xs">Send Withdraw Request</button>
             </div>
 
             <div class="glass-card rounded-3xl p-5 space-y-2">
