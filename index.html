@@ -305,7 +305,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .wd-all { background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.4); color: #fcd34d; }
         .wd-all:hover { background: rgba(245,185,66,.2); }
         .wm-btn { cursor: pointer; }
-        .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.1) !important; }
+        .wm-btn { position: relative; opacity: .78; }
+        .wm-btn[aria-checked="false"] { box-shadow: none !important; }
+        .wm-btn[aria-checked="true"] { opacity: 1; background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; border-left: 5px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
+        .wm-btn[aria-checked="true"]::after { content: "\2713"; position: absolute; top: 5px; right: 6px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
+        .wm-btn[aria-checked="true"] .wm-name { color: #fcd34d !important; }
         .wd-summary { border-style: solid; }
         .wd-divider { border-top: 1px dashed rgba(196,181,253,.25); }
         html[data-theme-effective="light"] .wd-hero, body.theme-light .wd-hero { background: linear-gradient(135deg,#EAE3F8,#F5F3FA 70%); border-color: rgba(168,120,20,.3); }
@@ -817,7 +821,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/upay.png" alt="Upay" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Upay</span><span class="wm-desc text-[11px] text-violet-200/60">Upay Personal, Send Money</span></span></button>
                     </div>
                 <script>
-                function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');b.style.borderColor=on?'#fcd34d':'';b.style.boxShadow=on?'0 0 0 2px rgba(252,211,77,.6)':'';});var lg=document.getElementById('withdrawSelectedLogo');if(lg)lg.src='/icons/pay/'+m.toLowerCase()+'.png';var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+m;}
+                function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');});var lg=document.getElementById('withdrawSelectedLogo');if(lg)lg.src='/icons/pay/'+m.toLowerCase()+'.png';var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+m;}
 function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
                 document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
                 </script>
