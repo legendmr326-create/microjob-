@@ -722,7 +722,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- bKash -->
                     <div onclick="selectPaymentGateway('bKash', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy">
+                            <img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -730,7 +730,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- Nagad -->
                     <div onclick="selectPaymentGateway('Nagad', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy">
+                            <img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -738,7 +738,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- Rocket -->
                     <div onclick="selectPaymentGateway('Rocket', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy">
+                            <img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -748,7 +748,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- Upay -->
                     <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0" loading="lazy">
+                            <img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -810,10 +810,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
                 <div id="withdrawMethodPicker" class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Withdraw method">
-                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="30" height="30" class="rounded-xl object-cover shrink-0" loading="lazy"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">bKash</span><span class="wm-desc text-[11px] text-violet-200/60">bKash Personal, Send Money</span></span></button>
-                    <button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="30" height="30" class="rounded-xl object-cover shrink-0" loading="lazy"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Nagad</span><span class="wm-desc text-[11px] text-violet-200/60">Nagad Personal, Send Money</span></span></button>
-                    <button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="30" height="30" class="rounded-xl object-cover shrink-0" loading="lazy"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Rocket</span><span class="wm-desc text-[11px] text-violet-200/60">Rocket Personal, Send Money</span></span></button>
-                    <button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/upay.png" alt="Upay" width="30" height="30" class="rounded-xl object-cover shrink-0" loading="lazy"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Upay</span><span class="wm-desc text-[11px] text-violet-200/60">Upay Personal, Send Money</span></span></button>
+                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">bKash</span><span class="wm-desc text-[11px] text-violet-200/60">bKash Personal, Send Money</span></span></button>
+                    <button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Nagad</span><span class="wm-desc text-[11px] text-violet-200/60">Nagad Personal, Send Money</span></span></button>
+                    <button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Rocket</span><span class="wm-desc text-[11px] text-violet-200/60">Rocket Personal, Send Money</span></span></button>
+                    <button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/upay.png" alt="Upay" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Upay</span><span class="wm-desc text-[11px] text-violet-200/60">Upay Personal, Send Money</span></span></button>
                     </div>
                 <script>
                 function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');b.style.borderColor=on?'#fcd34d':'';b.style.boxShadow=on?'0 0 0 2px rgba(252,211,77,.6)':'';});var lg=document.getElementById('withdrawSelectedLogo');if(lg)lg.src='/icons/pay/'+m.toLowerCase()+'.png';var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+m;}
@@ -827,7 +827,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <option value="Upay">Upay</option>
                 </select>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
-                <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"></div>
+                <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"><button type="button" id="withdrawCopyBtn" onclick="copyWithdrawNumber()" aria-label="Copy account number" class="wd-all shrink-0 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap"><i class="fa-regular fa-copy"></i> <span id="withdrawCopyLabel">Copy</span></button></div>
+<script>
+function copyWithdrawNumber(){var i=document.getElementById('withdrawNumber'),l=document.getElementById('withdrawCopyLabel'),v=(i.value||'').trim();
+function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}
+if(!v){msg('Empty');return;}
+function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Select manually');if(!ok){i.focus();i.select();}}catch(e){msg('Select manually');i.focus();i.select();}}
+if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
+</script>
                 <div class="wd-summary bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-2">
                     <div class="flex items-center justify-between"><span class="text-violet-200/75">Withdraw amount</span><span id="withdrawGross" class="font-semibold">৳ 0.00</span></div>
                     <div class="flex items-center justify-between"><span class="text-violet-200/75">Admin fee (7% deducted)</span><span id="withdrawFee" class="text-rose-300 font-semibold">৳ 0.00</span></div>
