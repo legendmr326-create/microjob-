@@ -366,6 +366,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
             html, body { max-width: 100%; overflow-x: hidden; }
             main, main > div, #tab-profile, #tab-withdraw, #profEditPanel, #personalView { min-width: 0; max-width: 100%; }
             #tab-profile .grid, #tab-withdraw .grid, #personalView { grid-template-columns: 1fr !important; }
+            #tab-withdraw #withdrawMethodPicker { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            #withdrawMethodPicker .wm-btn { flex-wrap: nowrap; min-width: 0; }
+            #withdrawMethodPicker .wm-btn > span { min-width: 0; }
             #tab-profile input, #tab-profile select, #tab-withdraw input, #tab-withdraw select { max-width: 100%; min-width: 0; }
             #tab-profile .flex, #tab-withdraw .flex { flex-wrap: wrap; }
             #tab-profile .min-w-0, #tab-withdraw .min-w-0 { min-width: 0; }
