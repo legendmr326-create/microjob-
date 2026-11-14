@@ -2152,24 +2152,30 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                     <div class="flex items-center justify-between gap-3">
                         <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(j.title || ('Job #' + j.id))}</p><p class="text-[11px] text-violet-200/60">Reward ${formatMoney(j.reward ?? 0)}</p></div>
-                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(/^delete requested/i.test(st) ? 'Delete Requested' : st)}</span>
                     </div>
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                         <p class="text-xs text-violet-100"><span class="font-black text-amber-300">${total}</span> worker${total === 1 ? '' : 's'} applied</p>
                         <p class="text-[10px] text-violet-200/60">${pending} pending · ${approved} approved · ${rejected} rejected</p>
                     </div>
-                    <div class="flex items-center gap-2"><button onclick="openApplicationsModal(${Number(j.id)})" class="flex-1 min-w-0 text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button><button onclick="previewPostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-white/5 text-violet-100 border border-white/10 hover:bg-white/10" title="Preview job">Job View</button><button onclick="deletePostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-rose-500/25 text-rose-200 border border-rose-400/40 hover:bg-rose-500/35">Delete</button></div>
+                    <div class="flex items-center gap-2"><button onclick="openApplicationsModal(${Number(j.id)})" class="flex-1 min-w-0 text-xs font-bold py-2 rounded-xl bg-violet-400/15 text-violet-100 border border-violet-300/30">View applications (${total})</button><button onclick="previewPostedJob(${Number(j.id)})" class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-white/5 text-violet-100 border border-white/10 hover:bg-white/10" title="Preview job">Job View</button><button onclick="deletePostedJob(${Number(j.id)})" ${/^delete requested/i.test(st) ? 'disabled class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-white/5 text-amber-200 border border-amber-300/30 opacity-70 cursor-not-allowed">Deletion pending' : 'class="shrink-0 text-xs font-bold px-3 py-2 rounded-xl bg-rose-500/25 text-rose-200 border border-rose-400/40 hover:bg-rose-500/35">Request deletion'}</button></div>
                 </div>`;
             }).join('');
         }
 
         function deletePostedJob(jobId) {
-            niceConfirm('Delete this posted job? Its submissions (proofs) will be kept. This cannot be undone.', function(){ doDeletePostedJob(jobId); });
+            niceConfirm('Request deletion of this job? An admin must approve it first. The job stays as it is until then.', function(){ doDeletePostedJob(jobId); });
         }
         async function doDeletePostedJob(jobId) {
             if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
-            const { error: jobErr } = await supabaseClient.from('micro_jobs').delete().eq('id', jobId);
-            if (jobErr) { niceAlert('Could not delete the job: ' + jobErr.message); return; }
+            const { data: cur, error: curErr } = await supabaseClient.from('micro_jobs').select('id,status,client_email').eq('id', jobId).limit(1);
+            if (curErr || !cur || !cur.length) { niceAlert('Could not load the job: ' + (curErr ? curErr.message : 'not found')); return; }
+            const st = String(cur[0].status || 'Pending');
+            if (/^delete requested/i.test(st)) { niceAlert('Deletion already requested. Waiting for admin.'); return; }
+            const prev = /approve|active/i.test(st) ? 'Approved' : /reject|inactive/i.test(st) ? 'Rejected' : 'Pending';
+            const { error: jobErr } = await supabaseClient.from('micro_jobs').update({ status: 'Delete Requested (' + prev + ')' }).eq('id', jobId).eq('client_email', currentUser.email);
+            if (jobErr) { niceAlert('Could not send the deletion request: ' + jobErr.message); return; }
+            niceAlert('Deletion request sent! Admin will review it. The job will be removed only after approval.');
             if (typeof loadMyPostedJobs === 'function') await loadMyPostedJobs();
             if (typeof loadJobs === 'function') await loadJobs();
         }
@@ -4243,7 +4249,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                     return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                         <div class="flex items-center justify-between gap-3">
                             <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(d.user_email || 'Unknown user')}</p><p class="text-[11px] text-violet-200/60">${esc(d.gateway || 'Deposit')} | ${esc(d.trx || '-')}</p></div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(/^delete requested/i.test(st) ? 'Delete Requested' : st)}</span>
                         </div>
                         <div class="flex items-center justify-between gap-3">
                             <p class="text-xs text-violet-100">Amount: <span class="font-bold text-amber-300">${formatMoney(d.amount ?? 0)}</span></p>
@@ -4265,7 +4271,7 @@ create policy "kyc anon upload" on storage.objects for insert to anon, authentic
                     return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
                         <div class="flex items-center justify-between gap-3">
                             <div class="min-w-0"><p class="font-bold text-white text-sm truncate">Application #${esc(a.id)} (Job #${esc(a.job_id)})</p><p class="text-[11px] text-violet-200/60">${esc(a.user_email || '')}</p></div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(/^delete requested/i.test(st) ? 'Delete Requested' : st)}</span>
                         </div>
                         <div class="flex items-center justify-end gap-1.5">
                             <button type="button" onclick="adminReviewApplication(${a.id}, 'Approved')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-100">Approve</button>
