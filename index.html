@@ -761,8 +761,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                         <h4 id="selectedGatewayTitle" class="font-bold text-amber-300">Selected: bKash</h4>
                         <button onclick="cancelGatewaySelection()" class="text-rose-300 underline">Change</button>
                     </div>
-                    <div class="bg-bgDark/70 p-2.5 rounded-xl text-[11px] text-violet-100">
-                        Send Money to this personal number: <span class="font-mono font-bold text-amber-300">01748021976</span> <span id="depositGwLabel">(bKash Personal, Send Money)</span>
+                    <div class="bg-bgDark/70 p-2.5 rounded-xl text-[11px] text-violet-100 flex items-start gap-2" style="min-width:0">
+                        <div style="flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word;line-height:1.5">Send Money to this personal number: <span id="depositNumber" class="font-mono font-bold text-amber-300" style="overflow-wrap:anywhere">01748021976</span> <span id="depositGwLabel">(bKash Personal, Send Money)</span></div>
+                        <button type="button" onclick="copyText(document.getElementById('depositNumber').textContent.trim(),this)" aria-label="Copy number" class="wd-all shrink-0 rounded-xl px-2.5 py-1.5 text-[11px] font-bold whitespace-nowrap"><i class="fa-regular fa-copy"></i> <span>Copy</span></button>
                     </div>
                     <div class="grid grid-cols-4 gap-1.5">
                         <button type="button" onclick="setQuickAmount(500)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳500</button>
@@ -817,6 +818,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     </div>
                 <script>
                 function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');b.style.borderColor=on?'#fcd34d':'';b.style.boxShadow=on?'0 0 0 2px rgba(252,211,77,.6)':'';});var lg=document.getElementById('withdrawSelectedLogo');if(lg)lg.src='/icons/pay/'+m.toLowerCase()+'.png';var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+m;}
+function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
                 document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
                 </script>
                 <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><img id="withdrawSelectedLogo" src="/icons/pay/bkash.png" alt="" width="20" height="20" style="width:20px;height:20px;border-radius:6px;object-fit:cover"><span id="withdrawSelectedText">Selected: bKash</span></div>
