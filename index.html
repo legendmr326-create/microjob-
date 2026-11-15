@@ -1710,7 +1710,7 @@ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v)
         const DAILY_BONUS = 200;
         window.__bonusRow = null;
         async function waitForSupabase() {
-            for (let i = 0; i < 30 && !supabaseClient; i++) await new Promise(resolve => setTimeout(resolve, 250));
+            for (let i = 0; i < 80 && !supabaseClient; i++) await new Promise(resolve => setTimeout(resolve, 250));
             return supabaseClient;
         }
         async function ensureReferralCode(user) {
