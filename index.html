@@ -1543,11 +1543,10 @@ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v)
 
         async function handleRegister() {
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const phone = '';
             const pass = document.getElementById('regPass').value;
             const refInput = document.getElementById('regReferralCode');
             const referralCode = String(refInput ? refInput.value : '').trim();
-            if (!email || !phone || !pass) { niceAlert('Please fill all fields!'); return; }
+            if (!email || !pass) { niceAlert('Please fill all fields!'); return; }
             if (referralCode && !/^(?:[^\s@]+@[^\s@]+\.[^\s@]+|[A-Za-z0-9]{6,8})$/.test(referralCode)) { niceAlert('Enter your friend\'s referral code or email.'); return; }
             const pass2 = document.getElementById('regPass2').value;
             if (pass !== pass2) { niceAlert('Passwords do not match! Enter the same password twice.'); return; }
@@ -1556,9 +1555,9 @@ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v)
             const submitBtn = document.querySelector('#registerCard button[onclick="handleRegister()"]');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating account...'; }
             try {
-                const { data, error } = await client.auth.signUp({ email, password: pass, options: { data: { phone } } });
+                const { data, error } = await client.auth.signUp({ email, password: pass, options: { data: { phone: '' } } });
                 if (error) throw error;
-                pendingSignup = { email, phone, referralCode };
+                pendingSignup = { email, phone: '', referralCode };
                 if (data && data.session) {
                     await finishSignup(data.user);
                     return;
@@ -1582,7 +1581,7 @@ if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v)
             currentUser = { id: authUser && authUser.id, name: email.split('@')[0], email, phone };
             toggleAdminMenuItem();
             localStorage.setItem('taskflex_user', JSON.stringify(currentUser));
-            await ensureReferralCode(currentUser);
+            try { await ensureReferralCode(currentUser); } catch (e) { console.warn('Profile creation delayed:', e); }
             await registerReferralSignup(email, referralCode);
             pendingSignup = null;
             clearInterval(resendSignupTimer);
