@@ -833,10 +833,10 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     <option value="Upay">Upay</option>
                 </select>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
-                <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"><button type="button" id="withdrawCopyBtn" onclick="copyWithdrawNumber()" aria-label="Copy account number" class="wd-all shrink-0 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap"><i class="fa-regular fa-copy"></i> <span id="withdrawCopyLabel">Copy</span></button></div>
+                <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"><button type="button" id="withdrawCopyBtn" onclick="copyWithdrawNumber()" aria-label="Copy account number" title="Copy account number" class="wd-all shrink-0 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap"><i class="fa-regular fa-copy"></i></button></div>
 <script>
-function copyWithdrawNumber(){var i=document.getElementById('withdrawNumber'),l=document.getElementById('withdrawCopyLabel'),v=(i.value||'').trim();
-function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}
+function copyWithdrawNumber(){var i=document.getElementById('withdrawNumber'),v=(i.value||'').trim();
+function msg(t){if(typeof niceAlert==='function'){niceAlert(t);return;}var b=document.getElementById('withdrawCopyBtn');if(!b)return;b.style.opacity=.6;setTimeout(function(){b.style.opacity=''},1500);}
 if(!v){msg('Empty');return;}
 function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Select manually');if(!ok){i.focus();i.select();}}catch(e){msg('Select manually');i.focus();i.select();}}
 if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
