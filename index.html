@@ -289,7 +289,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #tab-deposit #depositSection .space-y-2\.5 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px !important; }
         #tab-deposit #depositSection .space-y-2\.5 > * { margin: 0 !important; }
         #tab-deposit .gateway-item { padding: 8px 10px; border-radius: 14px; flex-direction: column; align-items: flex-start !important; gap: 6px; }
-        #tab-deposit .gateway-item img { width: 30px; height: 30px; border-radius: 9px; }
+        #tab-deposit .gateway-item img { width: 30px !important; height: 30px !important; border-radius: 9px; }
         #tab-deposit .gateway-item h4 { font-size: 12px; }
         #tab-deposit .gateway-item p { font-size: 9.5px; margin-top: 0 !important; }
         #tab-deposit .gateway-item > span { display: none; }
@@ -309,6 +309,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
         .wm-btn[aria-checked="true"]::after { content: "\2713"; position: absolute; top: 4px; right: 5px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
         .wm-btn[aria-checked="true"] .wm-name { color: #fcd34d !important; }
+        #tab-deposit .gateway-item { position: relative; }
+        #tab-deposit .gateway-item[data-selected="true"] { background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
+        #tab-deposit .gateway-item[data-selected="true"]::after { content: "\2713"; position: absolute; top: 4px; right: 5px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
+        #tab-deposit .gateway-item[data-selected="true"] h4 { color: #fcd34d !important; }
         .wd-summary { border-style: solid; }
         .wd-divider { border-top: 1px dashed rgba(196,181,253,.25); }
         html[data-theme-effective="light"] .wd-hero, body.theme-light .wd-hero { background: linear-gradient(135deg,#EAE3F8,#F5F3FA 70%); border-color: rgba(168,120,20,.3); }
@@ -725,7 +729,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- bKash -->
                     <div onclick="selectPaymentGateway('bKash', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/bkash.png" alt="bKash" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
+                            <img src="/icons/pay/bkash.png" alt="bKash" width="30" height="30" class="rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -733,7 +737,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- Nagad -->
                     <div onclick="selectPaymentGateway('Nagad', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/nagad.png" alt="Nagad" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
+                            <img src="/icons/pay/nagad.png" alt="Nagad" width="30" height="30" class="rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -741,7 +745,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- Rocket -->
                     <div onclick="selectPaymentGateway('Rocket', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/rocket.png" alt="Rocket" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
+                            <img src="/icons/pay/rocket.png" alt="Rocket" width="30" height="30" class="rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -751,7 +755,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <!-- Upay -->
                     <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
                         <div class="flex items-center gap-3">
-                            <img src="/icons/pay/upay.png" alt="Upay" width="40" height="40" class="w-10 h-10 rounded-xl object-cover shrink-0">
+                            <img src="/icons/pay/upay.png" alt="Upay" width="30" height="30" class="rounded-xl object-cover shrink-0">
                             <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Personal, Send Money</p></div>
                         </div>
                         <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
@@ -2553,6 +2557,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
         function selectPaymentGateway(gw) {
             selectedGateway = gw;
+            document.querySelectorAll('#tab-deposit .gateway-item[data-type]').forEach(function(el){ el.setAttribute('data-selected', el.getAttribute('onclick').includes(gw) ? 'true' : 'false'); });
             document.getElementById('selectedGatewayTitle').innerText = `Selected: ${gw}`;
             const info = { bKash: 'bKash Personal, Send Money', Nagad: 'Nagad Personal, Send Money', Rocket: 'Rocket Personal, Send Money', Upay: 'Upay Personal, Send Money' };
             document.getElementById('depositGwLabel').textContent = '(' + (info[gw] || gw + ' Personal, Send Money') + ')';
