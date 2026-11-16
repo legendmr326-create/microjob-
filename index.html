@@ -304,9 +304,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .wd-step { width: 22px; height: 22px; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #1a1030; background: #fcd34d; }
         .wd-all { background: rgba(245,185,66,.12); border: 1px solid rgba(245,185,66,.4); color: #fcd34d; }
         .wd-all:hover { background: rgba(245,185,66,.2); }
-        .wm-btn { cursor: pointer; }
-        .wm-btn { position: relative; }
-        .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.12) !important; border: 1px solid rgba(245,185,66,.55) !important; box-shadow: none !important; }
+        .wm-btn { position: relative; padding: 10px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .wm-btn .wm-txt { display: flex; flex-direction: column; }
+        .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
+        .wm-btn[aria-checked="true"]::after { content: "\2713"; position: absolute; top: 4px; right: 5px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
+        .wm-btn[aria-checked="true"] .wm-name { color: #fcd34d !important; }
         .wd-summary { border-style: solid; }
         .wd-divider { border-top: 1px dashed rgba(196,181,253,.25); }
         html[data-theme-effective="light"] .wd-hero, body.theme-light .wd-hero { background: linear-gradient(135deg,#EAE3F8,#F5F3FA 70%); border-color: rgba(168,120,20,.3); }
@@ -830,14 +832,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     <option value="Upay">Upay</option>
                 </select>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
-                <div class="flex items-stretch gap-2"><input type="text" id="withdrawNumber" placeholder="Account Number" class="field flex-1 min-w-0 w-full rounded-2xl px-4 py-2.5 text-xs"><button type="button" id="withdrawCopyBtn" onclick="copyWithdrawNumber()" aria-label="Copy account number" title="Copy account number" class="wd-all shrink-0 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap"><i class="fa-regular fa-copy"></i></button></div>
-<script>
-function copyWithdrawNumber(){var i=document.getElementById('withdrawNumber'),v=(i.value||'').trim();
-function msg(t){if(typeof niceAlert==='function'){niceAlert(t);return;}var b=document.getElementById('withdrawCopyBtn');if(!b)return;b.style.opacity=.6;setTimeout(function(){b.style.opacity=''},1500);}
-if(!v){msg('Empty');return;}
-function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Select manually');if(!ok){i.focus();i.select();}}catch(e){msg('Select manually');i.focus();i.select();}}
-if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
-</script>
+                <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                 <div class="wd-summary bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-2">
                     <div class="flex items-center justify-between"><span class="text-violet-200/75">Withdraw amount</span><span id="withdrawGross" class="font-semibold">৳ 0.00</span></div>
                     <div class="flex items-center justify-between"><span class="text-violet-200/75">Admin fee (7% deducted)</span><span id="withdrawFee" class="text-rose-300 font-semibold">৳ 0.00</span></div>
