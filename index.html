@@ -778,9 +778,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                         <button type="button" onclick="setQuickAmount(2000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳2000</button>
                         <button type="button" onclick="setQuickAmount(5000)" class="bg-bgDark/70 border border-white/10 rounded-xl py-1.5 text-[11px] font-bold text-amber-200">৳5000</button>
                     </div>
-                    <input type="number" id="depositAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳50')" placeholder="Amount you want to receive (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs" aria-describedby="depositMinHint depositAmountError">
-                    <p id="depositMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
-                    <p id="depositAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum deposit amount is ৳50</p>
+                    <input type="number" id="depositAmount" min="100" oninput="updateFeePreview(); validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳100')" placeholder="Amount you want to receive (BDT ৳)" class="field w-full rounded-2xl px-4 py-2.5 text-xs" aria-describedby="depositMinHint depositAmountError">
+                    <p id="depositMinHint" class="text-[11px] text-violet-200/70">Min: ৳100</p>
+                    <p id="depositAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum deposit amount is ৳100</p>
                     <div id="depositFeeBox" class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-0.5">
                         <div>Send: <span id="depositGross" class="font-bold text-amber-300">৳ 0.00</span></div>
                         <div>You receive: <span id="depositNet" class="font-bold text-amber-300">৳ 0.00</span></div>
@@ -811,11 +811,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
                 <div class="flex items-center gap-2.5"><span class="wd-step">1</span><h3 class="text-sm font-bold text-white">Amount</h3></div>
                 <div class="flex gap-2">
-                    <input type="number" id="withdrawAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
+                    <input type="number" id="withdrawAmount" min="20" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳20')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
                     <button type="button" onclick="withdrawAll()" class="wd-all bg-bgDark/70 border border-white/10 text-amber-200 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap">Withdraw All</button>
                 </div>
-                <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
-                <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
+                <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳20</p>
+                <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳20</p>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
                 <div id="withdrawMethodPicker" class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Withdraw method">
                     <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">bKash</span><span class="wm-desc text-[11px] text-violet-200/60">bKash Personal, Send Money</span></span></button>
@@ -2587,7 +2587,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const input = document.getElementById(inputId);
             const error = document.getElementById(errorId);
             const amount = parseFloat(input.value);
-            const belowMinimum = Number.isFinite(amount) && amount < 50;
+            const minimum = inputId === 'depositAmount' ? 100 : (inputId === 'withdrawAmount' ? 20 : 50);
+            const belowMinimum = Number.isFinite(amount) && amount < minimum;
             error.textContent = message;
             error.classList.toggle('hidden', !belowMinimum);
             input.setAttribute('aria-invalid', belowMinimum ? 'true' : 'false');
@@ -2596,11 +2597,11 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
         async function submitDeposit() {
             const amt = document.getElementById('depositAmount').value;
-            if (!validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳50')) return;
+            if (!validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳100')) return;
             const sender = document.getElementById('depositSender').value;
             const trx = document.getElementById('depositTrx').value;
             if (!amt || !sender || !trx) { niceAlert('Please fill all boxes!'); return; }
-            if (parseFloat(amt) < 50) { niceAlert('Minimum deposit amount is \u09f3 50.'); return; }
+            if (parseFloat(amt) < 100) { niceAlert('Minimum deposit amount is ৳100'); return; }
             if (!supabaseClient) { niceAlert('Not connected to server, please try again shortly.'); return; }
 
             // KYC gate: job cannot be posted without admin-approved KYC
@@ -3430,7 +3431,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const method = document.getElementById('withdrawMethod').value;
             const number = document.getElementById('withdrawNumber').value.trim();
             if (!amount || amount <= 0 || !number) { niceAlert('Please enter amount and number!'); return; }
-            if (!validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')) return;
+            if (!validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳20')) return;
             if (amount > currentBalance) { niceAlert('You cannot withdraw more than your balance.'); return; }
             const wFee = Math.round(amount * 7) / 100;
             const wNet = Math.round((amount - wFee) * 100) / 100;
