@@ -4226,61 +4226,47 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             return m.slice(0, 160);
         }
         async function renderAdminPanel() {
-            const depBox = document.getElementById('adminDepositsList');
-            const appBox = document.getElementById('adminApplicationsList');
-            const msg = document.getElementById('adminMsg');
-            if (!depBox || !appBox) return;
-            const clear = (el, txt) => { el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">${esc(txt)}</div>`; };
-            if (!(await requireAdminSession())) { clear(depBox, 'Log in again to view the admin panel.'); clear(appBox, 'Log in again to view the admin panel.'); return; }
-            clear(depBox, 'Loading pending deposits...'); clear(appBox, 'Loading pending applications...');
-            if (msg) msg.textContent = '';
-            const [depRes, appRes] = await Promise.all([
-                supabaseClient.rpc('admin_list_pending_deposits', { p_limit: 50 }),
-                supabaseClient.rpc('admin_list_pending_applications', { p_limit: 50 })
-            ]);
-            if (depRes.error) {
-                const m = adminErrMsg(depRes.error, 'Could not load pending deposits.');
-                clear(depBox, m); if (msg) msg.textContent = m; console.error(depRes.error);
-            } else {
-                const rows = depRes.data || [];
-                depBox.innerHTML = rows.length ? rows.map(d => {
-                    const st = String(d.status || 'Pending');
-                    const cls = /^approved$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
-                    return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(d.user_email || 'Unknown user')}</p><p class="text-[11px] text-violet-200/60">${esc(d.gateway || 'Deposit')} | ${esc(d.trx || '-')}</p></div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(/^delete requested/i.test(st) ? 'Delete Requested' : st)}</span>
-                        </div>
-                        <div class="flex items-center justify-between gap-3">
-                            <p class="text-xs text-violet-100">Amount: <span class="font-bold text-amber-300">${formatMoney(d.amount ?? 0)}</span></p>
-                            <div class="flex gap-1.5">
-                                <button type="button" onclick="adminReviewDeposit(${d.id}, 'Approved')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-100">Approve</button>
-                                <button type="button" onclick="adminReviewDeposit(${d.id}, 'Rejected')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-rose-500/20 border border-rose-400/40 text-rose-100">Reject</button>
-                            </div>
-                        </div></div>`;
-                }).join('') : '<div class="text-center py-5 text-violet-200/60 text-xs">No pending deposits</div>';
-            }
-            if (appRes.error) {
-                const m = adminErrMsg(appRes.error, 'Could not load pending applications.');
-                clear(appBox, m); if (msg && !msg.textContent) msg.textContent = m; console.error(appRes.error);
-            } else {
-                const apps = appRes.data || [];
-                appBox.innerHTML = apps.length ? apps.map(a => {
-                    const st = String(a.status || 'Pending');
-                    const cls = /^approved$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
-                    return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="min-w-0"><p class="font-bold text-white text-sm truncate">Application #${esc(a.id)} (Job #${esc(a.job_id)})</p><p class="text-[11px] text-violet-200/60">${esc(a.user_email || '')}</p></div>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(/^delete requested/i.test(st) ? 'Delete Requested' : st)}</span>
-                        </div>
-                        <div class="flex items-center justify-end gap-1.5">
-                            <button type="button" onclick="adminReviewApplication(${a.id}, 'Approved')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-100">Approve</button>
-                            <button type="button" onclick="adminReviewApplication(${a.id}, 'Rejected')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-rose-500/20 border border-rose-400/40 text-rose-100">Reject</button>
-                        </div></div>`;
-                }).join('') : '<div class="text-center py-5 text-violet-200/60 text-xs">No pending applications</div>';
-            }
-        }
-        async function adminReviewDeposit(id, status) {
+    const depBox = document.getElementById('adminDepositsList');
+    const appBox = document.getElementById('adminApplicationsList');
+    const msg = document.getElementById('adminMsg');
+    if (!depBox) return;
+    const clear = (el, txt) => { if (el) el.innerHTML = `<div class="text-center py-5 text-violet-200/60 text-xs">${esc(txt)}</div>`; };
+    if (!(await requireAdminSession())) {
+        clear(depBox, 'Log in again to view the admin panel.');
+        clear(appBox, 'Job approvals are handled by Clients.');
+        return;
+    }
+    clear(depBox, 'Loading pending deposits...');
+    clear(appBox, 'Job approvals are handled by Clients.');
+    if (msg) msg.textContent = '';
+    const depRes = await supabaseClient.rpc('admin_list_pending_deposits', { p_limit: 50 });
+    if (depRes.error) {
+        const m = adminErrMsg(depRes.error, 'Could not load pending deposits.');
+        clear(depBox, m);
+        if (msg) msg.textContent = m;
+        console.error(depRes.error);
+        return;
+    }
+    const rows = depRes.data || [];
+    depBox.innerHTML = rows.length ? rows.map(d => {
+        const st = String(d.status || 'Pending');
+        const cls = /^approved$/i.test(st) ? 'bg-emerald-400/15 text-emerald-200' : /^rejected$/i.test(st) ? 'bg-rose-400/15 text-rose-200' : 'bg-amber-400/15 text-amber-200';
+        return `<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+            <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0"><p class="font-bold text-white text-sm truncate">${esc(d.user_email || 'Unknown user')}</p><p class="text-[11px] text-violet-200/60">${esc(d.gateway || 'Deposit')} | ${esc(d.trx || '-')}</p></div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${cls}">${esc(st)}</span>
+            </div>
+            <div class="flex items-center justify-between gap-3">
+                <p class="text-xs text-violet-100">Amount: <span class="font-bold text-amber-300">${formatMoney(d.amount ?? 0)}</span></p>
+                <div class="flex gap-1.5">
+                    <button type="button" onclick="adminReviewDeposit(${d.id}, 'Approved')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-100">Approve</button>
+                    <button type="button" onclick="adminReviewDeposit(${d.id}, 'Rejected')" class="text-[11px] font-bold px-3 py-2 rounded-xl bg-rose-500/20 border border-rose-400/40 text-rose-100">Reject</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('') : '<div class="text-center py-5 text-violet-200/60 text-xs">No pending deposits</div>';
+}
+async function adminReviewDeposit(id, status) {
             if (!supabaseClient) return;
             if (!window.confirm(`Confirm deposit ${status.toLowerCase()}?`)) return;
             const { error, data } = await supabaseClient.rpc('admin_review_deposit', { p_deposit_id: id, p_new_status: status });
@@ -4289,18 +4275,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             niceAlert(d.already ? `Already ${d.already}.` : `Deposit ${status.toLowerCase()} completed.`);
             renderAdminPanel();
         }
-        async function adminReviewApplication(id, status) {
-            if (!supabaseClient) return;
-            if (!window.confirm(`Confirm application ${status.toLowerCase()}?`)) return;
-            const { error, data } = await supabaseClient.rpc('admin_review_application', { p_application_id: id, p_new_status: status });
-            if (error) { niceAlert(adminErrMsg(error, 'Application review failed.')); return; }
-            const d = data || {};
-            niceAlert(d.already ? `Already ${d.already}.` : `Application ${status.toLowerCase()} completed.${d.credited ? ' Worker credited.' : ''}`);
-            renderAdminPanel();
-        }
-
-
-</script>
+        </script>
 <style id="tf-identity">
 /* TaskFlex identity: teal-violet accent, left rail nav on wide screens, accent-edged cards */
 :root{--tf-a:#10B981;--tf-b:#22D3EE}
