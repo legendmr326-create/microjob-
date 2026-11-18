@@ -1670,10 +1670,6 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 const authUser = data.user;
                 if (!authUser.email || String(authUser.email).trim().toLowerCase() !== email) throw new Error('Incorrect email or password.');
                 let phone = String((authUser.user_metadata && authUser.user_metadata.phone) || '');
-                try {
-                    const profile = await client.from('users').select('phone').eq('email', email).maybeSingle();
-                    if (!profile.error && profile.data && profile.data.phone) phone = String(profile.data.phone);
-                } catch (profileError) { console.warn('Could not load optional user profile.', profileError); }
                 const savedUser = (() => {
                     try { return JSON.parse(localStorage.getItem('taskflex_user') || 'null'); } catch (e) { return null; }
                 })();
@@ -1714,7 +1710,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             if (!user || !user.email || !client) return '';
             const email = String(user.email).trim().toLowerCase();
             // users.id is a database-generated numeric key, not the Supabase auth UUID.
-            const identity = { email, name: String(user.name || email.split('@')[0]), password: '' };
+            const identity = { email, name: String(user.name || email.split('@')[0]) };
             let profile = await client.from('users').select('email, name, referral_code').eq('email', email).maybeSingle();
             if (profile.error) { console.warn('Could not load referral profile by email.', profile.error); return ''; }
             if (!profile.data) {
