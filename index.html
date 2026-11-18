@@ -1857,6 +1857,26 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             try {
                 const client = await waitForSupabase();
                 if (!client) throw new Error('Supabase is not available');
+
+                // Keep the referral panel synchronized when an admin approves/rejects this user's KYC.
+                if (window.__referralKycEmail !== email) {
+                    if (window.__referralKycChannel) {
+                        try { await client.removeChannel(window.__referralKycChannel); } catch (removeError) { console.warn('Old KYC listener cleanup failed:', removeError); }
+                    }
+                    window.__referralKycEmail = email;
+                    window.__referralKycChannel = client.channel('referral-kyc-' + email)
+                        .on('postgres_changes', { event: '*', schema: 'public', table: KYC_TABLE, filter: 'user_email=eq.' + email }, function () {
+                            loadReferralSection();
+                        }).subscribe();
+                }
+                if (!window.__referralRefreshHooks) {
+                    window.__referralRefreshHooks = true;
+                    window.addEventListener('focus', function () { if (currentUser && currentUser.email) loadReferralSection(); });
+                    document.addEventListener('visibilitychange', function () {
+                        if (!document.hidden && currentUser && currentUser.email) loadReferralSection();
+                    });
+                }
+
                 const kycResult = await client.from(KYC_TABLE).select('status').eq('user_email', email).order('created_at', { ascending: false }).limit(1);
                 if (kycResult.error) throw kycResult.error;
                 const kycRows = Array.isArray(kycResult.data) ? kycResult.data : (kycResult.data ? [kycResult.data] : []);
@@ -1913,10 +1933,16 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     kycTableMissing = isMissingKycTableError(e);
                     renderKycCard();
                 }
-                if (link) { link.value = ''; link.placeholder = 'Referral link unavailable'; }
-                if (display) { display.value = ''; display.placeholder = 'Referral code unavailable'; }
-                if (e && e.code === 'PGRST116') setStatus('Could not load referral details. Please retry.', true);
-                else setStatus('রেফারেল তথ্য লোড হয়নি। আবার চেষ্টা করুন।', true);
+                // A secondary stats query must never hide a referral link that was already created.
+                const referralReady = !!((link && link.value) || (display && display.value));
+                if (!referralReady) {
+                    if (link) { link.value = ''; link.placeholder = 'Referral link unavailable'; }
+                    if (display) { display.value = ''; display.placeholder = 'Referral code unavailable'; }
+                    if (e && e.code === 'PGRST116') setStatus('Could not load referral details. Please retry.', true);
+                    else setStatus('রেফারেল তথ্য লোড হয়নি। আবার চেষ্টা করুন।', true);
+                } else {
+                    setStatus('আপনার রেফারেল লিংক ও কোড চালু আছে; কিছু পরিসংখ্যান লোড হয়নি। আবার চেষ্টা করুন।', true);
+                }
             }
             renderDailyState();
             loadLeaderboard();
