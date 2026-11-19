@@ -971,31 +971,35 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Selfie holding the ID (আইডি হাতে নিয়ে ছবি তুলুন)</label>
-                                <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3">
-                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" class="kyc-photo-input" aria-label="Capture selfie holding your ID with the front camera">
-                                    <input type="file" id="kycSelfieBack" accept="image/*" capture="environment" onchange="previewKycPhotoFrom('kycSelfieBack')" class="kyc-photo-input" aria-label="Capture selfie holding your ID with the back camera">
-                                    <button type="button" onclick="document.getElementById('kycSelfie').click()" class="w-full text-left">
-                                        <div class="flex items-center gap-3">
-                                            <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
-                                                <img id="kycSelfieThumb" alt="Selfie holding ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
-                                                <i id="kycSelfieGuide" class="fa-regular fa-user text-2xl"></i>
-                                                <span id="kycSelfieCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
-                                            </div>
-                                            <div class="min-w-0 flex-1">
-                                                <p class="text-sm font-bold">Tap to take selfie</p>
-                                                <p class="mt-1 text-xs opacity-70">Take a live camera photo holding your ID beside your face</p>
-                                                <p class="mt-1 text-[11px] opacity-60">Keep your face and ID clear</p>
-                                            </div>
-                                            <i class="fa-solid fa-camera text-lg text-amber-400"></i>
+                                <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 space-y-3">
+                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" class="kyc-photo-input" aria-label="Face verification selfie">
+                                    <div class="flex items-center gap-3">
+                                        <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
+                                            <img id="kycSelfieThumb" alt="Face verification photo preview" class="hidden absolute inset-0 h-full w-full object-cover">
+                                            <i id="kycSelfieGuide" class="fa-regular fa-user text-2xl"></i>
+                                            <span id="kycSelfieCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
                                         </div>
-                                    </button>
-                                    <div id="kycSelfieActions" class="hidden mt-2 flex flex-wrap items-center justify-between gap-2">
-                                        <div class="flex flex-wrap gap-2">
-                                            <button type="button" onclick="document.getElementById('kycSelfie').click()" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-camera mr-1"></i>Front camera</button>
-                                            <button type="button" onclick="document.getElementById('kycSelfieBack').click()" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-camera mr-1"></i>Back camera</button>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-bold">Face Verification</p>
+                                            <p class="mt-1 text-xs opacity-70">ক্যামেরায় মুখ দেখিয়ে নিচের নির্দেশনাগুলো অনুসরণ করুন</p>
+                                            <p class="mt-1 text-[11px] opacity-60">শেষে আপনার মুখের ছবি অ্যাডমিন দেখবেন</p>
                                         </div>
-                                        <button type="button" onclick="document.getElementById('kycSelfie').click()" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-rotate mr-1"></i>Retake</button>
                                     </div>
+                                    <div id="kycFaceCamera" class="hidden space-y-2">
+                                        <video id="kycFaceVideo" autoplay playsinline muted class="w-full max-h-64 rounded-xl bg-black object-cover"></video>
+                                        <p id="kycFacePrompt" class="text-center text-sm font-bold text-amber-300">ক্যামেরা প্রস্তুত হচ্ছে...</p>
+                                        <p id="kycFaceStep" class="text-center text-[11px] opacity-70">ধাপ ১ / ৪</p>
+                                        <div class="flex gap-2">
+                                            <button type="button" id="kycFaceNext" onclick="nextKycFaceStep()" class="hidden btn-amber flex-1 py-2.5 rounded-xl text-xs font-bold">পরের ধাপ</button>
+                                            <button type="button" onclick="captureKycFace()" id="kycFaceCapture" disabled class="btn-amber flex-1 py-2.5 rounded-xl text-xs font-bold opacity-40">মুখের ছবি তুলুন</button>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" id="kycFaceStart" onclick="startKycFaceCamera()" class="btn-amber flex-1 py-2.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-camera mr-1"></i> Face Verification শুরু</button>
+                                        <button type="button" onclick="document.getElementById('kycSelfie').click()" class="border border-white/15 px-3 py-2.5 rounded-xl text-xs font-bold">ক্যামেরা না চললে ছবি দিন</button>
+                                        <button type="button" id="kycFaceRetake" onclick="startKycFaceCamera()" class="hidden border border-amber-400/40 px-3 py-2.5 rounded-xl text-xs font-bold text-amber-300">আবার তুলুন</button>
+                                    </div>
+                                    <p id="kycFaceNotice" class="text-[10px] leading-relaxed opacity-65">নির্দেশনাগুলো অনুসরণ করে ছবি তুলুন। এটি গাইডেড ক্যামেরা ক্যাপচার; স্বয়ংক্রিয় জীবন্ত-মানুষ শনাক্তকরণ বা মুখ মেলানোর পরীক্ষা নয়।</p>
                                 </div>
                             </div>
                         </div>
@@ -2859,6 +2863,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             document.getElementById('kycCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         function closeKycForm() {
+            stopKycFaceCamera();
             document.getElementById('kycFormPanel').classList.add('hidden');
             renderKycCard();
         }
@@ -2876,6 +2881,82 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (!err) return false;
             const m = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
             return /document_type|documents_json/.test(m) && /column|schema cache|could not find|does not exist/.test(m);
+        }
+
+        let kycFaceStream = null;
+        let kycFaceStepIndex = 0;
+        const KYC_FACE_STEPS = [
+            'ক্যামেরার দিকে সোজা তাকান',
+            'ধীরে মাথা ডান দিকে ঘোরান',
+            'ধীরে মাথা বাম দিকে ঘোরান',
+            'একবার চোখের পলক ফেলুন'
+        ];
+        function stopKycFaceCamera() {
+            if (kycFaceStream) kycFaceStream.getTracks().forEach(track => track.stop());
+            kycFaceStream = null;
+            const video = document.getElementById('kycFaceVideo');
+            if (video) video.srcObject = null;
+        }
+        async function startKycFaceCamera() {
+            const notice = document.getElementById('kycFaceNotice');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                if (notice) notice.textContent = 'এই ব্রাউজারে সরাসরি ক্যামেরা চালু হচ্ছে না। নিচের ছবি দেওয়ার অপশন ব্যবহার করুন।';
+                return;
+            }
+            try {
+                stopKycFaceCamera();
+                kycFaceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+                const video = document.getElementById('kycFaceVideo');
+                video.srcObject = kycFaceStream;
+                await video.play();
+                kycFaceStepIndex = 0;
+                document.getElementById('kycFaceCamera').classList.remove('hidden');
+                document.getElementById('kycFaceStart').classList.add('hidden');
+                document.getElementById('kycFaceRetake').classList.add('hidden');
+                document.getElementById('kycFacePrompt').textContent = KYC_FACE_STEPS[0];
+                document.getElementById('kycFaceStep').textContent = 'ধাপ ১ / ৪';
+                document.getElementById('kycFaceNext').classList.remove('hidden');
+                document.getElementById('kycFaceCapture').disabled = true;
+                document.getElementById('kycFaceCapture').classList.add('opacity-40');
+                if (notice) notice.textContent = 'প্রতিটি নির্দেশনা করার পর “পরের ধাপ” চাপুন। সব ধাপ শেষে মুখের ছবি তুলুন।';
+            } catch (e) {
+                stopKycFaceCamera();
+                if (notice) notice.textContent = 'ক্যামেরা চালু হয়নি। ব্রাউজারে Camera permission দিন, অথবা নিচের ছবি দেওয়ার অপশন ব্যবহার করুন।';
+            }
+        }
+        function nextKycFaceStep() {
+            if (kycFaceStepIndex < KYC_FACE_STEPS.length - 1) {
+                kycFaceStepIndex++;
+                document.getElementById('kycFacePrompt').textContent = KYC_FACE_STEPS[kycFaceStepIndex];
+                document.getElementById('kycFaceStep').textContent = 'ধাপ ' + (kycFaceStepIndex + 1) + ' / ৪';
+                if (kycFaceStepIndex === KYC_FACE_STEPS.length - 1) {
+                    document.getElementById('kycFaceNext').classList.add('hidden');
+                    document.getElementById('kycFaceCapture').disabled = false;
+                    document.getElementById('kycFaceCapture').classList.remove('opacity-40');
+                }
+            }
+        }
+        async function captureKycFace() {
+            const video = document.getElementById('kycFaceVideo');
+            if (!kycFaceStream || !video || !video.videoWidth) { niceAlert('ক্যামেরা প্রস্তুত হয়নি। আবার চেষ্টা করুন।'); return; }
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(1, 1280 / video.videoWidth);
+            canvas.width = Math.round(video.videoWidth * scale);
+            canvas.height = Math.round(video.videoHeight * scale);
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.88));
+            if (!blob) { niceAlert('ছবি তৈরি করা যায়নি। আবার চেষ্টা করুন।'); return; }
+            const file = new File([blob], 'face-verification.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+            const input = document.getElementById('kycSelfie');
+            const transfer = new DataTransfer();
+            transfer.items.add(file);
+            input.files = transfer.files;
+            stopKycFaceCamera();
+            document.getElementById('kycFaceCamera').classList.add('hidden');
+            document.getElementById('kycFaceRetake').classList.remove('hidden');
+            previewKycPhoto('kycSelfie');
+            const notice = document.getElementById('kycFaceNotice');
+            if (notice) notice.textContent = 'মুখের ছবি নেওয়া হয়েছে। অ্যাডমিন আপনার ছবি ও পরিচয়পত্র মিলিয়ে ম্যানুয়ালি যাচাই করবেন।';
         }
 
         const KYC_ALT_SOURCES = { kycSelfieBack: 'kycSelfie' };
@@ -3010,7 +3091,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const full = Object.assign({}, base, {
                 document_type: docType,
                 documents_json: JSON.stringify(docs),
-                personal_details_json: JSON.stringify({ date_of_birth: dob, verification_stage: 'manual_review_required', note: 'OCR and biometric checks are not performed automatically.' })
+                personal_details_json: JSON.stringify({ date_of_birth: dob, verification_stage: 'guided_face_capture_manual_review', face_challenges: ['look_straight', 'turn_right', 'turn_left', 'blink'], note: 'Guided camera capture only. Automated liveness detection and face matching are not performed.' })
             });
             const { error } = await supabaseClient.from(KYC_TABLE).insert([full]);
             setKycBusy(false);
