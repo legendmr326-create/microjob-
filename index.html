@@ -387,6 +387,51 @@ Check your Browserslist config to be sure that your targets are set up correctly
             #tab-profile .min-w-0, #tab-withdraw .min-w-0 { min-width: 0; }
         }
     </style>
+
+<style id="workzen-full-redesign">
+/* WorkZen full-site visual refresh — presentation only; existing IDs, forms and actions stay intact. */
+:root{color-scheme:light;--wz-blue:#1559c7;--wz-blue2:#287cf0;--wz-ink:#14243b;--wz-muted:#64748b;--wz-line:#e4ebf5;--wz-bg:#f4f7fc}
+html,body{background:var(--wz-bg)!important;color:var(--wz-ink)!important}
+body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif!important;background:radial-gradient(900px 420px at 0% -10%,#dceaff 0%,transparent 65%),linear-gradient(180deg,#f7faff,#eef3fa)!important}
+body>.w-full.max-w-md{background:#f7f9fd!important;border-color:#e4ebf5!important;box-shadow:0 0 48px rgba(22,57,104,.09)!important}
+#appHeader{background:rgba(255,255,255,.94)!important;border-color:#e5ebf4!important;color:#14243b!important;box-shadow:0 6px 22px rgba(24,55,94,.06)!important}
+#appHeader .text-white,#appHeader .text-violet-200\/80{color:#172b49!important}
+#appHeader .logo-orb{background:linear-gradient(135deg,#1763d5,#49a1ff)!important}
+#appMain{background:transparent!important;color:#172b49!important}
+#appMain h1,#appMain h2,#appMain h3,#appMain h4,#appMain .text-white{color:#172b49!important}
+#appMain .text-violet-100\/75,#appMain .text-violet-200\/70,#appMain .text-violet-200\/60,#appMain .text-violet-200\/80,#appMain .text-violet-300{color:#64748b!important}
+#appMain .glass-card,#accountModal .glass-card{background:#fff!important;border:1px solid #e5ebf4!important;box-shadow:0 8px 24px rgba(27,55,91,.055)!important;backdrop-filter:none!important;color:#172b49!important}
+#appMain .balance-card,#appMain [class*="balance-card"]{background:linear-gradient(130deg,#103d91 0%,#1765d4 55%,#3994f6 100%)!important;border:0!important;box-shadow:0 14px 30px rgba(21,89,199,.19)!important;color:#fff!important}
+#appMain .balance-card h3,#appMain .balance-card p,#appMain .balance-card span,#appMain .balance-card button{color:#fff!important}
+#appMain .balance-label{color:#dbeafe!important}
+#appMain .btn-amber,#appMain .btn-violet,#authOverlay .btn-amber,#authOverlay .btn-violet{background:linear-gradient(110deg,#1559c7,#287cf0)!important;color:#fff!important;border:0!important;box-shadow:0 7px 18px rgba(21,89,199,.18)!important}
+#appMain button:not(.cat-chip):not([class*="bg-rose"]):not([class*="text-rose"]),#accountModal button{transition:background-color .18s ease,border-color .18s ease,transform .18s ease}
+#appMain input,#appMain select,#appMain textarea,#authOverlay input,#authOverlay select,#authOverlay textarea{background:#fff!important;color:#172b49!important;border:1px solid #dce5f1!important;border-radius:14px!important;box-shadow:0 1px 2px rgba(18,42,75,.025)!important}
+#appMain input::placeholder,#appMain textarea::placeholder,#authOverlay input::placeholder{color:#94a3b8!important}
+#appMain .field{background:#fff!important;border-color:#dce5f1!important;color:#172b49!important}
+#appMain [class*="border-white/"],#appHeader [class*="border-white/"]{border-color:#e5ebf4!important}
+#appMain [class*="bg-bgDark"],#appMain [class*="bg-cardDark"]{background-color:#f7f9fd!important}
+#appMain .cat-chip{border-color:#dce5f1!important}
+#appMain .cat-chip.bg-amber-400{background:#1559c7!important;color:#fff!important;border-color:#1559c7!important}
+#authOverlay{background:linear-gradient(160deg,#f7faff 0%,#edf4ff 100%)!important;color:#172b49!important}
+#authOverlay .landing-hero{color:#172b49!important}
+#authOverlay .landing-brand,#authOverlay h1,#authOverlay h2,#authOverlay h3,#authOverlay .text-white{color:#172b49!important}
+#authOverlay .glass-card,#authOverlay [class*="glass-card"]{background:#fff!important;border:1px solid #e3ebf6!important;box-shadow:0 12px 34px rgba(30,64,110,.08)!important;color:#172b49!important}
+#authOverlay .hero-title{background:linear-gradient(90deg,#1559c7,#3294f5)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+#authOverlay .logo-orb{background:linear-gradient(135deg,#1559c7,#58a8ff)!important}
+#accountModal{background:rgba(12,28,52,.48)!important;backdrop-filter:blur(8px)!important}
+#accountModal>div{background:#f5f8fd!important;color:#172b49!important}
+#accountModal .text-white{color:#172b49!important}
+#accountModal .border-white\/10{border-color:#e4ebf5!important}
+#accountModal .text-violet-200\/50{color:#8291a7!important}
+#appMain .bg-rose-500\/10{background:#fff1f2!important}
+#appMain .text-amber-300,#appMain .text-amber-400{color:#1559c7!important}
+#appMain .text-rose-300{color:#e11d48!important}
+#appMain .shadow-xl{box-shadow:0 10px 28px rgba(27,55,91,.08)!important}
+@media(min-width:640px){body>.w-full.max-w-md{border-radius:24px;overflow:hidden;margin:18px auto;min-height:calc(100vh - 36px)}}
+@media(prefers-reduced-motion:reduce){#appMain *,#accountModal *{transition:none!important;animation:none!important}}
+</style>
+
 </head>
 <body class="flex justify-center min-h-screen">
 
