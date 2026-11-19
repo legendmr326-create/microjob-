@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "TaskFlex",
-  "short_name": "TaskFlex",
-  "description": "TaskFlex is a micro job platform in Bangladesh where people can find and complete online tasks.",
+  "name": "WorkZen",
+  "short_name": "WorkZen",
+  "description": "WorkZen is a micro job platform in Bangladesh where people can find and complete online tasks.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
