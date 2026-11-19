@@ -15,8 +15,8 @@
     <script>
         // Apply the saved appearance before the page paints. First-time visitors start in light mode.
         (function () {
-            let choice = 'light';
-            try { choice = localStorage.getItem('workzen_theme') || 'light'; } catch (e) {}
+            let choice = 'dark';
+            try { localStorage.setItem('workzen_theme', 'dark'); } catch (e) {}
             if (!['light', 'dark', 'system'].includes(choice)) choice = 'light';
             const effective = choice === 'system'
                 ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
@@ -398,7 +398,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
                     <div class="flex min-w-0 items-center gap-2.5">
                         <div class="logo-orb landing-logo w-12 h-12 rounded-2xl p-[2px]">
-                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><img src="/icons/workzen.png" alt="WorkZen W logo" class="w-full h-full object-cover rounded-[16px]"></div>
+                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-300 text-lg" aria-hidden="true"></i></div>
                         </div>
                         <span class="landing-brand text-base font-bold text-white truncate">WorkZen</span>
                     </div>
@@ -406,7 +406,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
                 <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;">
                     <div class="flex items-center justify-between mb-5">
-                        <button type="button" onclick="closeAuthMenuToHome()" aria-label="WorkZen home" class="auth-menu-brand flex items-center gap-3 text-lg font-black"><span class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><span class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><img src="/icons/workzen.png" alt="WorkZen W logo" class="w-full h-full object-cover rounded-[16px]"></span></span><span>WorkZen</span></button>
+                        <button type="button" onclick="closeAuthMenuToHome()" aria-label="WorkZen home" class="auth-menu-brand flex items-center gap-3 text-lg font-black"><span class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><span class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg" aria-hidden="true"></i></span></span><span>WorkZen</span></button>
                         <button type="button" onclick="closeAuthMenuToHome()" aria-label="Close menu" class="auth-menu-close text-2xl p-3"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <nav class="auth-menu-items" aria-label="Main menu">
@@ -4299,8 +4299,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         function getThemeChoice() {
             try {
                 const saved = localStorage.getItem(themeKey);
-                return validThemes.includes(saved) ? saved : 'light';
-            } catch (e) { return 'light'; }
+                return validThemes.includes(saved) ? saved : 'dark';
+            } catch (e) { return 'dark'; }
         }
         function resolveTheme(choice) {
             if (choice !== 'system') return choice;
