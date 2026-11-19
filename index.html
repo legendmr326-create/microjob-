@@ -462,15 +462,21 @@ body>.w-full.max-w-md{width:min(100%,1440px)!important;max-width:1440px!importan
         <!-- AUTH OVERLAY (Login / Register) -->
         <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-center justify-center px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-7xl mx-auto">
             <div id="landingHero" class="landing-hero text-left mb-7 w-full">
-                <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
-                    <div class="flex min-w-0 items-center gap-2.5">
-                        <div class="logo-orb landing-logo w-12 h-12 rounded-2xl p-[2px]">
-                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-300 text-lg"></i></div>
-                        </div>
-                        <span class="landing-brand text-base font-bold text-white truncate">Micro job WorkZen</span>
-                    </div>
-                    <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
-                </div>
+                <header class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
+                    <button type="button" onclick="closeAuthMenuToHome()" class="landing-brand-wrap flex min-w-0 items-center gap-3" aria-label="WorkZen Home">
+                        <img src="/icons/workzen.svg" alt="WorkZen" class="landing-logo-img w-14 h-14 rounded-2xl" width="56" height="56">
+                        <span class="landing-brand text-2xl md:text-3xl font-extrabold tracking-tight">Work<span>Zen</span></span>
+                    </button>
+                    <nav class="landing-desktop-nav hidden md:flex items-center gap-2" aria-label="Main navigation">
+                        <button type="button" class="landing-nav-link is-active" onclick="closeAuthMenuToHome()"><i class="fa-solid fa-house"></i> Home</button>
+                        <button type="button" class="landing-nav-link" onclick="showAuthLogin()"><i class="fa-solid fa-briefcase"></i> Jobs</button>
+                        <button type="button" class="landing-nav-link" onclick="navigateAuthMenu('refer')"><i class="fa-solid fa-gift"></i> Rewards</button>
+                        <button type="button" class="landing-nav-link" onclick="navigateAuthMenu('support')"><i class="fa-solid fa-circle-question"></i> Support</button>
+                        <button type="button" class="landing-nav-link" onclick="showAuthLogin()"><i class="fa-solid fa-user"></i> Login</button>
+                        <button type="button" class="landing-register-btn" onclick="navigateAuthMenu('register')"><i class="fa-solid fa-user-plus"></i> Register</button>
+                    </nav>
+                    <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button md:hidden w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
+                </header>
                 <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;">
                     <div class="flex items-center justify-between mb-5">
                         <button type="button" onclick="closeAuthMenuToHome()" aria-label="WorkZen home" class="auth-menu-brand flex items-center gap-3 text-lg font-black"><span class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><span class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg"></i></span></span><span>WorkZen</span></button>
@@ -489,10 +495,14 @@ body>.w-full.max-w-md{width:min(100%,1440px)!important;max-width:1440px!importan
                     <p class="auth-menu-footer mt-6 text-xs text-violet-700/60">&copy;2026 Micro job WorkZen</p>
                 </div>
                 <section class="landing-copy" aria-label="WorkZen introduction">
-                    <h2 class="landing-title font-black"><span>Best Microjob &amp;</span><span>Freelancing Site To</span><span class="hero-title">Make Money Online</span></h2>
+                    <div class="landing-eyebrow"><span class="landing-eyebrow-dot"></span> Work Smart <b>•</b> Earn More <b>•</b> Grow Together</div>
+                    <h2 class="landing-title font-black"><span>Online Work,</span><span>Real Opportunities</span><span class="hero-title">Earn with WorkZen</span></h2>
+                    <p class="landing-description">Discover flexible online tasks, complete work at your pace, and grow your earnings with WorkZen.</p>
                     <div class="landing-trust"><span class="trust-shield"><i class="fa-solid fa-check"></i></span><span>Trusted Platform 100%</span></div>
-                    <div class="trust-underline"></div>
-                    <button type="button" onclick="showAuthLogin()" class="landing-cta">Earn Money <span aria-hidden="true">→</span></button>
+                    <div class="landing-hero-actions">
+                        <button type="button" onclick="navigateAuthMenu('register')" class="landing-cta">Get Started <span aria-hidden="true">→</span></button>
+                        <button type="button" onclick="openAppDownload()" class="landing-secondary-cta"><i class="fa-solid fa-download"></i> Install WorkZen</button>
+                    </div>
                 </section>
                 <div class="landing-art" aria-hidden="true">
                     <svg viewBox="0 0 420 320" role="img" class="landing-illustration" xmlns="http://www.w3.org/2000/svg">
@@ -505,6 +515,16 @@ body>.w-full.max-w-md{width:min(100%,1440px)!important;max-width:1440px!importan
                         <g transform="translate(331 86)"><rect width="52" height="48" rx="14" fill="#312b72" stroke="#7362df"/><path d="M14 25c-7-10 5-16 12-7 7-9 19-3 12 7L26 37z" fill="#f36bb4"/></g><g transform="translate(344 157)"><rect width="48" height="46" rx="13" fill="#174b82" stroke="#388bd3"/><path d="m12 24 8 8 17-19" fill="none" stroke="#8fe7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
                         <path d="M272 253h114l-14 39h-111z" fill="#aeb9d6"/><path d="M285 258h86l-9 25h-87z" fill="#53638e"/><path d="M287 286h82" stroke="#d4ddf4" stroke-width="3"/>
                     </svg>
+                </div>
+                <aside class="landing-install-card" aria-label="Install WorkZen">
+                    <div class="landing-install-icon"><img src="/icons/workzen.svg" alt="WorkZen app icon" width="72" height="72"></div>
+                    <div class="landing-install-copy"><h3>Install WorkZen</h3><p>Get quick access to WorkZen on your device.</p></div>
+                    <button type="button" onclick="openAppDownload()" class="landing-install-action"><i class="fa-solid fa-download"></i><span>Install</span></button>
+                </aside>
+                <div class="landing-feature-strip" aria-label="WorkZen benefits">
+                    <div><span class="landing-feature-icon"><i class="fa-solid fa-shield-halved"></i></span><strong>Trusted Platform</strong><small>Work with confidence</small></div>
+                    <div><span class="landing-feature-icon"><i class="fa-solid fa-lock"></i></span><strong>Secure &amp; Reliable</strong><small>Your account matters</small></div>
+                    <div><span class="landing-feature-icon"><i class="fa-solid fa-bolt"></i></span><strong>Easy to Use</strong><small>Simple and clear experience</small></div>
                 </div>
             </div>
 
@@ -4492,80 +4512,6 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 
 
 </script>
-<style id="tf-identity">
-/* WorkZen identity: teal-violet accent, left rail nav on wide screens, accent-edged cards */
-:root{--tf-a:#10B981;--tf-b:#22D3EE}
-.glass-card{position:relative;overflow:hidden}
-.glass-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--tf-a),var(--tf-b));opacity:.85;pointer-events:none}
-header#appHeader{border-bottom:2px solid transparent!important;border-image:linear-gradient(90deg,var(--tf-a),var(--tf-b),#F59E0B) 1!important}
-.nav-btn{position:relative}
-.nav-btn.text-amber-300{background:linear-gradient(180deg,rgba(20,184,166,.18),rgba(139,92,246,.14))}
-.nav-btn.text-amber-300::after{content:"";position:absolute;top:-2px;left:28%;right:28%;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--tf-a),var(--tf-b))}
-html[data-theme-effective="light"] .nav-btn.text-amber-300{color:#0F766E!important;background:rgba(20,184,166,.14)}
-html[data-theme-effective="light"] .glass-card::before{opacity:.7}
-@media (min-width:1024px){
-  body>div.w-full.max-w-md{max-width:780px!important;margin-left:260px;padding-bottom:2rem!important}
-  body{justify-content:center}
-  body>div.w-full.max-w-md>nav.nav-glass{position:fixed!important;left:0!important;top:0!important;bottom:0!important;transform:none!important;width:240px!important;max-width:240px!important;height:100vh;display:flex!important;flex-direction:column;justify-content:flex-start;gap:6px;padding:92px 14px 14px!important;border-top:0!important;border-right:1px solid rgba(196,181,253,.16);box-shadow:8px 0 30px -18px rgba(0,0,0,.5)!important}
-  body>div.w-full.max-w-md>nav.nav-glass::before{content:"WorkZen";position:absolute;top:26px;left:20px;font-weight:900;font-size:22px;letter-spacing:-.02em;background:linear-gradient(90deg,var(--tf-a),var(--tf-b));-webkit-background-clip:text;background-clip:text;color:transparent}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn{flex-direction:row!important;justify-content:flex-start;gap:12px;padding:12px 14px!important;border-radius:14px;text-align:left}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn i{margin:0!important;width:20px;text-align:center}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn span{font-size:13px!important}
-  .nav-btn.text-amber-300::after{top:20%;bottom:20%;left:-14px;right:auto;width:4px;height:auto}
-  .nav-btn:hover{background:rgba(139,92,246,.1)}
-  header#appHeader .flex.items-center.gap-2\.5 span{background:linear-gradient(90deg,var(--tf-a),var(--tf-b));-webkit-background-clip:text;background-clip:text;color:transparent!important}
-}
-body:has(#appMain.hidden)>div.w-full.max-w-md>nav.nav-glass{display:none!important}
-body:has(#appMain.hidden)>div.w-full.max-w-md{margin-left:auto!important}
 
-/* admin-palette pass */
-body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:#0B0F17!important}
-h1,h2,h3,h4{font-weight:800;letter-spacing:-.01em}
-.glass-card{background:#131926!important;border:1px solid #1F2937!important;backdrop-filter:none}
-.field{background:#0B0F17!important;border-color:#1F2937!important}
-.field:focus{border-color:#10B981!important;box-shadow:0 0 0 3px rgba(16,185,129,.18)!important}
-.btn-amber{background:#10B981!important;color:#04130d!important;box-shadow:none!important}
-.btn-violet{background:#1F2937!important;color:#E5E7EB!important;box-shadow:none!important}
-body:not(:has(#landingHero)) .hero-title{background:linear-gradient(90deg,#34D399,#22D3EE)!important;-webkit-background-clip:text;background-clip:text}
-.nav-glass{background:rgba(11,15,23,.92)!important;border-top:1px solid #1F2937!important}
-.nav-btn span{font-weight:700;letter-spacing:.01em}
-.nav-btn.text-amber-300{color:#04130d!important;background:#34D399!important;border-radius:999px!important;margin:0 3px}
-.nav-btn.text-amber-300::after{top:auto;bottom:-6px;left:22%;right:22%;height:2px;background:linear-gradient(90deg,#10B981,#22D3EE)}
-/* unique balance hero: deep teal to indigo */
-.balance-card{background:linear-gradient(135deg,#0E7490 0%,#312E81 100%)!important;padding:.9rem 1rem!important}
-.balance-card .balance-label{font-size:.7rem!important}
-.balance-card .balance-value{font-size:1.6rem!important;color:#A7F3D0!important;line-height:1.15}
-.balance-card .balance-cash-out,.balance-card .balance-add-funds{color:#0B3F45!important}
-/* approved = deep green, rejected = deep red */
-.bg-emerald-400\/15,.bg-emerald-400\/20,.bg-emerald-500\/20{background:rgba(5,150,105,.28)!important}
-.bg-rose-400\/15,.bg-rose-500\/20{background:rgba(153,27,27,.45)!important}
-.text-emerald-200,.text-emerald-100,.text-emerald-300{color:#34D399!important}
-.text-rose-200,.text-rose-100,.text-rose-300{color:#F87171!important}
-html[data-theme-effective="light"] .nav-btn.text-amber-300{color:#04130d!important;background:#34D399!important}
-@media(min-width:1024px){body>div.w-full.max-w-md>nav.nav-glass .nav-btn{margin:0}}
-
-/* tf-nav v2: unique side/nav design (admin palette). CSS only, no markup/behavior change */
-nav.nav-glass{background:rgba(19,25,38,.94)!important;border:1px solid #1F2937!important;border-radius:22px 22px 0 0!important;box-shadow:0 -12px 32px -14px rgba(0,0,0,.7)!important;gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important}
-nav.nav-glass .nav-btn{border-radius:16px!important;color:#9CA3AF!important;margin:0!important;padding:7px 2px!important;overflow:hidden}
-nav.nav-glass .nav-btn i{width:34px;height:26px;line-height:26px;border-radius:999px;margin-bottom:2px!important;transition:background .2s,color .2s}
-nav.nav-glass .nav-btn span{font-size:10px!important;font-weight:700;letter-spacing:.02em}
-nav.nav-glass .nav-btn.text-amber-300{background:transparent!important;color:#34D399!important;border-radius:16px!important}
-nav.nav-glass .nav-btn.text-amber-300 i{background:rgba(16,185,129,.18);color:#34D399;box-shadow:inset 0 0 0 1px rgba(52,211,153,.35)}
-nav.nav-glass .nav-btn.text-amber-300::after{content:"";top:0;bottom:auto;left:30%;right:30%;height:3px;width:auto;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#10B981,#22D3EE)}
-@media (min-width:1024px){
-  body>div.w-full.max-w-md>nav.nav-glass{width:250px!important;max-width:250px!important;background:linear-gradient(180deg,#0F1522 0%,#0B0F17 100%)!important;border:0!important;border-right:1px solid #1F2937!important;border-radius:0!important;padding:96px 14px 14px!important;gap:4px;box-shadow:none!important}
-  body>div.w-full.max-w-md>nav.nav-glass::before{content:"WorkZen";top:28px;left:22px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(90deg,#34D399,#22D3EE);-webkit-background-clip:text;background-clip:text;color:transparent}
-  body>div.w-full.max-w-md>nav.nav-glass::after{content:"MENU";position:absolute;top:70px;left:22px;font-size:10px;font-weight:800;letter-spacing:.18em;color:#6B7280}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn{padding:9px 12px!important;border-radius:14px!important;gap:12px;color:#9CA3AF!important;border:1px solid transparent}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn i{width:34px;height:34px;line-height:34px;border-radius:11px;background:#131926;box-shadow:inset 0 0 0 1px #1F2937;font-size:14px;margin:0!important}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn span{font-size:13px!important;font-weight:700}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn:hover{background:#131926;color:#E5E7EB!important}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300{background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(34,211,238,.04))!important;border-color:rgba(52,211,153,.28);color:#34D399!important}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300 i{background:#10B981;color:#04130d;box-shadow:0 6px 16px -6px rgba(16,185,129,.7)}
-  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300::after{top:22%;bottom:22%;left:-14px;right:auto;width:4px;height:auto;border-radius:0 4px 4px 0}
-}
-html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){color:#6B7280!important}
-@media(max-width:380px){nav.nav-glass .nav-btn span{font-size:9px!important}nav.nav-glass .nav-btn i{width:30px}}
-</style>
 </body>
 </html>
