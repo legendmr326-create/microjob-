@@ -2991,13 +2991,10 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 try {
                     const compressed = await compressKycPhoto(s.file);
                     const photoFile = new File([compressed], s.type + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
-                    const path = Date.now() + '_' + s.type + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
+                    const path = currentUser.id + '/' + Date.now() + '_' + s.type + '_' + Math.random().toString(36).slice(2, 8) + '.jpg';
                     const up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, photoFile, { cacheControl: '3600', upsert: false, contentType: 'image/jpeg' });
                     if (up.error) throw up.error;
-                    const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
-                    const url = (pub && pub.data && pub.data.publicUrl) || null;
-                    if (!url) throw new Error('no public url returned');
-                    docs.push({ type: s.type, url: url });
+                    docs.push({ type: s.type, path: path });
                 } catch (e) {
                     console.warn('KYC ' + s.type + ' photo upload failed:', e);
                     failed.push(s.label);
@@ -3008,8 +3005,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 niceAlert('Could not upload: ' + failed.join(', ') + '. Please try again.');
                 return;
             }
-            const frontUrl = (docs.find(d => d.type === 'front') || {}).url || null;
-            const base = { user_email: currentUser.email, full_name: name, id_number: idNumber, id_photo_url: frontUrl, status: 'Pending', created_at: new Date().toISOString() };
+            const frontPath = (docs.find(d => d.type === 'front') || {}).path || null;
+            const base = { user_email: currentUser.email, full_name: name, id_number: idNumber, id_photo_url: frontPath, status: 'Pending', created_at: new Date().toISOString() };
             const full = Object.assign({}, base, {
                 document_type: docType,
                 documents_json: JSON.stringify(docs),
