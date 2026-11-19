@@ -387,130 +387,23 @@ Check your Browserslist config to be sure that your targets are set up correctly
             #tab-profile .min-w-0, #tab-withdraw .min-w-0 { min-width: 0; }
         }
     </style>
-
-<style id="workzen-full-redesign">
-/* WorkZen visual system based on the user's supplied blue-white reference. UI only. */
-:root{color-scheme:light;--wz-navy:#09245f;--wz-blue:#075cf5;--wz-blue2:#2688ff;--wz-pale:#eaf3ff;--wz-line:#dce8fa;--wz-text:#17264a;--wz-muted:#61708c;--wz-shadow:0 12px 34px rgba(25,83,170,.10)}
-html,body{min-height:100%;background:#edf5ff!important;color:var(--wz-text)!important}
-body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif!important;background:radial-gradient(ellipse at 12% 8%,#dcecff 0,transparent 34%),radial-gradient(ellipse at 95% 38%,#dceaff 0,transparent 30%),linear-gradient(145deg,#f8fbff,#eaf3ff)!important;background-attachment:fixed!important;-webkit-font-smoothing:antialiased}
-body>.w-full.max-w-md{width:min(100%,1440px)!important;max-width:1440px!important;min-height:100vh!important;margin:0 auto!important;background:transparent!important;border:0!important;box-shadow:none!important;overflow:visible!important}
-#authOverlay{width:100%!important;max-width:1440px!important;left:50%!important;transform:translateX(-50%)!important;padding:28px clamp(16px,4vw,64px)!important;background:linear-gradient(145deg,rgba(245,250,255,.98),rgba(226,240,255,.98))!important;color:var(--wz-text)!important}
-#authOverlay .landing-hero{max-width:1100px!important;margin:0 auto 26px!important}
-#authOverlay .landing-topbar{padding:14px 20px!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:26px!important;background:rgba(255,255,255,.88)!important;box-shadow:var(--wz-shadow)!important}
-#authOverlay .landing-brand,#authOverlay h1,#authOverlay h2,#authOverlay h3,#authOverlay .text-white{color:var(--wz-navy)!important}
-#authOverlay .landing-logo,#appHeader .logo-orb{background:linear-gradient(135deg,#0861f4,#51a9ff)!important}
-#authOverlay .landing-copy{max-width:1100px!important;margin:0 auto!important}
-#authOverlay .landing-title{line-height:1.12!important}
-#authOverlay .glass-card,#authOverlay [class*="glass-card"]{background:rgba(255,255,255,.92)!important;border:1px solid #dce9fb!important;box-shadow:0 16px 42px rgba(33,91,170,.10)!important;color:var(--wz-text)!important;backdrop-filter:blur(12px)!important}
-#authOverlay .hero-title{background:linear-gradient(90deg,#075cf5,#2b91ff)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
-#authOverlay input,#authOverlay select,#authOverlay textarea{background:#fff!important;color:var(--wz-text)!important;border:1px solid #cfddf2!important;border-radius:15px!important}
-#authOverlay .btn-amber,#authOverlay .btn-violet,#authOverlay button[type=submit]{background:linear-gradient(105deg,#075cf5,#278bff)!important;color:#fff!important;border:0!important;box-shadow:0 9px 22px rgba(7,92,245,.22)!important}
-#appHeader{position:sticky!important;top:0!important;margin:12px 12px 0!important;padding:14px 22px!important;border:1px solid rgba(255,255,255,.95)!important;border-radius:24px!important;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(18px)!important;box-shadow:0 8px 28px rgba(25,83,170,.09)!important;color:var(--wz-navy)!important}
-#appHeader .text-white,#appHeader .text-violet-200\/80{color:var(--wz-navy)!important}
-#appHeader button{border-radius:14px!important}
-#appHeader #notifBadge{background:#075cf5!important;color:#fff!important}
-#appMain{padding:clamp(16px,2.6vw,36px)!important;gap:22px!important;color:var(--wz-text)!important}
-#appMain h1,#appMain h2,#appMain h3,#appMain h4,#appMain .text-white{color:var(--wz-navy)!important}
-#appMain .text-violet-100\/75,#appMain .text-violet-200\/70,#appMain .text-violet-200\/60,#appMain .text-violet-200\/80,#appMain .text-violet-300{color:var(--wz-muted)!important}
-#appMain .glass-card,#accountModal .glass-card{background:rgba(255,255,255,.94)!important;border:1px solid #dfeafb!important;border-radius:22px!important;box-shadow:var(--wz-shadow)!important;backdrop-filter:blur(10px)!important;color:var(--wz-text)!important}
-#appMain .balance-card,#appMain [class*="balance-card"]{background:linear-gradient(125deg,#0645b8 0%,#0868ef 58%,#48a4ff 100%)!important;border:0!important;border-radius:26px!important;box-shadow:0 16px 34px rgba(7,92,245,.22)!important;color:#fff!important}
-#appMain .balance-card h3,#appMain .balance-card p,#appMain .balance-card span,#appMain .balance-card button{color:#fff!important}
-#appMain .balance-label{color:#dbeafe!important}
-#appMain .btn-amber,#appMain .btn-violet,#appMain button[type=submit]{background:linear-gradient(105deg,#075cf5,#278bff)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px rgba(7,92,245,.18)!important}
-#appMain .btn-amber:hover,#appMain .btn-violet:hover,#authOverlay .btn-amber:hover{filter:brightness(1.04)}
-#appMain input,#appMain select,#appMain textarea{background:#fff!important;color:var(--wz-text)!important;border:1px solid #d4e1f3!important;border-radius:14px!important;box-shadow:0 2px 6px rgba(20,54,100,.025)!important}
-#appMain input::placeholder,#appMain textarea::placeholder{color:#98a7bf!important}
-#appMain .field{background:#fff!important;border-color:#d4e1f3!important;color:var(--wz-text)!important}
-#appMain [class*="border-white/"],#appHeader [class*="border-white/"]{border-color:#e1eafa!important}
-#appMain [class*="bg-bgDark"],#appMain [class*="bg-cardDark"]{background-color:#f6f9ff!important}
-#appMain .cat-chip{border-color:#d5e2f5!important;background:#fff!important;color:#365174!important}
-#appMain .cat-chip.bg-amber-400{background:#075cf5!important;color:#fff!important;border-color:#075cf5!important}
-#appMain .text-amber-300,#appMain .text-amber-400{color:#075cf5!important}
-#appMain .text-rose-300{color:#e11d48!important}
-#appMain .bg-rose-500\/10{background:#fff1f2!important}
-#appMain .dep-compact{background:#fff!important;border:1px solid #e0eafa!important;border-radius:17px!important;color:var(--wz-text)!important}
-#appMain .job-card,#appMain [class*="job-card"]{border-radius:20px!important}
-#accountModal{background:rgba(8,31,78,.38)!important;backdrop-filter:blur(10px)!important}
-#accountModal>div{background:#f3f8ff!important;color:var(--wz-text)!important}
-#accountModal .text-white{color:var(--wz-navy)!important}
-#accountModal .border-white\/10{border-color:#e1eafa!important}
-#accountModal .text-violet-200\/50{color:#8291a7!important}
-#accountModal .glass-card{background:#fff!important}
-#appMain button,#accountModal button{transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease}
-#appMain button:active,#accountModal button:active{transform:scale(.985)}
-@media(min-width:768px){
- body>.w-full.max-w-md{padding:0 10px 30px!important}
- #appHeader{margin:14px 10px 0!important}
- #appMain{padding:28px 24px 40px!important}
- #authOverlay{padding-top:28px!important}
- #accountModal>div{max-width:560px!important;border-radius:28px!important;margin:18px auto!important;height:calc(100% - 36px)!important;box-shadow:0 25px 80px rgba(5,30,78,.25)!important}
-}
-@media(max-width:767px){
- #appHeader{margin:6px 6px 0!important;padding:12px 14px!important;border-radius:18px!important}
- #appMain{padding:14px 12px 28px!important}
- #authOverlay{padding:14px 12px!important}
- #authOverlay .landing-topbar{padding:10px 12px!important;border-radius:18px!important}
-}
-@media(prefers-reduced-motion:reduce){#appMain *,#accountModal *,#authOverlay *{transition:none!important;animation:none!important}}
-</style>
-
-<style id="workzen-reference-redesign">
-:root{color-scheme:light;--wz-navy:#082765;--wz-blue:#075cf5;--wz-border:#dce9fb;--wz-text:#15264a;--wz-muted:#62728e;--wz-shadow:0 14px 36px rgba(23,82,170,.10)}
-html,body{min-height:100%;background:#edf5ff!important;color:var(--wz-text)!important}
-body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif!important;background:radial-gradient(ellipse at 10% 5%,#dcecff 0,transparent 34%),radial-gradient(ellipse at 94% 45%,#dcecff 0,transparent 32%),linear-gradient(145deg,#f9fcff,#eaf3ff)!important;background-attachment:fixed!important}
-body>.w-full.max-w-7xl{width:100%!important;max-width:1440px!important;min-height:100vh!important;margin:0 auto!important;padding:0 14px 32px!important;background:transparent!important}
-#authOverlay{position:relative!important;inset:auto!important;transform:none!important;width:100%!important;max-width:1440px!important;min-height:100vh!important;padding:12px 0 34px!important;justify-content:flex-start!important;overflow:visible!important;background:transparent!important;color:var(--wz-text)!important}
-#landingHero{width:100%!important;max-width:100%!important;margin:0 auto 22px!important;display:grid!important;grid-template-columns:minmax(0,1.1fr) minmax(340px,.9fr)!important;grid-template-rows:auto 1fr auto auto!important;gap:20px 28px!important;align-items:center!important;position:relative!important;padding:0 4px!important}
-#landingHero .landing-topbar{grid-column:1/-1!important;grid-row:1!important;position:sticky!important;top:10px!important;display:flex!important;min-height:104px!important;padding:12px 28px!important;border:1px solid rgba(255,255,255,.95)!important;border-radius:28px!important;background:rgba(255,255,255,.93)!important;box-shadow:0 8px 30px rgba(25,83,170,.09)!important;backdrop-filter:blur(16px)!important}
-.landing-brand-wrap{border:0;background:none}.landing-logo-img{object-fit:cover;box-shadow:0 8px 20px rgba(7,92,245,.12)}
-#authOverlay .landing-brand{font-size:clamp(25px,3vw,40px)!important;color:var(--wz-navy)!important;font-weight:900!important;white-space:nowrap}.landing-brand span{color:var(--wz-blue)!important}
-.landing-desktop-nav{margin-left:auto}.landing-nav-link{display:inline-flex;align-items:center;gap:9px;padding:13px 15px;border:0;border-radius:14px;background:transparent;color:#263654;font-weight:700;font-size:15px;white-space:nowrap}.landing-nav-link i{color:var(--wz-navy)}.landing-nav-link:hover,.landing-nav-link.is-active{color:var(--wz-blue);background:#edf5ff}.landing-nav-link.is-active{box-shadow:inset 0 -3px 0 var(--wz-blue);border-radius:12px 12px 0 0}
-.landing-register-btn{display:inline-flex;align-items:center;gap:9px;padding:15px 22px;border:0;border-radius:17px;background:linear-gradient(110deg,#075cf5,#278bff);color:#fff;font-size:15px;font-weight:800;box-shadow:0 9px 22px rgba(7,92,245,.2);white-space:nowrap}.landing-menu-button{background:#edf5ff!important;color:var(--wz-blue)!important;border:1px solid var(--wz-border)!important}
-#landingHero .landing-copy{grid-column:1!important;grid-row:2!important;max-width:100%!important;margin:0!important;padding:30px 28px 20px!important;align-self:center!important}
-.landing-eyebrow{display:flex;align-items:center;gap:9px;color:#1d376b;font-size:clamp(13px,1.2vw,17px);font-weight:800;margin-bottom:18px}.landing-eyebrow b{color:#f4a900}.landing-eyebrow-dot{width:10px;height:10px;border-radius:50%;background:#ffad00;box-shadow:0 0 0 5px #fff1ca}
-#authOverlay .landing-title{font-size:clamp(38px,5.2vw,68px)!important;line-height:1.06!important;letter-spacing:-.045em!important;color:var(--wz-navy)!important;margin:0 0 16px!important}#authOverlay .landing-title span{display:block}#authOverlay .hero-title{background:linear-gradient(90deg,#075cf5,#2d91ff)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
-.landing-description{max-width:560px;color:#526482;font-size:clamp(14px,1.4vw,18px);line-height:1.75;margin:0 0 20px}
-#authOverlay .landing-trust{display:inline-flex!important;align-items:center!important;gap:10px!important;padding:10px 18px!important;border-radius:16px!important;background:linear-gradient(105deg,#075cf5,#278bff)!important;color:#fff!important;font-weight:800!important;box-shadow:0 9px 20px rgba(7,92,245,.18)!important}#authOverlay .trust-shield{display:inline-flex!important;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9px;background:#16c878;color:#fff!important}#authOverlay .trust-underline{display:none!important}
-.landing-hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}#authOverlay .landing-cta{display:inline-flex!important;align-items:center;gap:14px!important;padding:15px 26px!important;border-radius:16px!important;background:linear-gradient(110deg,#075cf5,#278bff)!important;color:#fff!important;font-size:16px!important;font-weight:900!important;box-shadow:0 10px 24px rgba(7,92,245,.22)!important}.landing-secondary-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 20px;border-radius:16px;border:1px solid #d6e5fa;background:#fff;color:#1552ae;font-weight:800;box-shadow:0 6px 18px rgba(30,80,150,.06)}
-#landingHero .landing-art{grid-column:2!important;grid-row:2!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;margin:0!important;max-width:100%!important}#landingHero .landing-illustration{width:100%!important;max-width:540px!important;height:auto!important;filter:drop-shadow(0 15px 25px rgba(20,82,165,.13))!important}
-.landing-install-card{grid-column:1/-1;grid-row:3;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:18px;margin:0 10px;padding:18px 22px;border:1px solid #e1ebfa;border-radius:24px;background:rgba(255,255,255,.94);box-shadow:var(--wz-shadow)}.landing-install-icon{width:72px;height:72px;padding:7px;border-radius:20px;background:#f3f8ff;box-shadow:0 5px 18px rgba(7,92,245,.08)}.landing-install-icon img{width:100%;height:100%;object-fit:contain;border-radius:14px}.landing-install-copy h3{font-size:22px;font-weight:900;color:var(--wz-navy);margin:0 0 4px}.landing-install-copy p{font-size:14px;color:var(--wz-muted);margin:0}.landing-install-action{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border:0;border-radius:16px;background:linear-gradient(110deg,#075cf5,#278bff);color:#fff;font-weight:900;box-shadow:0 8px 20px rgba(7,92,245,.2)}
-.landing-feature-strip{grid-column:1/-1;grid-row:4;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 10px}.landing-feature-strip>div{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;padding:18px;border:1px solid #e1ebfa;border-radius:20px;background:rgba(255,255,255,.9);box-shadow:0 8px 24px rgba(23,82,170,.06)}.landing-feature-icon{grid-row:1/3;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:14px;background:#eaf3ff;color:var(--wz-blue);font-size:18px}.landing-feature-strip strong{font-size:15px;color:var(--wz-navy)}.landing-feature-strip small{font-size:12px;color:var(--wz-muted)}
-#authOverlay #loginCard,#authOverlay #registerCard,#authOverlay #forgotPasswordCard,#authOverlay #verifyEmailCard{width:min(100%,600px)!important;margin:18px auto!important;padding:clamp(22px,4vw,36px)!important;border:1px solid #dce9fb!important;border-radius:28px!important;background:rgba(255,255,255,.97)!important;box-shadow:0 16px 44px rgba(23,82,170,.10)!important;color:var(--wz-text)!important}#authOverlay .glass-card,#authOverlay [class*="glass-card"]{background:#fff!important;border:1px solid #dce9fb!important;box-shadow:0 14px 36px rgba(23,82,170,.09)!important;color:var(--wz-text)!important;backdrop-filter:none!important}#authOverlay h3,#authOverlay label,#authOverlay .text-white{color:var(--wz-navy)!important}#authOverlay p,#authOverlay .text-violet-200\/70,#authOverlay .text-violet-200\/80{color:var(--wz-muted)!important}#authOverlay input,#authOverlay select,#authOverlay textarea{background:#fff!important;color:var(--wz-text)!important;border:1px solid #cfddf2!important;border-radius:15px!important;min-height:48px}#authOverlay .btn-amber,#authOverlay .btn-violet{background:linear-gradient(105deg,#075cf5,#278bff)!important;color:#fff!important;border:0!important;box-shadow:0 9px 22px rgba(7,92,245,.2)!important}
-#authMenu{padding:28px!important;background:rgba(255,255,255,.98)!important;color:var(--wz-navy)!important}.auth-menu-item{display:block;width:100%;padding:16px 18px;margin:8px 0;text-align:left;border-radius:15px;background:#f3f8ff!important;color:#17376f!important;font-weight:800;border:1px solid #e1ebfa}
-#appHeader{position:sticky!important;top:10px!important;margin:12px 4px 0!important;padding:14px 22px!important;border:1px solid rgba(255,255,255,.95)!important;border-radius:24px!important;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(16px)!important;box-shadow:0 8px 28px rgba(25,83,170,.08)!important;color:var(--wz-navy)!important}#appHeader .text-white,#appHeader .text-violet-200\/80{color:var(--wz-navy)!important}#appHeader .logo-orb{background:linear-gradient(135deg,#075cf5,#54aaff)!important}
-#appMain{padding:clamp(16px,2.5vw,34px)!important;gap:22px!important;color:var(--wz-text)!important}#appMain h1,#appMain h2,#appMain h3,#appMain h4,#appMain .text-white{color:var(--wz-navy)!important}#appMain .text-violet-100\/75,#appMain .text-violet-200\/70,#appMain .text-violet-200\/60,#appMain .text-violet-200\/80,#appMain .text-violet-300{color:var(--wz-muted)!important}#appMain .glass-card,#accountModal .glass-card{background:#fff!important;border:1px solid #e1ebfa!important;border-radius:22px!important;box-shadow:var(--wz-shadow)!important;color:var(--wz-text)!important;backdrop-filter:none!important}
-#appMain .balance-card{background:linear-gradient(125deg,#073d9d 0%,#0868ef 60%,#55adff 100%)!important;border:0!important;border-radius:26px!important;box-shadow:0 16px 34px rgba(7,92,245,.2)!important;color:#fff!important}#appMain .balance-card h3,#appMain .balance-card p,#appMain .balance-card span,#appMain .balance-card button{color:#fff!important}#appMain .balance-label{color:#dbeafe!important}#appMain .btn-amber,#appMain .btn-violet{background:linear-gradient(105deg,#075cf5,#278bff)!important;color:#fff!important;border:0!important;box-shadow:0 8px 20px rgba(7,92,245,.16)!important}
-#appMain input,#appMain select,#appMain textarea{background:#fff!important;color:var(--wz-text)!important;border:1px solid #d4e1f3!important;border-radius:14px!important}#appMain .field{background:#fff!important;border-color:#d4e1f3!important;color:var(--wz-text)!important}#appMain [class*="border-white/"]{border-color:#e1eafa!important}#appMain [class*="bg-bgDark"],#appMain [class*="bg-cardDark"]{background-color:#f6f9ff!important}#appMain .cat-chip{border-color:#d5e2f5!important;background:#fff!important;color:#365174!important}#appMain .cat-chip.bg-amber-400{background:#075cf5!important;color:#fff!important;border-color:#075cf5!important}#appMain .text-amber-300,#appMain .text-amber-400{color:#075cf5!important}
-#accountModal{background:rgba(8,31,78,.4)!important;backdrop-filter:blur(10px)!important}#accountModal>div{background:#f4f8ff!important;color:var(--wz-text)!important}#accountModal .text-white{color:var(--wz-navy)!important}#accountModal .border-white\/10{border-color:#e1eafa!important}#accountModal .glass-card{background:#fff!important}
-nav.nav-glass{background:rgba(255,255,255,.96)!important;border:1px solid #dce8fa!important;border-radius:22px 22px 0 0!important;box-shadow:0 -10px 28px rgba(20,65,125,.08)!important}nav.nav-glass .nav-btn{color:#73829a!important}nav.nav-glass .nav-btn.text-amber-300{color:#075cf5!important;background:#eaf3ff!important;border-radius:15px!important}nav.nav-glass .nav-btn.text-amber-300::after{background:#075cf5!important}
-#appDownloadModal>div{background:#fff!important;color:var(--wz-text)!important;border:1px solid #dce9fb!important;box-shadow:0 20px 60px rgba(8,39,101,.2)!important}#appDownloadModal h2{color:var(--wz-navy)!important}#appDownloadModal p{color:var(--wz-muted)!important}
-@media(max-width:899px){body>.w-full.max-w-7xl{padding:0 8px 24px!important}#landingHero{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto auto auto!important;gap:12px!important;padding:0!important}#landingHero .landing-topbar{min-height:76px!important;top:6px!important;padding:10px 14px!important;border-radius:20px!important}#landingHero .landing-copy{grid-column:1!important;grid-row:2!important;padding:22px 12px 8px!important}#landingHero .landing-art{grid-column:1!important;grid-row:3!important;max-height:300px!important;overflow:hidden!important}#landingHero .landing-illustration{max-width:420px!important;max-height:300px!important}.landing-install-card{grid-row:4!important;margin:0!important;padding:14px!important;grid-template-columns:auto 1fr!important;gap:12px!important}.landing-install-icon{width:58px;height:58px}.landing-install-copy h3{font-size:18px}.landing-install-copy p{font-size:12px}.landing-install-action{grid-column:1/-1;justify-content:center;padding:12px}.landing-feature-strip{grid-row:5!important;grid-template-columns:1fr!important;margin:0!important;gap:9px}.landing-feature-strip>div{padding:13px}#authOverlay .landing-title{font-size:clamp(34px,9vw,52px)!important}#appHeader{margin:6px 4px 0!important;padding:11px 14px!important}#appMain{padding:14px 10px 28px!important}}
-@media(max-width:420px){#authOverlay .landing-brand{font-size:24px!important}.landing-eyebrow{font-size:12px}.landing-hero-actions>*{width:100%;justify-content:center}.landing-install-card{grid-template-columns:52px 1fr!important}.landing-install-icon{width:52px;height:52px}}
-@media(prefers-reduced-motion:reduce){#authOverlay *,#appMain *,#accountModal *{transition:none!important;animation:none!important}}
-</style>
 </head>
 <body class="flex justify-center min-h-screen">
 
-    <div class="w-full max-w-7xl min-h-screen flex flex-col relative pb-28 mx-auto">
+    <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-cardBorder">
 
         <!-- AUTH OVERLAY (Login / Register) -->
-        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-center justify-center px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-7xl mx-auto">
+        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-center justify-center px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
             <div id="landingHero" class="landing-hero text-left mb-7 w-full">
-                <header class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
-                    <button type="button" onclick="closeAuthMenuToHome()" class="landing-brand-wrap flex min-w-0 items-center gap-3" aria-label="WorkZen Home">
-                        <img src="/icons/workzen.svg" alt="WorkZen" class="landing-logo-img w-14 h-14 rounded-2xl" width="56" height="56">
-                        <span class="landing-brand text-2xl md:text-3xl font-extrabold tracking-tight">Work<span>Zen</span></span>
-                    </button>
-                    <nav class="landing-desktop-nav hidden md:flex items-center gap-2" aria-label="Main navigation">
-                        <button type="button" class="landing-nav-link is-active" onclick="closeAuthMenuToHome()"><i class="fa-solid fa-house"></i> Home</button>
-                        <button type="button" class="landing-nav-link" onclick="showAuthLogin()"><i class="fa-solid fa-briefcase"></i> Jobs</button>
-                        <button type="button" class="landing-nav-link" onclick="navigateAuthMenu('refer')"><i class="fa-solid fa-gift"></i> Rewards</button>
-                        <button type="button" class="landing-nav-link" onclick="navigateAuthMenu('support')"><i class="fa-solid fa-circle-question"></i> Support</button>
-                        <button type="button" class="landing-nav-link" onclick="showAuthLogin()"><i class="fa-solid fa-user"></i> Login</button>
-                        <button type="button" class="landing-register-btn" onclick="navigateAuthMenu('register')"><i class="fa-solid fa-user-plus"></i> Register</button>
-                    </nav>
-                    <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button md:hidden w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
-                </header>
+                <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
+                    <div class="flex min-w-0 items-center gap-2.5">
+                        <div class="logo-orb landing-logo w-12 h-12 rounded-2xl p-[2px]">
+                            <div class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-300 text-lg"></i></div>
+                        </div>
+                        <span class="landing-brand text-base font-bold text-white truncate">Micro job WorkZen</span>
+                    </div>
+                    <button type="button" onclick="toggleAuthMenu()" aria-label="Open menu" class="landing-menu-button w-11 h-11 rounded-full flex items-center justify-center"><i class="fa-solid fa-bars"></i></button>
+                </div>
                 <div id="authMenu" class="hidden" style="position:fixed;inset:0;z-index:60;">
                     <div class="flex items-center justify-between mb-5">
                         <button type="button" onclick="closeAuthMenuToHome()" aria-label="WorkZen home" class="auth-menu-brand flex items-center gap-3 text-lg font-black"><span class="logo-orb w-12 h-12 rounded-2xl p-[2px]"><span class="w-full h-full bg-bgDark rounded-[18px] flex items-center justify-center"><i class="fa-solid fa-bolt text-amber-400 text-lg"></i></span></span><span>WorkZen</span></button>
@@ -529,14 +422,10 @@ nav.nav-glass{background:rgba(255,255,255,.96)!important;border:1px solid #dce8f
                     <p class="auth-menu-footer mt-6 text-xs text-violet-700/60">&copy;2026 Micro job WorkZen</p>
                 </div>
                 <section class="landing-copy" aria-label="WorkZen introduction">
-                    <div class="landing-eyebrow"><span class="landing-eyebrow-dot"></span> Work Smart <b>•</b> Earn More <b>•</b> Grow Together</div>
-                    <h2 class="landing-title font-black"><span>Online Work,</span><span>Real Opportunities</span><span class="hero-title">Earn with WorkZen</span></h2>
-                    <p class="landing-description">Discover flexible online tasks, complete work at your pace, and grow your earnings with WorkZen.</p>
+                    <h2 class="landing-title font-black"><span>Best Microjob &amp;</span><span>Freelancing Site To</span><span class="hero-title">Make Money Online</span></h2>
                     <div class="landing-trust"><span class="trust-shield"><i class="fa-solid fa-check"></i></span><span>Trusted Platform 100%</span></div>
-                    <div class="landing-hero-actions">
-                        <button type="button" onclick="navigateAuthMenu('register')" class="landing-cta">Get Started <span aria-hidden="true">→</span></button>
-                        <button type="button" onclick="openAppDownload()" class="landing-secondary-cta"><i class="fa-solid fa-download"></i> Install WorkZen</button>
-                    </div>
+                    <div class="trust-underline"></div>
+                    <button type="button" onclick="showAuthLogin()" class="landing-cta">Earn Money <span aria-hidden="true">→</span></button>
                 </section>
                 <div class="landing-art" aria-hidden="true">
                     <svg viewBox="0 0 420 320" role="img" class="landing-illustration" xmlns="http://www.w3.org/2000/svg">
@@ -549,16 +438,6 @@ nav.nav-glass{background:rgba(255,255,255,.96)!important;border:1px solid #dce8f
                         <g transform="translate(331 86)"><rect width="52" height="48" rx="14" fill="#312b72" stroke="#7362df"/><path d="M14 25c-7-10 5-16 12-7 7-9 19-3 12 7L26 37z" fill="#f36bb4"/></g><g transform="translate(344 157)"><rect width="48" height="46" rx="13" fill="#174b82" stroke="#388bd3"/><path d="m12 24 8 8 17-19" fill="none" stroke="#8fe7ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
                         <path d="M272 253h114l-14 39h-111z" fill="#aeb9d6"/><path d="M285 258h86l-9 25h-87z" fill="#53638e"/><path d="M287 286h82" stroke="#d4ddf4" stroke-width="3"/>
                     </svg>
-                </div>
-                <aside class="landing-install-card" aria-label="Install WorkZen">
-                    <div class="landing-install-icon"><img src="/icons/workzen.svg" alt="WorkZen app icon" width="72" height="72"></div>
-                    <div class="landing-install-copy"><h3>Install WorkZen</h3><p>Get quick access to WorkZen on your device.</p></div>
-                    <button type="button" onclick="openAppDownload()" class="landing-install-action"><i class="fa-solid fa-download"></i><span>Install</span></button>
-                </aside>
-                <div class="landing-feature-strip" aria-label="WorkZen benefits">
-                    <div><span class="landing-feature-icon"><i class="fa-solid fa-shield-halved"></i></span><strong>Trusted Platform</strong><small>Work with confidence</small></div>
-                    <div><span class="landing-feature-icon"><i class="fa-solid fa-lock"></i></span><strong>Secure &amp; Reliable</strong><small>Your account matters</small></div>
-                    <div><span class="landing-feature-icon"><i class="fa-solid fa-bolt"></i></span><strong>Easy to Use</strong><small>Simple and clear experience</small></div>
                 </div>
             </div>
 
@@ -4546,6 +4425,80 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 
 
 </script>
+<style id="tf-identity">
+/* WorkZen identity: teal-violet accent, left rail nav on wide screens, accent-edged cards */
+:root{--tf-a:#10B981;--tf-b:#22D3EE}
+.glass-card{position:relative;overflow:hidden}
+.glass-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--tf-a),var(--tf-b));opacity:.85;pointer-events:none}
+header#appHeader{border-bottom:2px solid transparent!important;border-image:linear-gradient(90deg,var(--tf-a),var(--tf-b),#F59E0B) 1!important}
+.nav-btn{position:relative}
+.nav-btn.text-amber-300{background:linear-gradient(180deg,rgba(20,184,166,.18),rgba(139,92,246,.14))}
+.nav-btn.text-amber-300::after{content:"";position:absolute;top:-2px;left:28%;right:28%;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--tf-a),var(--tf-b))}
+html[data-theme-effective="light"] .nav-btn.text-amber-300{color:#0F766E!important;background:rgba(20,184,166,.14)}
+html[data-theme-effective="light"] .glass-card::before{opacity:.7}
+@media (min-width:1024px){
+  body>div.w-full.max-w-md{max-width:780px!important;margin-left:260px;padding-bottom:2rem!important}
+  body{justify-content:center}
+  body>div.w-full.max-w-md>nav.nav-glass{position:fixed!important;left:0!important;top:0!important;bottom:0!important;transform:none!important;width:240px!important;max-width:240px!important;height:100vh;display:flex!important;flex-direction:column;justify-content:flex-start;gap:6px;padding:92px 14px 14px!important;border-top:0!important;border-right:1px solid rgba(196,181,253,.16);box-shadow:8px 0 30px -18px rgba(0,0,0,.5)!important}
+  body>div.w-full.max-w-md>nav.nav-glass::before{content:"WorkZen";position:absolute;top:26px;left:20px;font-weight:900;font-size:22px;letter-spacing:-.02em;background:linear-gradient(90deg,var(--tf-a),var(--tf-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn{flex-direction:row!important;justify-content:flex-start;gap:12px;padding:12px 14px!important;border-radius:14px;text-align:left}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn i{margin:0!important;width:20px;text-align:center}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn span{font-size:13px!important}
+  .nav-btn.text-amber-300::after{top:20%;bottom:20%;left:-14px;right:auto;width:4px;height:auto}
+  .nav-btn:hover{background:rgba(139,92,246,.1)}
+  header#appHeader .flex.items-center.gap-2\.5 span{background:linear-gradient(90deg,var(--tf-a),var(--tf-b));-webkit-background-clip:text;background-clip:text;color:transparent!important}
+}
+body:has(#appMain.hidden)>div.w-full.max-w-md>nav.nav-glass{display:none!important}
+body:has(#appMain.hidden)>div.w-full.max-w-md{margin-left:auto!important}
 
+/* admin-palette pass */
+body{font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;background:#0B0F17!important}
+h1,h2,h3,h4{font-weight:800;letter-spacing:-.01em}
+.glass-card{background:#131926!important;border:1px solid #1F2937!important;backdrop-filter:none}
+.field{background:#0B0F17!important;border-color:#1F2937!important}
+.field:focus{border-color:#10B981!important;box-shadow:0 0 0 3px rgba(16,185,129,.18)!important}
+.btn-amber{background:#10B981!important;color:#04130d!important;box-shadow:none!important}
+.btn-violet{background:#1F2937!important;color:#E5E7EB!important;box-shadow:none!important}
+body:not(:has(#landingHero)) .hero-title{background:linear-gradient(90deg,#34D399,#22D3EE)!important;-webkit-background-clip:text;background-clip:text}
+.nav-glass{background:rgba(11,15,23,.92)!important;border-top:1px solid #1F2937!important}
+.nav-btn span{font-weight:700;letter-spacing:.01em}
+.nav-btn.text-amber-300{color:#04130d!important;background:#34D399!important;border-radius:999px!important;margin:0 3px}
+.nav-btn.text-amber-300::after{top:auto;bottom:-6px;left:22%;right:22%;height:2px;background:linear-gradient(90deg,#10B981,#22D3EE)}
+/* unique balance hero: deep teal to indigo */
+.balance-card{background:linear-gradient(135deg,#0E7490 0%,#312E81 100%)!important;padding:.9rem 1rem!important}
+.balance-card .balance-label{font-size:.7rem!important}
+.balance-card .balance-value{font-size:1.6rem!important;color:#A7F3D0!important;line-height:1.15}
+.balance-card .balance-cash-out,.balance-card .balance-add-funds{color:#0B3F45!important}
+/* approved = deep green, rejected = deep red */
+.bg-emerald-400\/15,.bg-emerald-400\/20,.bg-emerald-500\/20{background:rgba(5,150,105,.28)!important}
+.bg-rose-400\/15,.bg-rose-500\/20{background:rgba(153,27,27,.45)!important}
+.text-emerald-200,.text-emerald-100,.text-emerald-300{color:#34D399!important}
+.text-rose-200,.text-rose-100,.text-rose-300{color:#F87171!important}
+html[data-theme-effective="light"] .nav-btn.text-amber-300{color:#04130d!important;background:#34D399!important}
+@media(min-width:1024px){body>div.w-full.max-w-md>nav.nav-glass .nav-btn{margin:0}}
+
+/* tf-nav v2: unique side/nav design (admin palette). CSS only, no markup/behavior change */
+nav.nav-glass{background:rgba(19,25,38,.94)!important;border:1px solid #1F2937!important;border-radius:22px 22px 0 0!important;box-shadow:0 -12px 32px -14px rgba(0,0,0,.7)!important;gap:4px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important}
+nav.nav-glass .nav-btn{border-radius:16px!important;color:#9CA3AF!important;margin:0!important;padding:7px 2px!important;overflow:hidden}
+nav.nav-glass .nav-btn i{width:34px;height:26px;line-height:26px;border-radius:999px;margin-bottom:2px!important;transition:background .2s,color .2s}
+nav.nav-glass .nav-btn span{font-size:10px!important;font-weight:700;letter-spacing:.02em}
+nav.nav-glass .nav-btn.text-amber-300{background:transparent!important;color:#34D399!important;border-radius:16px!important}
+nav.nav-glass .nav-btn.text-amber-300 i{background:rgba(16,185,129,.18);color:#34D399;box-shadow:inset 0 0 0 1px rgba(52,211,153,.35)}
+nav.nav-glass .nav-btn.text-amber-300::after{content:"";top:0;bottom:auto;left:30%;right:30%;height:3px;width:auto;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#10B981,#22D3EE)}
+@media (min-width:1024px){
+  body>div.w-full.max-w-md>nav.nav-glass{width:250px!important;max-width:250px!important;background:linear-gradient(180deg,#0F1522 0%,#0B0F17 100%)!important;border:0!important;border-right:1px solid #1F2937!important;border-radius:0!important;padding:96px 14px 14px!important;gap:4px;box-shadow:none!important}
+  body>div.w-full.max-w-md>nav.nav-glass::before{content:"WorkZen";top:28px;left:22px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;font-size:22px;font-weight:800;background:linear-gradient(90deg,#34D399,#22D3EE);-webkit-background-clip:text;background-clip:text;color:transparent}
+  body>div.w-full.max-w-md>nav.nav-glass::after{content:"MENU";position:absolute;top:70px;left:22px;font-size:10px;font-weight:800;letter-spacing:.18em;color:#6B7280}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn{padding:9px 12px!important;border-radius:14px!important;gap:12px;color:#9CA3AF!important;border:1px solid transparent}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn i{width:34px;height:34px;line-height:34px;border-radius:11px;background:#131926;box-shadow:inset 0 0 0 1px #1F2937;font-size:14px;margin:0!important}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn span{font-size:13px!important;font-weight:700}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn:hover{background:#131926;color:#E5E7EB!important}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300{background:linear-gradient(90deg,rgba(16,185,129,.16),rgba(34,211,238,.04))!important;border-color:rgba(52,211,153,.28);color:#34D399!important}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300 i{background:#10B981;color:#04130d;box-shadow:0 6px 16px -6px rgba(16,185,129,.7)}
+  body>div.w-full.max-w-md>nav.nav-glass .nav-btn.text-amber-300::after{top:22%;bottom:22%;left:-14px;right:auto;width:4px;height:auto;border-radius:0 4px 4px 0}
+}
+html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){color:#6B7280!important}
+@media(max-width:380px){nav.nav-glass .nav-btn span{font-size:9px!important}nav.nav-glass .nav-btn i{width:30px}}
+</style>
 </body>
 </html>
