@@ -10,9 +10,9 @@
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/icons/workzen.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icons/workzen.png",
+      "sizes": "160x160",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
