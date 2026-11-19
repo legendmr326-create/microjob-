@@ -903,6 +903,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         <select id="kycDocType" class="field w-full rounded-2xl px-4 py-3 text-sm">
                             <option value="">Select document</option>
                             <option value="National ID (NID)">National ID (NID)</option>
+                            <option value="Voter ID Card">Voter ID Card</option>
                             <option value="Passport">Passport</option>
                         </select>
                     </div>
@@ -2839,7 +2840,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 msg.textContent = 'We are reviewing your documents. Please wait.';
                 formPanel.classList.add('hidden');
             } else if (st === 'rejected') {
-                msg.textContent = 'Your KYC was rejected. Please check your details and resubmit.';
+                msg.textContent = 'Your KYC was rejected. Reason: ' + String(myKyc && myKyc.rejection_reason || 'Please check your details and resubmit.');
                 resubBtn.classList.remove('hidden');
             } else if (st === 'missing') {
                 msg.textContent = 'KYC is not set up on the server yet. Please try again later.';
@@ -2972,7 +2973,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const name = document.getElementById('kycName').value.trim();
             const idNumber = document.getElementById('kycIdNumber').value.trim();
             const dob = document.getElementById('kycDob').value;
-            if (!docType || !['National ID (NID)', 'Passport'].includes(docType)) { niceAlert('Please choose National ID (NID) or Passport.'); return; }
+            if (!docType || !['National ID (NID)', 'Voter ID Card', 'Passport'].includes(docType)) { niceAlert('Please choose National ID (NID) or Passport.'); return; }
             if (!name) { niceAlert('Please enter your full name.'); return; }
             if (!idNumber) { niceAlert('Please enter your document number.'); return; }
             if (!dob) { niceAlert('Please enter your date of birth.'); return; }
