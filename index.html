@@ -200,6 +200,19 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay.workzen-web-login-layout #workzen-web-login-heading p { margin: 0; color: #a1a1aa; font-size: 16px; line-height: 1.5; }
         #authOverlay.workzen-web-login-layout #loginCard { width: 100%; max-width: 420px; margin: 0 auto !important; flex: 0 0 auto; }
         #authOverlay.workzen-web-login-layout #loginCard > h3 { display: none !important; }
+        /* Keep WorkZen login header readable in light theme on website and APK */
+        html[data-theme-effective="light"] #authOverlay.workzen-web-login-layout #workzen-web-login-brand span,
+        body.theme-light #authOverlay.workzen-web-login-layout #workzen-web-login-brand span,
+        html[data-theme-effective="light"] #authOverlay.auth-login-centered #workzen-app-login-brand .workzen-app-brand-name,
+        body.theme-light #authOverlay.auth-login-centered #workzen-app-login-brand .workzen-app-brand-name { color: #172033 !important; }
+        html[data-theme-effective="light"] #authOverlay.workzen-web-login-layout #workzen-web-login-heading h2,
+        body.theme-light #authOverlay.workzen-web-login-layout #workzen-web-login-heading h2,
+        html[data-theme-effective="light"] #authOverlay.auth-login-centered #workzen-app-login-heading h2,
+        body.theme-light #authOverlay.auth-login-centered #workzen-app-login-heading h2 { color: #172033 !important; }
+        html[data-theme-effective="light"] #authOverlay.workzen-web-login-layout #workzen-web-login-heading p,
+        body.theme-light #authOverlay.workzen-web-login-layout #workzen-web-login-heading p,
+        html[data-theme-effective="light"] #authOverlay.auth-login-centered #workzen-app-login-heading p,
+        body.theme-light #authOverlay.auth-login-centered #workzen-app-login-heading p { color: #596579 !important; }
         @media (min-width: 600px) {
           #authOverlay.workzen-web-login-layout #workzen-web-login-brand { margin-bottom: 34px; }
           #authOverlay.workzen-web-login-layout #workzen-web-login-brand img { width: 74px; height: 74px; flex-basis: 74px; }
