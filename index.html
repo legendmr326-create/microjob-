@@ -988,7 +988,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Front side of ID</label>
                                 <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="kyc-photo-input" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5;clip:auto!important;overflow:visible!important;margin:0!important;padding:0!important" aria-label="Capture front side of ID">
+                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="hidden" style="display:none" aria-label="Capture front side of ID">
                                     <button type="button" onclick="openKycCamera(this.dataset.input,this.dataset.facing)" data-input="kycFront" data-facing="environment" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
