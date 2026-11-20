@@ -3020,7 +3020,21 @@ alter table public.kyc_verifications add column if not exists personal_details_j
               OverconstrainedError: 'নির্বাচিত ক্যামেরাটি পাওয়া যায়নি। আবার চেষ্টা করুন।',
               SecurityError: 'নিরাপত্তার কারণে ক্যামেরা বন্ধ। HTTPS ঠিকানায় খুলুন।'
             };
-            document.getElementById('kycCamError').textContent = (messages[e && e.name] || 'ক্যামেরা চালু হয়নি।') + ' (' + (e && e.name ? e.name : 'Unknown error') + ')';
+            const errorNode = document.getElementById('kycCamError');
+            errorNode.textContent = (messages[e && e.name] || 'লাইভ ক্যামেরা চালু হয়নি।') + ' (' + (e && e.name ? e.name : 'Unknown error') + ')';
+            let fallback = document.getElementById('kycCamNativeFallback');
+            if (!fallback) {
+              fallback = document.createElement('button');
+              fallback.id = 'kycCamNativeFallback';
+              fallback.type = 'button';
+              fallback.textContent = 'ফোনের ক্যামেরা দিয়ে ছবি তুলুন';
+              fallback.style.cssText = 'display:block;width:100%;margin:8px 0 12px;padding:12px;border-radius:12px;background:#2563eb;color:white;font-weight:700';
+              errorNode.insertAdjacentElement('afterend', fallback);
+            }
+            fallback.onclick = function() {
+              const targetInput = document.getElementById(kycCameraTarget);
+              if (targetInput) targetInput.click();
+            };
             console.error('WorkZen KYC camera error:', e);
           }
         }
