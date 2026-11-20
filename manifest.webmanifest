@@ -1,19 +1,16 @@
 {
+  "name": "Work Zone",
+  "short_name": "Work Zone",
   "id": "/",
-  "name": "WorkZen",
-  "short_name": "WorkZen",
-  "description": "WorkZen is a micro job platform in Bangladesh where people can find and complete online tasks.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#100A22",
+  "theme_color": "#0B0F17",
   "background_color": "#ffffff",
   "icons": [
-    {
-      "src": "/icons/workzen.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    {"src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"},
+    {"src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
   ]
 }
