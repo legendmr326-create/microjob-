@@ -184,6 +184,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay.auth-login-centered #workzen-app-login-heading p { margin: 0; color: #a1a1aa; font-size: 16px; line-height: 1.5; }
         #authOverlay.auth-login-centered #loginCard { margin-block: 0 auto; }
         #authOverlay.auth-login-centered #loginCard > h3 { display: none !important; }
+        /* Final mobile app login alignment */
+        #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)) { justify-content: flex-start !important; align-items: center !important; padding-top: max(4vh, 24px) !important; padding-bottom: 24px !important; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand { margin-bottom: 34px !important; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 68px !important; height: 68px !important; flex-basis: 68px !important; }
+        #authOverlay.auth-login-centered #workzen-app-login-heading { margin-bottom: 22px !important; }
+        #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)) #loginCard { margin: 0 !important; flex: 0 0 auto; }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
         #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
