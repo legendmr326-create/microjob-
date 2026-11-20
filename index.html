@@ -4477,33 +4477,50 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
     const params = new URLSearchParams(window.location.search);
     if (params.get('app') !== '1') return;
     document.documentElement.classList.add('workzen-app-mode');
-    const applyAppLogin = function () {
+
+    function applyWorkZenAppLogin() {
         const hero = document.getElementById('landingHero');
         const menu = document.getElementById('authMenu');
+        const card = document.getElementById('loginCard');
+        const overlay = document.getElementById('authOverlay');
+
         if (hero) hero.style.display = 'none';
         if (menu) menu.classList.add('hidden');
-        const card = document.getElementById('loginCard');
+
+        if (typeof window.toggleAuthForm === 'function') {
+            window.toggleAuthForm('login');
+        }
         if (card) {
+            card.classList.remove('hidden');
             const title = card.querySelector('h3');
-            if (title) {
-                title.textContent = 'Welcome Back';
-                if (!document.getElementById('workzen-app-login-brand')) {
-                    const brand = document.createElement('div');
-                    brand.id = 'workzen-app-login-brand';
-                    brand.className = 'flex flex-col items-center gap-2 pb-2';
-                    brand.innerHTML = '<img src="/android-app/workzen-logo.jpg" alt="WorkZen" width="88" height="88" style="width:88px;height:88px;object-fit:contain;border-radius:16px" class="shadow-lg"><div class="text-xl font-black tracking-wide text-white">WorkZen</div>';
-                    card.insertBefore(brand, title);
-                }
+            if (title) title.textContent = 'Welcome Back';
+            if (!document.getElementById('workzen-app-login-brand')) {
+                const brand = document.createElement('div');
+                brand.id = 'workzen-app-login-brand';
+                brand.className = 'flex flex-col items-center gap-2 pb-2';
+                const logo = document.createElement('img');
+                logo.src = '/android-app/workzen-logo.jpg';
+                logo.alt = 'WorkZen';
+                logo.width = 88;
+                logo.height = 88;
+                logo.style.cssText = 'width:88px;height:88px;object-fit:contain;border-radius:16px';
+                logo.className = 'shadow-lg';
+                const name = document.createElement('div');
+                name.className = 'text-xl font-black tracking-wide text-white';
+                name.textContent = 'WorkZen';
+                brand.appendChild(logo);
+                brand.appendChild(name);
+                card.insertBefore(brand, card.querySelector('h3'));
             }
         }
-        if (typeof toggleAuthForm === 'function') toggleAuthForm('login');
-        const card = document.getElementById('loginCard');
-        if (card) card.classList.remove('hidden');
-        const overlay = document.getElementById('authOverlay');
         if (overlay) overlay.classList.add('auth-login-centered');
-    };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyAppLogin, { once: true });
-    else applyAppLogin();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyWorkZenAppLogin, { once: true });
+    } else {
+        applyWorkZenAppLogin();
+    }
 })();
 </script>
 
