@@ -175,8 +175,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
         }
         /* Logged-out landing top row */
         #authOverlay { background: #0B0F17; }
-        #authOverlay.auth-login-centered { justify-content: center; }
-        #authOverlay.auth-login-centered #loginCard { margin-block: auto; }
+        #authOverlay.auth-login-centered { justify-content: flex-start; padding-top: max(7vh, 44px); gap: 0; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand { width: 100%; max-width: 420px; display: flex; align-items: center; justify-content: center; margin: 0 auto 96px; padding: 0; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 104px !important; height: 104px !important; border-radius: 50% !important; object-fit: contain; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand .workzen-app-brand-name { display: none; }
+        #authOverlay.auth-login-centered #loginCard { margin-block: 0 auto; }
+        #authOverlay.auth-login-centered #loginCard > h3 { text-align: left !important; width: 100%; margin: 0 0 4px; padding-left: 0; }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
         #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
@@ -4494,23 +4498,20 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
             card.classList.remove('hidden');
             const title = card.querySelector('h3');
             if (title) title.textContent = 'Welcome Back';
-            if (!document.getElementById('workzen-app-login-brand')) {
-                const brand = document.createElement('div');
+            let brand = document.getElementById('workzen-app-login-brand');
+            if (!brand && overlay) {
+                brand = document.createElement('div');
                 brand.id = 'workzen-app-login-brand';
-                brand.className = 'flex flex-col items-center gap-2 pb-2';
                 const logo = document.createElement('img');
                 logo.src = '/android-app/workzen-logo.jpg';
-                logo.alt = 'WorkZen';
-                logo.width = 88;
-                logo.height = 88;
-                logo.style.cssText = 'width:88px;height:88px;object-fit:contain;border-radius:16px';
+                logo.alt = 'WorkZen logo';
+                logo.width = 104;
+                logo.height = 104;
                 logo.className = 'shadow-lg';
-                const name = document.createElement('div');
-                name.className = 'text-xl font-black tracking-wide text-white';
-                name.textContent = 'WorkZen';
                 brand.appendChild(logo);
-                brand.appendChild(name);
-                card.insertBefore(brand, card.querySelector('h3'));
+                overlay.insertBefore(brand, card);
+            } else if (brand && brand.parentElement !== overlay) {
+                overlay.insertBefore(brand, card);
             }
         }
         if (overlay) overlay.classList.add('auth-login-centered');
