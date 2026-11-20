@@ -2976,6 +2976,93 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             { type: 'back', label: 'Back side of ID', inputId: 'kycBack' },
             { type: 'selfie', label: 'Selfie holding the ID', inputId: 'kycSelfie' }
         ];
+
+        let kycCameraStream = null;
+        let kycCameraTarget = null;
+        let kycCameraBlob = null;
+        function ensureKycCameraModal() {
+          if (document.getElementById('kycLiveCameraModal')) return;
+          const modal = document.createElement('div');
+          modal.id = 'kycLiveCameraModal';
+          modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:99999;background:rgba(3,7,18,.97);padding:16px;align-items:center;justify-content:center;color:white';
+          modal.innerHTML = '<section style="width:100%;max-width:520px"><header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div><b id="kycCamTitle">ছবি তুলুন</b><p id="kycCamHint" style="font-size:12px;color:#c4b5fd;margin-top:4px"></p></div><button type="button" onclick="closeKycCamera()" style="font-size:28px;padding:4px 12px">×</button></header><div style="background:#000;border-radius:20px;overflow:hidden;aspect-ratio:3/4;max-height:65vh"><video id="kycCamVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video><img id="kycCamPreview" style="display:none;width:100%;height:100%;object-fit:contain;background:#000"></div><p id="kycCamError" style="color:#fda4af;font-size:12px;min-height:20px;margin:8px 0"></p><div style="display:flex;gap:10px"><button id="kycCamTake" type="button" onclick="captureKycLivePhoto()" style="flex:1;background:#fbbf24;color:#111827;padding:14px;border-radius:14px;font-weight:800">ছবি তুলুন</button><button id="kycCamAgain" type="button" onclick="retakeKycLivePhoto()" style="display:none;flex:1;background:#ffffff22;padding:14px;border-radius:14px">আবার তুলুন</button><button id="kycCamUse" type="button" onclick="useKycLivePhoto()" style="display:none;flex:1;background:#16a34a;padding:14px;border-radius:14px;font-weight:800">ছবি ব্যবহার করুন</button></div></section>';
+          document.body.appendChild(modal);
+        }
+        async function openKycCamera(inputId, facing) {
+          ensureKycCameraModal();
+          closeKycCamera();
+          kycCameraTarget = inputId;
+          kycCameraBlob = null;
+          const modal = document.getElementById('kycLiveCameraModal');
+          modal.style.display = 'flex';
+          document.getElementById('kycCamTitle').textContent = inputId === 'kycSelfie' ? 'NID হাতে সেলফি তুলুন' : (inputId === 'kycFront' ? 'NID-এর সামনের ছবি তুলুন' : 'NID-এর পেছনের ছবি তুলুন');
+          document.getElementById('kycCamHint').textContent = inputId === 'kycSelfie' ? 'মুখ ও হাতে ধরা NID দুটোই ফ্রেমে রাখুন' : 'NID সোজা করে ফ্রেমের মধ্যে রাখুন';
+          document.getElementById('kycCamError').textContent = '';
+          document.getElementById('kycCamPreview').style.display = 'none';
+          document.getElementById('kycCamVideo').style.display = 'block';
+          document.getElementById('kycCamTake').style.display = 'block';
+          document.getElementById('kycCamAgain').style.display = 'none';
+          document.getElementById('kycCamUse').style.display = 'none';
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            document.getElementById('kycCamError').textContent = 'সরাসরি ক্যামেরার জন্য HTTPS ও Camera permission প্রয়োজন।';
+            return;
+          }
+          try {
+            kycCameraStream = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:facing || 'environment'}, width:{ideal:1920}, height:{ideal:1080}}});
+            const video = document.getElementById('kycCamVideo');
+            video.srcObject = kycCameraStream;
+            await video.play();
+          } catch (e) {
+            document.getElementById('kycCamError').textContent = e && e.name === 'NotAllowedError' ? 'ক্যামেরার অনুমতি দিন, তারপর আবার চেষ্টা করুন।' : 'ক্যামেরা চালু হয়নি। ব্রাউজারের Camera permission পরীক্ষা করুন।';
+          }
+        }
+        function stopKycLiveCamera() {
+          if (kycCameraStream) kycCameraStream.getTracks().forEach(track => track.stop());
+          kycCameraStream = null;
+          const video = document.getElementById('kycCamVideo');
+          if (video) video.srcObject = null;
+        }
+        function closeKycCamera() {
+          stopKycLiveCamera();
+          const modal = document.getElementById('kycLiveCameraModal');
+          if (modal) modal.style.display = 'none';
+        }
+        async function captureKycLivePhoto() {
+          const video = document.getElementById('kycCamVideo');
+          if (!video || !video.videoWidth) { document.getElementById('kycCamError').textContent = 'ক্যামেরা প্রস্তুত হচ্ছে, একটু অপেক্ষা করুন।'; return; }
+          const canvas = document.createElement('canvas');
+          const scale = Math.min(1, 1920 / video.videoWidth);
+          canvas.width = Math.round(video.videoWidth * scale);
+          canvas.height = Math.round(video.videoHeight * scale);
+          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+          kycCameraBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .9));
+          if (!kycCameraBlob) return;
+          const preview = document.getElementById('kycCamPreview');
+          preview.src = URL.createObjectURL(kycCameraBlob);
+          preview.style.display = 'block';
+          video.style.display = 'none';
+          document.getElementById('kycCamTake').style.display = 'none';
+          document.getElementById('kycCamAgain').style.display = 'block';
+          document.getElementById('kycCamUse').style.display = 'block';
+        }
+        function retakeKycLivePhoto() {
+          kycCameraBlob = null;
+          document.getElementById('kycCamPreview').style.display = 'none';
+          document.getElementById('kycCamVideo').style.display = 'block';
+          document.getElementById('kycCamTake').style.display = 'block';
+          document.getElementById('kycCamAgain').style.display = 'none';
+          document.getElementById('kycCamUse').style.display = 'none';
+        }
+        function useKycLivePhoto() {
+          if (!kycCameraBlob || !kycCameraTarget) return;
+          const file = new File([kycCameraBlob], kycCameraTarget + '-' + Date.now() + '.jpg', {type:'image/jpeg'});
+          const transfer = new DataTransfer();
+          transfer.items.add(file);
+          const id = kycCameraTarget;
+          document.getElementById(id).files = transfer.files;
+          closeKycCamera();
+          previewKycPhoto(id);
+        }
         function isMissingKycColumnError(err) {
             if (!err) return false;
             const m = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
