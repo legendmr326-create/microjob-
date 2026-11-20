@@ -209,8 +209,13 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay.workzen-web-login-layout #workzen-web-login-heading { width: 100%; max-width: 420px; margin: 0 auto 22px; text-align: left; }
         #authOverlay.workzen-web-login-layout #workzen-web-login-heading h2 { margin: 0 0 8px; color: #fff; font-size: 30px; line-height: 1.2; font-weight: 800; }
         #authOverlay.workzen-web-login-layout #workzen-web-login-heading p { margin: 0; color: #a1a1aa; font-size: 16px; line-height: 1.5; }
-        #authOverlay.workzen-web-login-layout #loginCard { width: 100%; max-width: 420px; margin: 0 auto !important; flex: 0 0 auto; }
-        #authOverlay.workzen-web-login-layout #loginCard > h3 { display: none !important; }
+        #authOverlay.workzen-web-login-layout #loginCard,
+        #authOverlay.workzen-web-login-layout #forgotPasswordCard,
+        #authOverlay.workzen-web-login-layout #registerCard { width: 100%; max-width: 420px; margin: 0 auto !important; flex: 0 0 auto; }
+        #authOverlay.workzen-web-login-layout #loginCard > h3,
+        #authOverlay.workzen-web-login-layout #forgotPasswordCard > h3,
+        #authOverlay.workzen-web-login-layout #registerCard > h3 { display: none !important; }
+        #authOverlay.workzen-web-login-layout .workzen-web-auth-card { display: block; }
         /* Keep WorkZen login header readable in light theme on website and APK */
         html[data-theme-effective="light"] #authOverlay.workzen-web-login-layout #workzen-web-login-brand span,
         body.theme-light #authOverlay.workzen-web-login-layout #workzen-web-login-brand span,
@@ -1617,8 +1622,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
             // Add the new header only on the regular website, never inside the APK.
             if (overlay && !isWorkZenApp) {
-                const isLogin = form === 'login';
-                overlay.classList.toggle('workzen-web-login-layout', isLogin);
+                const isBrandedAuthView = form === 'login' || form === 'forgot' || form === 'register';
+                overlay.classList.toggle('workzen-web-login-layout', isBrandedAuthView);
                 let brand = document.getElementById('workzen-web-login-brand');
                 let heading = document.getElementById('workzen-web-login-heading');
                 if (!brand) {
@@ -1635,11 +1640,21 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 if (!heading) {
                     heading = document.createElement('div');
                     heading.id = 'workzen-web-login-heading';
-                    heading.innerHTML = '<h2>Welcome</h2><p>Please sign up to continue</p>';
+                    heading.innerHTML = '<h2></h2><p></p>';
                     overlay.insertBefore(heading, document.getElementById('loginCard'));
                 }
-                brand.classList.toggle('hidden', !isLogin);
-                heading.classList.toggle('hidden', !isLogin);
+                const title = heading.querySelector('h2');
+                const subtitle = heading.querySelector('p');
+                if (title) title.textContent = form === 'forgot' ? 'Forgot Password' : (form === 'register' ? 'Create Account' : 'Welcome Back');
+                if (subtitle) subtitle.textContent = form === 'forgot'
+                    ? 'Please enter your email address to receive a verification code'
+                    : (form === 'register' ? 'Please fill in the details to register' : 'Please sign up to continue');
+                brand.classList.toggle('hidden', !isBrandedAuthView);
+                heading.classList.toggle('hidden', !isBrandedAuthView);
+                ['loginCard', 'forgotPasswordCard', 'registerCard'].forEach(id => {
+                    const card = document.getElementById(id);
+                    if (card) card.classList.toggle('workzen-web-auth-card', id === activeCardId && isBrandedAuthView);
+                });
             }
         }
 
