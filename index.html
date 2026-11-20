@@ -3003,17 +3003,25 @@ alter table public.kyc_verifications add column if not exists personal_details_j
           document.getElementById('kycCamTake').style.display = 'block';
           document.getElementById('kycCamAgain').style.display = 'none';
           document.getElementById('kycCamUse').style.display = 'none';
-          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            document.getElementById('kycCamError').textContent = 'সরাসরি ক্যামেরার জন্য HTTPS ও Camera permission প্রয়োজন।';
+          if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            document.getElementById('kycCamError').textContent = 'এই পেজে ক্যামেরা চালু করার সুবিধা পাওয়া যাচ্ছে না। Chrome-এ https://workzenbd.vercel.app খুলুন।';
             return;
           }
           try {
-            kycCameraStream = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:facing || 'environment'}, width:{ideal:1920}, height:{ideal:1080}}});
+            kycCameraStream = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{exact:facing || 'environment'}, width:{ideal:1280}, height:{ideal:720}}});
             const video = document.getElementById('kycCamVideo');
             video.srcObject = kycCameraStream;
             await video.play();
           } catch (e) {
-            document.getElementById('kycCamError').textContent = e && e.name === 'NotAllowedError' ? 'ক্যামেরার অনুমতি দিন, তারপর আবার চেষ্টা করুন।' : 'ক্যামেরা চালু হয়নি। ব্রাউজারের Camera permission পরীক্ষা করুন।';
+            const messages = {
+              NotAllowedError: 'ক্যামেরার অনুমতি বন্ধ আছে। Chrome-এর Site settings থেকে Camera → Allow করুন।',
+              NotFoundError: 'ফোনে উপযুক্ত ক্যামেরা পাওয়া যায়নি।',
+              NotReadableError: 'অন্য কোনো অ্যাপ ক্যামেরা ব্যবহার করছে। অন্য অ্যাপ বন্ধ করে আবার চেষ্টা করুন।',
+              OverconstrainedError: 'নির্বাচিত ক্যামেরাটি পাওয়া যায়নি। আবার চেষ্টা করুন।',
+              SecurityError: 'নিরাপত্তার কারণে ক্যামেরা বন্ধ। HTTPS ঠিকানায় খুলুন।'
+            };
+            document.getElementById('kycCamError').textContent = (messages[e && e.name] || 'ক্যামেরা চালু হয়নি।') + ' (' + (e && e.name ? e.name : 'Unknown error') + ')';
+            console.error('WorkZen KYC camera error:', e);
           }
         }
         function stopKycLiveCamera() {
@@ -3063,6 +3071,13 @@ alter table public.kyc_verifications add column if not exists personal_details_j
           closeKycCamera();
           previewKycPhoto(id);
         }
+        // Expose camera handlers for the inline buttons and dynamically-created modal controls.
+        window.openKycCamera = openKycCamera;
+        window.closeKycCamera = closeKycCamera;
+        window.captureKycLivePhoto = captureKycLivePhoto;
+        window.retakeKycLivePhoto = retakeKycLivePhoto;
+        window.useKycLivePhoto = useKycLivePhoto;
+
         function isMissingKycColumnError(err) {
             if (!err) return false;
             const m = ((err.message || '') + ' ' + (err.details || '') + ' ' + (err.hint || '')).toLowerCase();
