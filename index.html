@@ -4,7 +4,7 @@
     <meta name="google-site-verification" content="rWSyhcnN_up8vsSX8Yl4F-d1xNYT7MDSSbkGfjzJgQk" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0B0F17">
+    <meta name="theme-color" content="#E4E1EE">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" type="image/jpeg" href="/android-app/workzen-logo.jpg">
     <link rel="apple-touch-icon" href="/android-app/workzen-logo.jpg">
@@ -13,11 +13,14 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <script>
-        // Apply the saved appearance before the page paints. First-time visitors start in light mode.
+        // First-time visitors see WorkZen in light mode; respect any theme they explicitly saved.
         (function () {
-            let choice = 'dark';
-            try { localStorage.setItem('workzen_theme', 'dark'); } catch (e) {}
-            if (!['light', 'dark', 'system'].includes(choice)) choice = 'light';
+            const valid = ['light', 'dark', 'system'];
+            let choice = 'light';
+            try {
+                const saved = localStorage.getItem('workzen_theme');
+                if (valid.includes(saved)) choice = saved;
+            } catch (e) {}
             const effective = choice === 'system'
                 ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
                 : choice;
@@ -4338,8 +4341,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         function getThemeChoice() {
             try {
                 const saved = localStorage.getItem(themeKey);
-                return validThemes.includes(saved) ? saved : 'dark';
-            } catch (e) { return 'dark'; }
+                return validThemes.includes(saved) ? saved : 'light';
+            } catch (e) { return 'light'; }
         }
         function resolveTheme(choice) {
             if (choice !== 'system') return choice;
