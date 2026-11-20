@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 
 public class MainActivity extends Activity {
     // Keep the existing website address as requested.
-    private static final String HOME_URL = "https://taskflexbd.vercel.app/";
+    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1";
     private WebView webView;
     private FrameLayout root;
     private FrameLayout splash;
