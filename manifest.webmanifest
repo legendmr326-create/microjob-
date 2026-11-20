@@ -10,8 +10,8 @@
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/icons/workzen.png",
-      "sizes": "160x160",
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
