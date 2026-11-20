@@ -514,7 +514,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div id="forgotOtpStep" class="hidden space-y-4">
                     <div id="forgotCheckEmail" role="status" class="rounded-2xl border border-amber-300/25 bg-amber-400/10 p-3 text-sm text-amber-100">Check your email for a 6-digit code.</div>
                     <p id="forgotEmailDisplay" class="auth-recovery-muted text-xs text-center"></p>
-                    <div><label for="forgotPasswordToken" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">6-digit code</label><input type="text" id="forgotPasswordToken" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" class="field w-full rounded-2xl px-4 py-3 text-center text-lg tracking-[0.35em]"></div>
+                    <div><label for="forgotPasswordToken" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">6-digit code</label><input type="text" id="forgotPasswordToken" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" class="field w-full rounded-2xl px-4 py-3 text-center text-lg tracking-[0.35em]"><button type="button" onclick="copyOtpFromField('forgotPasswordToken','forgotOtpCopyStatus')" class="w-full mt-2 border border-white/15 bg-white/5 font-semibold py-2.5 rounded-xl">Copy code</button><p id="forgotOtpCopyStatus" class="hidden text-xs text-center mt-1" role="status" aria-live="polite"></p></div>
                     <div><label for="forgotNewPassword" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">New password</label><input type="password" id="forgotNewPassword" autocomplete="new-password" placeholder="At least 6 characters" class="field w-full rounded-2xl px-4 py-3 text-sm"></div>
                     <div><label for="forgotConfirmPassword" class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Confirm password</label><input type="password" id="forgotConfirmPassword" autocomplete="new-password" placeholder="Enter your new password again" class="field w-full rounded-2xl px-4 py-3 text-sm"></div>
                     <button type="button" id="forgotUpdatePasswordButton" onclick="completePasswordReset()" class="btn-amber w-full font-bold py-3 rounded-2xl">Verify Code &amp; Update Password</button>
@@ -557,6 +557,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <p class="text-sm text-center text-violet-200/80">Enter the 6-digit code sent to your email</p>
                 <p id="verifyEmailAddress" class="text-xs text-center text-violet-200/60"></p>
                 <input type="text" id="signupOtp" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,6)" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit code" aria-label="6-digit verification code" class="field w-full rounded-2xl px-4 py-3 text-lg tracking-[.35em] text-center">
+                <button type="button" onclick="copyOtpFromField('signupOtp','signupOtpCopyStatus')" class="w-full border border-white/15 bg-white/5 font-semibold py-2.5 rounded-xl">Copy code</button>
+                <p id="signupOtpCopyStatus" class="hidden text-xs text-center" role="status" aria-live="polite"></p>
                 <p id="signupOtpMessage" class="hidden text-xs text-center" role="status" aria-live="polite"></p>
                 <button type="button" onclick="verifySignupOtp()" id="verifySignupBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl transition">Verify</button>
                 <button type="button" onclick="resendSignupOtp()" id="resendSignupBtn" class="w-full border border-violet-300/20 bg-white/5 text-violet-100 font-semibold py-3 rounded-2xl transition">Resend code <span id="resendCooldown"></span></button>
@@ -1664,6 +1666,30 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             document.getElementById('appMain').classList.remove('hidden');
             switchTab('dashboard');
             updateUserDataUI();
+        }
+
+        async function copyOtpFromField(inputId, statusId) {
+            const input = document.getElementById(inputId);
+            const status = document.getElementById(statusId);
+            const code = input ? input.value.trim() : '';
+            if (!/^\\d{6}$/.test(code)) {
+                if (status) { status.textContent = 'Enter the 6-digit code first.'; status.classList.remove('hidden'); status.classList.add('text-rose-300'); }
+                return;
+            }
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(code);
+                } else {
+                    const helper = document.createElement('textarea');
+                    helper.value = code; helper.style.position = 'fixed'; helper.style.opacity = '0';
+                    document.body.appendChild(helper); helper.select();
+                    const copied = document.execCommand('copy'); helper.remove();
+                    if (!copied) throw new Error('Copy unavailable');
+                }
+                if (status) { status.textContent = 'Code copied.'; status.classList.remove('hidden','text-rose-300'); status.classList.add('text-emerald-300'); }
+            } catch (error) {
+                if (status) { status.textContent = 'Could not copy. Please select and copy the code.'; status.classList.remove('hidden'); status.classList.add('text-rose-300'); }
+            }
         }
 
         function setSignupOtpMessage(message, isError) {
