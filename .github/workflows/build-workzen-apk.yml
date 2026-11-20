@@ -9,7 +9,7 @@ on:
       - ".github/workflows/build-workzen-apk.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -46,6 +46,15 @@ jobs:
       - name: Build signed debug APK
         working-directory: android-app
         run: gradle --no-daemon assembleDebug
+
+      - name: Publish APK to the website download path
+        run: |
+          cp android-app/app/build/outputs/apk/debug/app-debug.apk app/taskflex.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/taskflex.apk
+          git commit -m "Publish updated WorkZen APK"
+          git push
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
