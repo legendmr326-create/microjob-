@@ -41,7 +41,7 @@ jobs:
       - name: Add supplied WorkZen logo
         run: |
           mkdir -p android-app/app/src/main/res/drawable-nodpi
-          cp icons/workzen.png android-app/app/src/main/res/drawable-nodpi/workzen_logo.png
+          cp android-app/workzen-logo.jpg android-app/app/src/main/res/drawable-nodpi/workzen_logo.jpg
 
       - name: Build signed debug APK
         working-directory: android-app
