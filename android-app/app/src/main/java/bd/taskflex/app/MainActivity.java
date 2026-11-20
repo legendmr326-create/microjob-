@@ -20,7 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1";
+    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=7";
     private WebView webView;
     private FrameLayout root;
     private FrameLayout splash;
@@ -45,7 +45,9 @@ public class MainActivity extends Activity {
         settings.setJavaScriptCanOpenWindowsAutomatically(true);
         settings.setSupportMultipleWindows(false);
         settings.setSupportZoom(false);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.clearCache(true);
+        webView.clearHistory();
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(webView, true);
