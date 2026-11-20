@@ -443,11 +443,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
             <!-- LOGIN CARD -->
             <div id="loginCard" class="glass-card w-full p-6 rounded-3xl space-y-4 hidden">
-                <div class="flex flex-col items-center gap-2 pb-2">
-                    <img src="/android-app/workzen-logo.jpg" alt="WorkZen" width="88" height="88" class="w-22 h-22 rounded-2xl object-contain shadow-lg" style="width:88px;height:88px">
-                    <div class="text-xl font-black tracking-wide text-white">WorkZen</div>
-                    <h3 class="text-lg font-bold text-white text-center mt-1">Welcome Back</h3>
-                </div>
+                <h3 class="text-lg font-bold text-white text-center">Account Login</h3>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Email Address</label>
                     <input type="email" id="loginUser" autocomplete="username" placeholder="user@gmail.com" class="field w-full rounded-2xl px-4 py-3 text-sm">
@@ -4486,6 +4482,20 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
         const menu = document.getElementById('authMenu');
         if (hero) hero.style.display = 'none';
         if (menu) menu.classList.add('hidden');
+        const card = document.getElementById('loginCard');
+        if (card) {
+            const title = card.querySelector('h3');
+            if (title) {
+                title.textContent = 'Welcome Back';
+                if (!document.getElementById('workzen-app-login-brand')) {
+                    const brand = document.createElement('div');
+                    brand.id = 'workzen-app-login-brand';
+                    brand.className = 'flex flex-col items-center gap-2 pb-2';
+                    brand.innerHTML = '<img src="/android-app/workzen-logo.jpg" alt="WorkZen" width="88" height="88" style="width:88px;height:88px;object-fit:contain;border-radius:16px" class="shadow-lg"><div class="text-xl font-black tracking-wide text-white">WorkZen</div>';
+                    card.insertBefore(brand, title);
+                }
+            }
+        }
         if (typeof toggleAuthForm === 'function') toggleAuthForm('login');
         const card = document.getElementById('loginCard');
         if (card) card.classList.remove('hidden');
