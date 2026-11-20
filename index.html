@@ -443,7 +443,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
             <!-- LOGIN CARD -->
             <div id="loginCard" class="glass-card w-full p-6 rounded-3xl space-y-4 hidden">
-                <h3 class="text-lg font-bold text-white text-center">Account Login</h3>
+                <div class="flex flex-col items-center gap-2 pb-2">
+                    <img src="/android-app/workzen-logo.jpg" alt="WorkZen" width="88" height="88" class="w-22 h-22 rounded-2xl object-contain shadow-lg" style="width:88px;height:88px">
+                    <div class="text-xl font-black tracking-wide text-white">WorkZen</div>
+                    <h3 class="text-lg font-bold text-white text-center mt-1">Welcome Back</h3>
+                </div>
                 <div>
                     <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Email Address</label>
                     <input type="email" id="loginUser" autocomplete="username" placeholder="user@gmail.com" class="field w-full rounded-2xl px-4 py-3 text-sm">
@@ -4472,5 +4476,26 @@ nav.nav-glass .nav-btn.text-amber-300::after{content:"";top:0;bottom:auto;left:3
 html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){color:#6B7280!important}
 @media(max-width:380px){nav.nav-glass .nav-btn span{font-size:9px!important}nav.nav-glass .nav-btn i{width:30px}}
 </style>
+<script>
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('app') !== '1') return;
+    document.documentElement.classList.add('workzen-app-mode');
+    const applyAppLogin = function () {
+        const hero = document.getElementById('landingHero');
+        const menu = document.getElementById('authMenu');
+        if (hero) hero.style.display = 'none';
+        if (menu) menu.classList.add('hidden');
+        if (typeof toggleAuthForm === 'function') toggleAuthForm('login');
+        const card = document.getElementById('loginCard');
+        if (card) card.classList.remove('hidden');
+        const overlay = document.getElementById('authOverlay');
+        if (overlay) overlay.classList.add('auth-login-centered');
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyAppLogin, { once: true });
+    else applyAppLogin();
+})();
+</script>
+
 </body>
 </html>
