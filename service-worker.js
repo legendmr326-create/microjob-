@@ -1,5 +1,5 @@
-const CACHE_NAME = 'workzone-shell-v21';
-const SHELL = ['/', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png'];
+const CACHE_NAME = 'workzen-shell-v22';
+const SHELL = ['/', '/manifest.webmanifest', '/android-app/workzen-logo.jpg'];
 const NAVIGATION_TIMEOUT_MS = 8000;
 const PRECACHE_TIMEOUT_MS = 12000;
 
@@ -32,7 +32,7 @@ self.addEventListener('activate', (event) => {
     const cache = await caches.open(CACHE_NAME);
     const keys = await caches.keys();
     // Preserve the existing offline home page when upgrading the cache version.
-    for (const key of keys.filter((name) => name.startsWith('taskflex-shell-') && name !== CACHE_NAME)) {
+    for (const key of keys.filter((name) => (name.startsWith('taskflex-shell-') || name.startsWith('workzone-shell-')) && name !== CACHE_NAME)) {
       try {
         const oldCache = await caches.open(key);
         for (const request of await oldCache.keys()) {
@@ -44,7 +44,7 @@ self.addEventListener('activate', (event) => {
       } catch (_) {}
     }
     await Promise.all(keys
-      .filter((key) => key.startsWith('taskflex-shell-') && key !== CACHE_NAME)
+      .filter((key) => (key.startsWith('taskflex-shell-') || key.startsWith('workzone-shell-')) && key !== CACHE_NAME)
       .map((key) => caches.delete(key)));
     await self.clients.claim();
   })());
