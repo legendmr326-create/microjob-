@@ -176,11 +176,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
         /* Logged-out landing top row */
         #authOverlay { background: #0B0F17; }
         #authOverlay.auth-login-centered { justify-content: flex-start; padding-top: max(7vh, 44px); gap: 0; }
-        #authOverlay.auth-login-centered #workzen-app-login-brand { width: 100%; max-width: 420px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 16px; margin: 0 auto 96px; padding: 0; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand { width: 100%; max-width: 420px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 16px; margin: 0 auto 54px; padding: 0; }
         #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 92px !important; height: 92px !important; flex: 0 0 92px; border-radius: 50% !important; object-fit: contain; }
         #authOverlay.auth-login-centered #workzen-app-login-brand .workzen-app-brand-name { display: block; color: #fff; font-size: 28px; line-height: 1.15; font-weight: 800; letter-spacing: -.5px; }
+        #authOverlay.auth-login-centered #workzen-app-login-heading { width: 100%; max-width: 420px; margin: 0 auto 22px; text-align: left; }
+        #authOverlay.auth-login-centered #workzen-app-login-heading h2 { margin: 0 0 8px; color: #fff; font-size: 30px; line-height: 1.2; font-weight: 800; }
+        #authOverlay.auth-login-centered #workzen-app-login-heading p { margin: 0; color: #a1a1aa; font-size: 16px; line-height: 1.5; }
         #authOverlay.auth-login-centered #loginCard { margin-block: 0 auto; }
-        #authOverlay.auth-login-centered #loginCard > h3 { text-align: left !important; width: 100%; margin: 0 0 4px; padding-left: 0; }
+        #authOverlay.auth-login-centered #loginCard > h3 { display: none !important; }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
         #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
@@ -4516,6 +4519,15 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
                 overlay.insertBefore(brand, card);
             } else if (brand && brand.parentElement !== overlay) {
                 overlay.insertBefore(brand, card);
+            }
+            let heading = document.getElementById('workzen-app-login-heading');
+            if (!heading && overlay) {
+                heading = document.createElement('div');
+                heading.id = 'workzen-app-login-heading';
+                heading.innerHTML = '<h2>Welcome Back</h2><p>Please sign up to continue</p>';
+                overlay.insertBefore(heading, card);
+            } else if (heading && heading.parentElement !== overlay) {
+                overlay.insertBefore(heading, card);
             }
         }
         if (overlay) overlay.classList.add('auth-login-centered');
