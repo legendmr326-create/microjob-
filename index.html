@@ -190,6 +190,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 68px !important; height: 68px !important; flex-basis: 68px !important; }
         #authOverlay.auth-login-centered #workzen-app-login-heading { margin-bottom: 22px !important; }
         #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)) #loginCard { margin: 0 !important; flex: 0 0 auto; }
+        /* Website-only login header layout (APK/app layout stays unchanged) */
+        #authOverlay.workzen-web-login-layout { justify-content: flex-start !important; align-items: center !important; padding-top: max(5vh, 30px) !important; padding-bottom: 28px !important; gap: 0 !important; }
+        #authOverlay.workzen-web-login-layout #workzen-web-login-brand { width: 100%; max-width: 420px; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 42px; }
+        #authOverlay.workzen-web-login-layout #workzen-web-login-brand img { width: 68px; height: 68px; flex: 0 0 68px; border-radius: 50%; object-fit: contain; }
+        #authOverlay.workzen-web-login-layout #workzen-web-login-brand span { color: #fff; font-size: 28px; line-height: 1.15; font-weight: 800; letter-spacing: -.5px; }
+        #authOverlay.workzen-web-login-layout #workzen-web-login-heading { width: 100%; max-width: 420px; margin: 0 auto 22px; text-align: left; }
+        #authOverlay.workzen-web-login-layout #workzen-web-login-heading h2 { margin: 0 0 8px; color: #fff; font-size: 30px; line-height: 1.2; font-weight: 800; }
+        #authOverlay.workzen-web-login-layout #workzen-web-login-heading p { margin: 0; color: #a1a1aa; font-size: 16px; line-height: 1.5; }
+        #authOverlay.workzen-web-login-layout #loginCard { width: 100%; max-width: 420px; margin: 0 auto !important; flex: 0 0 auto; }
+        #authOverlay.workzen-web-login-layout #loginCard > h3 { display: none !important; }
+        @media (min-width: 600px) {
+          #authOverlay.workzen-web-login-layout #workzen-web-login-brand { margin-bottom: 34px; }
+          #authOverlay.workzen-web-login-layout #workzen-web-login-brand img { width: 74px; height: 74px; flex-basis: 74px; }
+        }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
         #landingHero .landing-topbar { position: relative; z-index: 10; min-height: 3rem; }
         #landingHero .logo-orb { flex: 0 0 3rem; visibility: visible; opacity: 1; }
@@ -1555,6 +1569,33 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const activeCardId = ({ login: 'loginCard', register: 'registerCard', forgot: 'forgotPasswordCard', verify: 'verifyEmailCard' })[form] || 'loginCard';
             const activeCard = document.getElementById(activeCardId);
             if (activeCard) activeCard.classList.remove('hidden');
+
+            // Add the new header only on the regular website, never inside the APK.
+            if (overlay && !document.documentElement.classList.contains('workzen-app-mode')) {
+                const isLogin = form === 'login';
+                overlay.classList.toggle('workzen-web-login-layout', isLogin);
+                let brand = document.getElementById('workzen-web-login-brand');
+                let heading = document.getElementById('workzen-web-login-heading');
+                if (!brand) {
+                    brand = document.createElement('div');
+                    brand.id = 'workzen-web-login-brand';
+                    const logo = document.createElement('img');
+                    logo.src = '/android-app/workzen-logo.jpg';
+                    logo.alt = 'WorkZen';
+                    const name = document.createElement('span');
+                    name.textContent = 'WorkZen';
+                    brand.append(logo, name);
+                    overlay.insertBefore(brand, document.getElementById('loginCard'));
+                }
+                if (!heading) {
+                    heading = document.createElement('div');
+                    heading.id = 'workzen-web-login-heading';
+                    heading.innerHTML = '<h2>Welcome</h2><p>Please sign up to continue</p>';
+                    overlay.insertBefore(heading, document.getElementById('loginCard'));
+                }
+                brand.classList.toggle('hidden', !isLogin);
+                heading.classList.toggle('hidden', !isLogin);
+            }
         }
 
         async function handleRegister() {
