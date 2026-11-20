@@ -176,9 +176,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
         /* Logged-out landing top row */
         #authOverlay { background: #0B0F17; }
         #authOverlay.auth-login-centered { justify-content: flex-start; padding-top: max(7vh, 44px); gap: 0; }
-        #authOverlay.auth-login-centered #workzen-app-login-brand { width: 100%; max-width: 420px; display: flex; align-items: center; justify-content: center; margin: 0 auto 96px; padding: 0; }
-        #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 104px !important; height: 104px !important; border-radius: 50% !important; object-fit: contain; }
-        #authOverlay.auth-login-centered #workzen-app-login-brand .workzen-app-brand-name { display: none; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand { width: 100%; max-width: 420px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 16px; margin: 0 auto 96px; padding: 0; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 92px !important; height: 92px !important; flex: 0 0 92px; border-radius: 50% !important; object-fit: contain; }
+        #authOverlay.auth-login-centered #workzen-app-login-brand .workzen-app-brand-name { display: block; color: #fff; font-size: 28px; line-height: 1.15; font-weight: 800; letter-spacing: -.5px; }
         #authOverlay.auth-login-centered #loginCard { margin-block: 0 auto; }
         #authOverlay.auth-login-centered #loginCard > h3 { text-align: left !important; width: 100%; margin: 0 0 4px; padding-left: 0; }
         #landingHero { min-height: calc(100svh - 2rem) !important; }
@@ -4508,7 +4508,11 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
                 logo.width = 104;
                 logo.height = 104;
                 logo.className = 'shadow-lg';
+                const brandName = document.createElement('span');
+                brandName.className = 'workzen-app-brand-name';
+                brandName.textContent = 'WorkZen';
                 brand.appendChild(logo);
+                brand.appendChild(brandName);
                 overlay.insertBefore(brand, card);
             } else if (brand && brand.parentElement !== overlay) {
                 overlay.insertBefore(brand, card);
