@@ -185,14 +185,18 @@ Check your Browserslist config to be sure that your targets are set up correctly
         #authOverlay.auth-login-centered #workzen-app-login-heading { width: 100%; max-width: 420px; margin: 0 auto 22px; text-align: left; }
         #authOverlay.auth-login-centered #workzen-app-login-heading h2 { margin: 0 0 8px; color: #fff; font-size: 30px; line-height: 1.2; font-weight: 800; }
         #authOverlay.auth-login-centered #workzen-app-login-heading p { margin: 0; color: #a1a1aa; font-size: 16px; line-height: 1.5; }
-        #authOverlay.auth-login-centered #loginCard { margin-block: 0 auto; }
-        #authOverlay.auth-login-centered #loginCard > h3 { display: none !important; }
+        #authOverlay.auth-login-centered #loginCard,
+        #authOverlay.auth-login-centered #forgotPasswordCard { margin-block: 0 auto; }
+        #authOverlay.auth-login-centered #loginCard > h3,
+        #authOverlay.auth-login-centered #forgotPasswordCard > h3 { display: none !important; }
         /* Final mobile app login alignment */
-        #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)) { justify-content: flex-start !important; align-items: center !important; padding-top: max(4vh, 24px) !important; padding-bottom: 24px !important; }
+        #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)),
+        #authOverlay.auth-login-centered:has(#forgotPasswordCard:not(.hidden)) { justify-content: flex-start !important; align-items: center !important; padding-top: max(4vh, 24px) !important; padding-bottom: 24px !important; }
         #authOverlay.auth-login-centered #workzen-app-login-brand { margin-bottom: 34px !important; }
         #authOverlay.auth-login-centered #workzen-app-login-brand img { width: 68px !important; height: 68px !important; flex-basis: 68px !important; }
         #authOverlay.auth-login-centered #workzen-app-login-heading { margin-bottom: 22px !important; }
-        #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)) #loginCard { margin: 0 !important; flex: 0 0 auto; }
+        #authOverlay.auth-login-centered:has(#loginCard:not(.hidden)) #loginCard,
+        #authOverlay.auth-login-centered:has(#forgotPasswordCard:not(.hidden)) #forgotPasswordCard { margin: 0 !important; flex: 0 0 auto; }
         /* Website-only login header layout (APK/app layout stays unchanged) */
         #authOverlay.workzen-web-login-layout { justify-content: flex-start !important; align-items: center !important; padding-top: max(5vh, 30px) !important; padding-bottom: 28px !important; gap: 0 !important; }
         #authOverlay.workzen-web-login-layout #workzen-web-login-brand { width: 100%; max-width: 420px; display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 42px; }
@@ -1577,7 +1581,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             var overlay = document.getElementById('authOverlay');
             var hero = document.getElementById('landingHero');
             var cards = ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'];
-            if (overlay) overlay.classList.toggle('auth-login-centered', form === 'login');
+            const isWorkZenApp = document.documentElement.classList.contains('workzen-app-mode');
+            if (overlay) overlay.classList.toggle('auth-login-centered', form === 'login' || (isWorkZenApp && form === 'forgot'));
             // Auth views are mutually exclusive: hide the landing hero and every card first.
             if (hero) hero.style.display = 'none';
             cards.forEach(id => {
@@ -1588,8 +1593,24 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const activeCard = document.getElementById(activeCardId);
             if (activeCard) activeCard.classList.remove('hidden');
 
+            // Keep the app's branded heading outside the form card for Login and Forgot Password.
+            if (isWorkZenApp) {
+                let appHeading = document.getElementById('workzen-app-login-heading');
+                if (appHeading) {
+                    const title = appHeading.querySelector('h2');
+                    const subtitle = appHeading.querySelector('p');
+                    if (title) title.textContent = form === 'forgot' ? 'Forgot Password' : 'Welcome Back';
+                    if (subtitle) subtitle.textContent = form === 'forgot'
+                        ? 'Please enter your email address to receive a verification code'
+                        : 'Please sign up to continue';
+                    appHeading.classList.toggle('hidden', form !== 'login' && form !== 'forgot');
+                }
+                const appForgotTitle = document.querySelector('#forgotPasswordCard > h3');
+                if (appForgotTitle) appForgotTitle.style.display = form === 'forgot' ? 'none' : '';
+            }
+
             // Add the new header only on the regular website, never inside the APK.
-            if (overlay && !document.documentElement.classList.contains('workzen-app-mode')) {
+            if (overlay && !isWorkZenApp) {
                 const isLogin = form === 'login';
                 overlay.classList.toggle('workzen-web-login-layout', isLogin);
                 let brand = document.getElementById('workzen-web-login-brand');
