@@ -987,8 +987,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         <div class="space-y-3">
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Front side of ID</label>
-                                <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3">
-                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="kyc-photo-input" aria-label="Capture front side of ID">
+                                <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
+                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="kyc-photo-input" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5;clip:auto!important;overflow:visible!important;margin:0!important;padding:0!important"" aria-label="Capture front side of ID">
                                     <button type="button" onclick="document.getElementById('kycFront').click()" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1009,8 +1009,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Back side of ID</label>
-                                <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3">
-                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" class="kyc-photo-input" aria-label="Capture back side of ID">
+                                <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3 relative">
+                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" class="kyc-photo-input" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5;clip:auto!important;overflow:visible!important;margin:0!important;padding:0!important"" aria-label="Capture back side of ID">
                                     <button type="button" onclick="document.getElementById('kycBack').click()" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1030,35 +1030,25 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 </div>
                             </div>
                             <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold">Face Verification Photo (স্বয়ংক্রিয় মুখের ছবি)</label>
-                                <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 space-y-3">
-                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" class="kyc-photo-input" aria-label="Face verification selfie">
-                                    <div class="flex items-center gap-3">
+                                <label class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
+                                <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative space-y-3">
+                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:5;clip:auto!important;overflow:visible!important;margin:0!important;padding:0!important">
+                                    <div class="flex items-center gap-3 pointer-events-none">
                                         <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
-                                            <img id="kycSelfieThumb" alt="Face verification photo preview" class="hidden absolute inset-0 h-full w-full object-cover">
-                                            <i id="kycSelfieGuide" class="fa-regular fa-user text-2xl"></i>
+                                            <img id="kycSelfieThumb" alt="Selfie holding NID preview" class="hidden absolute inset-0 h-full w-full object-cover">
+                                            <i id="kycSelfieGuide" class="fa-regular fa-id-card text-2xl"></i>
                                             <span id="kycSelfieCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="text-sm font-bold">Face Verification</p>
-                                            <p class="mt-1 text-xs opacity-70">সোজা তাকান, তারপর ডানে ও বামে মাথা ঘোরান</p>
-                                            <p class="mt-1 text-[11px] opacity-60">শেষ ধাপের পর ছবি নিজে থেকেই উঠবে</p>
+                                            <p class="text-sm font-bold">ক্যামেরা খুলতে এখানে চাপ দিন</p>
+                                            <p class="mt-1 text-xs opacity-70">NID হাতে ধরে মুখ ও কার্ড দুটোই স্পষ্ট রাখুন</p>
+                                            <p class="mt-1 text-[11px] opacity-60">সামনের ক্যামেরা দিয়ে ছবি তুলুন</p>
                                         </div>
+                                        <i class="fa-solid fa-camera text-lg text-amber-400"></i>
                                     </div>
-                                    <div id="kycFaceCamera" class="hidden space-y-2">
-                                        <video id="kycFaceVideo" autoplay playsinline muted class="w-full max-h-64 rounded-xl bg-black object-cover"></video>
-                                        <p id="kycFacePrompt" class="text-center text-sm font-bold text-amber-300">ক্যামেরা প্রস্তুত হচ্ছে...</p>
-                                        <p id="kycFaceStep" class="text-center text-[11px] opacity-70">ধাপ ১ / ৪</p>
-                                        <div class="flex gap-2">
-                                            <button type="button" id="kycFaceNext" onclick="nextKycFaceStep()" class="hidden btn-amber flex-1 py-2.5 rounded-xl text-xs font-bold">পরের ধাপ</button>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-wrap gap-2">
-                                        <button type="button" id="kycFaceStart" onclick="startKycFaceCamera()" class="btn-amber flex-1 py-2.5 rounded-xl text-xs font-bold"><i class="fa-solid fa-camera mr-1"></i> Face Verification শুরু</button>
-                                        <button type="button" id="kycFaceRetake" onclick="startKycFaceCamera()" class="hidden border border-amber-400/40 px-3 py-2.5 rounded-xl text-xs font-bold text-amber-300">আবার তুলুন</button>
-                                    </div>
-                                    <p id="kycFaceNotice" class="text-[10px] leading-relaxed opacity-65">ক্যামেরার নির্দেশনা শেষ হলে মুখের ছবি স্বয়ংক্রিয়ভাবে উঠবে। ছবি ও NID/পাসপোর্ট অ্যাডমিন ম্যানুয়ালি রিভিউ করবেন।</p>
-                                    <div id="kycSelfieActions" class="hidden"></div>
+                                    <div id="kycSelfieActions" class="hidden mt-2 text-right pointer-events-none"><span class="text-xs font-bold text-emerald-400">ছবি নেওয়া হয়েছে</span></div>
+                                </div>
+                            </div>
                                 </div>
                             </div>
                         </div>
