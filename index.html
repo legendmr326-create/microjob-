@@ -18,7 +18,7 @@
             const valid = ['light', 'dark', 'system'];
             let choice = 'light';
             try {
-                const saved = localStorage.getItem('workzen_theme');
+                const saved = localStorage.getItem('workzen_theme_choice');
                 if (valid.includes(saved)) choice = saved;
             } catch (e) {}
             const effective = choice === 'system'
@@ -4336,7 +4336,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 </style>
 <script>
     (function () {
-        const themeKey = 'workzen_theme';
+        const themeKey = 'workzen_theme_choice';
         const validThemes = ['light', 'dark', 'system'];
         function getThemeChoice() {
             try {
