@@ -989,8 +989,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 <label class="block text-xs font-semibold">Front side of ID</label>
                                 <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
                                     
-                                    <label for="kycFront" data-kyc-native-label="true" class="relative block w-full cursor-pointer">
-                                        <div class="flex items-center gap-3">
+                                    <button type="button" onclick="startKycPhotoCamera('kycFront', 'environment')" aria-label="Open camera for kycFront" class="relative block w-full text-left cursor-pointer"><div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                                 <img id="kycFrontThumb" alt="Front side of ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
                                                 <i id="kycFrontGuide" class="fa-regular fa-id-card text-2xl"></i>
@@ -1002,8 +1001,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                                 <p class="mt-1 text-[11px] opacity-60">Make sure all text is readable</p>
                                             </div>
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
-                                        </div>
-                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" aria-label="Capture front side of ID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;"></label>
+                                        </div></button>
+                                    <input type="file" id="kycFront" accept="image/*" aria-hidden="true" tabindex="-1" style="display:none;">
                                     <div id="kycFrontActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycFront')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycFront')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
@@ -1011,8 +1010,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 <label class="block text-xs font-semibold">Back side of ID</label>
                                 <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3 relative">
                                     
-                                    <label for="kycBack" data-kyc-native-label="true" class="relative block w-full cursor-pointer">
-                                        <div class="flex items-center gap-3">
+                                    <button type="button" onclick="startKycPhotoCamera('kycBack', 'environment')" aria-label="Open camera for kycBack" class="relative block w-full text-left cursor-pointer"><div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                                 <img id="kycBackThumb" alt="Back side of ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
                                                 <i id="kycBackGuide" class="fa-regular fa-id-card text-2xl"></i>
@@ -1024,8 +1022,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                                 <p class="mt-1 text-[11px] opacity-60">Avoid glare, keep all text readable</p>
                                             </div>
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
-                                        </div>
-                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" aria-label="Capture back side of ID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;"></label>
+                                        </div></button>
+                                    <input type="file" id="kycBack" accept="image/*" aria-hidden="true" tabindex="-1" style="display:none;">
                                     <div id="kycBackActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycBack')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycBack')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
@@ -1033,8 +1031,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 <label class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
                                 <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative space-y-3">
                                     
-                                    <label for="kycSelfie" data-kyc-native-label="true" class="relative block w-full cursor-pointer">
-                                        <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
+                                    <button type="button" onclick="startKycPhotoCamera('kycSelfie', 'user')" aria-label="Open camera for kycSelfie" class="relative block w-full text-left cursor-pointer"><div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                             <img id="kycSelfieThumb" alt="Selfie holding NID preview" class="hidden absolute inset-0 h-full w-full object-cover">
                                             <i id="kycSelfieGuide" class="fa-regular fa-id-card text-2xl"></i>
                                             <span id="kycSelfieCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
@@ -1044,7 +1041,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             <p class="mt-1 text-xs opacity-70">NID হাতে ধরে মুখ ও কার্ড দুটোই স্পষ্ট রাখুন</p>
                                             <p class="mt-1 text-[11px] opacity-60">সামনের ক্যামেরা দিয়ে ছবি তুলুন</p>
                                         </div>
-                                        <i class="fa-solid fa-camera text-lg text-amber-400"></i><input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;"></label>
+                                        <i class="fa-solid fa-camera text-lg text-amber-400"></i></button>
+                                    <input type="file" id="kycSelfie" accept="image/*" aria-hidden="true" tabindex="-1" style="display:none;">
                                     </div>
                                     <div id="kycSelfieActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycSelfie')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycSelfie')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
@@ -2976,8 +2974,81 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             { type: 'selfie', label: 'Selfie holding the ID', inputId: 'kycSelfie' }
         ];
 
-        // KYC camera inputs are direct transparent overlays on their labels.
-        // A real tap now activates the native camera input without scripted clicks.
+        // KYC photo capture uses the browser camera stream; it never opens a file/gallery picker.
+        let kycPhotoCameraStream = null;
+        let kycPhotoCameraTarget = null;
+        async function startKycPhotoCamera(inputId, facingMode) {
+            const modal = document.getElementById('kycPhotoCameraModal');
+            const video = document.getElementById('kycPhotoCameraVideo');
+            const error = document.getElementById('kycPhotoCameraError');
+            const captureBtn = document.getElementById('kycPhotoCameraCapture');
+            if (!modal || !video) return;
+            if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                niceAlert('ক্যামেরা চালাতে HTTPS ও Camera permission প্রয়োজন। WorkZen লিংকটি Chrome-এ খুলে অনুমতি দিন।');
+                return;
+            }
+            closeKycPhotoCamera();
+            kycPhotoCameraTarget = inputId;
+            error.textContent = 'ক্যামেরার অনুমতি দিন…';
+            captureBtn.disabled = true;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            try {
+                kycPhotoCameraStream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: { facingMode: { ideal: facingMode }, width: { ideal: 1600 }, height: { ideal: 1200 } }
+                });
+                video.srcObject = kycPhotoCameraStream;
+                await video.play();
+                error.textContent = '';
+                captureBtn.disabled = false;
+            } catch (err) {
+                closeKycPhotoCamera();
+                let message = 'ক্যামেরা চালু হয়নি। ব্রাউজারের Site settings থেকে Camera অনুমতি Allow করে আবার চেষ্টা করুন।';
+                if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) message = 'ক্যামেরার অনুমতি দেওয়া হয়নি। Chrome-এর Site settings → Camera → Allow করে আবার চেষ্টা করুন।';
+                else if (err && (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError')) message = 'এই ফোনে ব্যবহারযোগ্য ক্যামেরা পাওয়া যায়নি।';
+                else if (err && err.name === 'NotReadableError') message = 'অন্য কোনো অ্যাপ ক্যামেরা ব্যবহার করছে। সেটি বন্ধ করে আবার চেষ্টা করুন।';
+                niceAlert(message);
+            }
+        }
+        function closeKycPhotoCamera() {
+            if (kycPhotoCameraStream) kycPhotoCameraStream.getTracks().forEach(track => track.stop());
+            kycPhotoCameraStream = null;
+            const video = document.getElementById('kycPhotoCameraVideo');
+            if (video) video.srcObject = null;
+            const modal = document.getElementById('kycPhotoCameraModal');
+            if (modal) modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            const captureBtn = document.getElementById('kycPhotoCameraCapture');
+            if (captureBtn) captureBtn.disabled = false;
+            kycPhotoCameraTarget = null;
+        }
+        async function captureKycPhotoFromCamera() {
+            const video = document.getElementById('kycPhotoCameraVideo');
+            const targetId = kycPhotoCameraTarget;
+            if (!video || !targetId || !video.videoWidth || !video.videoHeight) return;
+            const canvas = document.createElement('canvas');
+            const scale = Math.min(1, 2000 / Math.max(video.videoWidth, video.videoHeight));
+            canvas.width = Math.round(video.videoWidth * scale);
+            canvas.height = Math.round(video.videoHeight * scale);
+            const ctx = canvas.getContext('2d');
+            if (!ctx) { niceAlert('ছবি তৈরি করা যাচ্ছে না। আবার চেষ্টা করুন।'); return; }
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+            if (!blob) { niceAlert('ছবি সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।'); return; }
+            const file = new File([blob], targetId + '_' + Date.now() + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+            const input = document.getElementById(targetId);
+            try {
+                const transfer = new DataTransfer();
+                transfer.items.add(file);
+                input.files = transfer.files;
+            } catch (err) {
+                niceAlert('এই ব্রাউজারে ছবি গ্রহণ করা যাচ্ছে না। Chrome আপডেট করে আবার চেষ্টা করুন।');
+                return;
+            }
+            closeKycPhotoCamera();
+            previewKycPhoto(targetId);
+        }
 
         function isMissingKycColumnError(err) {
             if (!err) return false;
@@ -4680,5 +4751,17 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
 })();
 </script>
 
+<div id="kycPhotoCameraModal" class="hidden fixed inset-0 z-[10000] bg-black/95 flex flex-col items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="KYC photo camera">
+    <div class="w-full max-w-lg flex items-center justify-between mb-3 text-white">
+        <p class="font-bold text-base">ছবি তুলুন</p>
+        <button type="button" onclick="closeKycPhotoCamera()" class="w-11 h-11 rounded-full bg-white/15 text-white text-2xl" aria-label="ক্যামেরা বন্ধ করুন"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="w-full max-w-lg rounded-2xl overflow-hidden bg-black border border-white/20">
+        <video id="kycPhotoCameraVideo" autoplay playsinline muted class="block w-full max-h-[70vh] object-contain"></video>
+    </div>
+    <p id="kycPhotoCameraError" class="text-sm text-white/80 text-center mt-3" role="status"></p>
+    <button id="kycPhotoCameraCapture" type="button" onclick="captureKycPhotoFromCamera()" disabled class="mt-4 w-16 h-16 rounded-full border-4 border-white bg-rose-600 shadow-lg disabled:opacity-40" aria-label="ছবি তুলুন"><i class="fa-solid fa-camera text-white text-2xl"></i></button>
+    <p class="text-xs text-white/60 mt-3">ছবি তোলার পর নিচে থাকা ❌ বা ✔️ বাটন দিয়ে নিশ্চিত করুন</p>
+</div>
 </body>
 </html>
