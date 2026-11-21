@@ -2946,7 +2946,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             } else if (st === 'error') {
                 msg.textContent = 'Could not load your KYC status. Please try again later.';
             } else {
-                msg.textContent = 'Verify your identity to apply for jobs.';
+                msg.textContent = '';
                 verifyBtn.classList.remove('hidden');
             }
         }
