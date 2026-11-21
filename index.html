@@ -2989,6 +2989,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             }
             closeKycPhotoCamera();
             kycPhotoCameraTarget = inputId;
+            const idOverlay = document.getElementById('kycIdOverlay');
+            if (idOverlay) idOverlay.classList.toggle('hidden', inputId === 'kycSelfie');
             error.textContent = 'ক্যামেরার অনুমতি দিন…';
             captureBtn.disabled = true;
             modal.classList.remove('hidden');
@@ -3022,6 +3024,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const captureBtn = document.getElementById('kycPhotoCameraCapture');
             if (captureBtn) captureBtn.disabled = false;
             kycPhotoCameraTarget = null;
+            const idOverlayEl = document.getElementById('kycIdOverlay');
+            if (idOverlayEl) idOverlayEl.classList.add('hidden');
         }
         async function captureKycPhotoFromCamera() {
             const video = document.getElementById('kycPhotoCameraVideo');
@@ -4756,8 +4760,17 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
         <p class="font-bold text-base">ছবি তুলুন</p>
         <button type="button" onclick="closeKycPhotoCamera()" class="w-11 h-11 rounded-full bg-white/15 text-white text-2xl" aria-label="ক্যামেরা বন্ধ করুন"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="w-full max-w-lg rounded-2xl overflow-hidden bg-black border border-white/20">
+    <div class="relative w-full max-w-lg rounded-2xl overflow-hidden bg-black border border-white/20">
         <video id="kycPhotoCameraVideo" autoplay playsinline muted class="block w-full max-h-[70vh] object-contain"></video>
+        <div id="kycIdOverlay" class="hidden absolute inset-0 flex flex-col items-center justify-center pointer-events-none" aria-hidden="true">
+            <div style="position:relative;width:86%;aspect-ratio:1.586;border:2px solid rgba(255,255,255,.9);border-radius:14px;background:rgba(255,255,255,.08);box-shadow:0 0 0 9999px rgba(0,0,0,.45);">
+                <span style="position:absolute;top:-3px;left:-3px;width:26px;height:26px;border-top:4px solid #fff;border-left:4px solid #fff;border-radius:14px 0 0 0"></span>
+                <span style="position:absolute;top:-3px;right:-3px;width:26px;height:26px;border-top:4px solid #fff;border-right:4px solid #fff;border-radius:0 14px 0 0"></span>
+                <span style="position:absolute;bottom:-3px;left:-3px;width:26px;height:26px;border-bottom:4px solid #fff;border-left:4px solid #fff;border-radius:0 0 0 14px"></span>
+                <span style="position:absolute;bottom:-3px;right:-3px;width:26px;height:26px;border-bottom:4px solid #fff;border-right:4px solid #fff;border-radius:0 0 14px 0"></span>
+            </div>
+            <p class="absolute bottom-3 left-0 right-0 text-center text-xs font-semibold text-white" style="text-shadow:0 1px 3px rgba(0,0,0,.8)">কার্ডটি ফ্রেমের ভেতরে রাখুন, লেখা স্পষ্ট দেখা যেন যায়</p>
+        </div>
     </div>
     <p id="kycPhotoCameraError" class="text-sm text-white/80 text-center mt-3" role="status"></p>
     <button id="kycPhotoCameraCapture" type="button" onclick="captureKycPhotoFromCamera()" disabled class="mt-4 w-16 h-16 rounded-full border-4 border-white bg-rose-600 shadow-lg disabled:opacity-40" aria-label="ছবি তুলুন"><i class="fa-solid fa-camera text-white text-2xl"></i></button>
