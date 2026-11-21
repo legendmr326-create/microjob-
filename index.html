@@ -988,8 +988,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Front side of ID</label>
                                 <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="kyc-native-camera-input" aria-label="Capture front side of ID" style="position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;">
-                                    <button type="button" data-kyc-camera="true" data-input="kycFront" data-facing="environment" class="w-full text-left">
+                                    
+                                    <label for="kycFront" data-kyc-native-label="true" class="relative block w-full cursor-pointer">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                                 <img id="kycFrontThumb" alt="Front side of ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
@@ -1003,15 +1003,15 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             </div>
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
                                         </div>
-                                    </button>
+                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" aria-label="Capture front side of ID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;"></label>
                                     <div id="kycFrontActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycFront')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycFront')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Back side of ID</label>
                                 <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" class="kyc-native-camera-input" aria-label="Capture back side of ID" style="position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;">
-                                    <button type="button" data-kyc-camera="true" data-input="kycBack" data-facing="environment" class="w-full text-left">
+                                    
+                                    <label for="kycBack" data-kyc-native-label="true" class="relative block w-full cursor-pointer">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                                 <img id="kycBackThumb" alt="Back side of ID preview" class="hidden absolute inset-0 h-full w-full object-cover">
@@ -1025,15 +1025,15 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             </div>
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
                                         </div>
-                                    </button>
+                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" aria-label="Capture back side of ID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;"></label>
                                     <div id="kycBackActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycBack')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycBack')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
                                 <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative space-y-3">
-                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" class="kyc-native-camera-input" style="position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;">
-                                    <button type="button" data-kyc-camera="true" data-input="kycSelfie" data-facing="user" class="w-full flex items-center gap-3 text-left">
+                                    
+                                    <label for="kycSelfie" data-kyc-native-label="true" class="relative block w-full cursor-pointer">
                                         <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                             <img id="kycSelfieThumb" alt="Selfie holding NID preview" class="hidden absolute inset-0 h-full w-full object-cover">
                                             <i id="kycSelfieGuide" class="fa-regular fa-id-card text-2xl"></i>
@@ -1044,7 +1044,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             <p class="mt-1 text-xs opacity-70">NID হাতে ধরে মুখ ও কার্ড দুটোই স্পষ্ট রাখুন</p>
                                             <p class="mt-1 text-[11px] opacity-60">সামনের ক্যামেরা দিয়ে ছবি তুলুন</p>
                                         </div>
-                                        <i class="fa-solid fa-camera text-lg text-amber-400"></i></button>
+                                        <i class="fa-solid fa-camera text-lg text-amber-400"></i><input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;z-index:5;cursor:pointer;"></label>
                                     </div>
                                     <div id="kycSelfieActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycSelfie')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycSelfie')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
@@ -2976,37 +2976,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             { type: 'selfie', label: 'Selfie holding the ID', inputId: 'kycSelfie' }
         ];
 
-        // Open the device camera from the user's tap. The capture hint asks
-        // Android/iOS to launch the camera rather than a general photo library.
-        // Keep input.click() synchronous in this trusted click handler.
-        function handleKycCameraTrigger(event) {
-            const trigger = event.target && event.target.closest ? event.target.closest('[data-kyc-camera="true"]') : null;
-            if (!trigger) return;
-            event.preventDefault();
-            event.stopPropagation();
-            const inputId = trigger.getAttribute('data-input');
-            const facing = trigger.getAttribute('data-facing') || 'environment';
-            const input = inputId ? document.getElementById(inputId) : null;
-            if (!input) {
-                console.error('WorkZen KYC camera input missing:', inputId);
-                return;
-            }
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.setAttribute('capture', facing);
-            input.value = '';
-            try {
-                input.click();
-            } catch (error) {
-                console.error('WorkZen could not open the device camera:', error);
-                const notice = document.getElementById('kycPhotoError');
-                if (notice) {
-                    notice.textContent = 'ক্যামেরা খুলছে না। ব্রাউজারের Camera permission চালু করে আবার চেষ্টা করুন।';
-                    notice.classList.remove('hidden');
-                }
-            }
-        }
-        document.addEventListener('click', handleKycCameraTrigger, true);
+        // KYC camera inputs are direct transparent overlays on their labels.
+        // A real tap now activates the native camera input without scripted clicks.
 
         function isMissingKycColumnError(err) {
             if (!err) return false;
