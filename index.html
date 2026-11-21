@@ -988,7 +988,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Front side of ID</label>
                                 <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycFront" accept="image/*" onchange="previewKycPhoto('kycFront')" class="hidden" style="display:none" aria-label="Capture front side of ID">
+                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="hidden" style="display:none" aria-label="Capture front side of ID">
                                     <button type="button" data-kyc-camera="true" data-input="kycFront" data-facing="environment" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1004,13 +1004,13 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
                                         </div>
                                     </button>
-                                    <div id="kycFrontActions" class="hidden mt-2 text-right"><button type="button" data-kyc-camera="true" data-input="kycFront" data-facing="environment" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-rotate mr-1"></i>Retake</button></div>
+                                    <div id="kycFrontActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycFront')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycFront')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Back side of ID</label>
                                 <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycBack" accept="image/*" onchange="previewKycPhoto('kycBack')" class="hidden" style="display:none" aria-label="Capture back side of ID">
+                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" class="hidden" style="display:none" aria-label="Capture back side of ID">
                                     <button type="button" data-kyc-camera="true" data-input="kycBack" data-facing="environment" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1026,13 +1026,13 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
                                         </div>
                                     </button>
-                                    <div id="kycBackActions" class="hidden mt-2 text-right"><button type="button" data-kyc-camera="true" data-input="kycBack" data-facing="environment" class="text-xs font-bold text-amber-400"><i class="fa-solid fa-rotate mr-1"></i>Retake</button></div>
+                                    <div id="kycBackActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycBack')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycBack')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
                                 <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative space-y-3">
-                                    <input type="file" id="kycSelfie" accept="image/*" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="display:none">
+                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="display:none">
                                     <button type="button" data-kyc-camera="true" data-input="kycSelfie" data-facing="user" class="w-full flex items-center gap-3 text-left">
                                         <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                             <img id="kycSelfieThumb" alt="Selfie holding NID preview" class="hidden absolute inset-0 h-full w-full object-cover">
@@ -1046,7 +1046,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                         </div>
                                         <i class="fa-solid fa-camera text-lg text-amber-400"></i></button>
                                     </div>
-                                    <div id="kycSelfieActions" class="hidden mt-2 text-right pointer-events-none"><span class="text-xs font-bold text-emerald-400">ছবি নেওয়া হয়েছে</span></div>
+                                    <div id="kycSelfieActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycSelfie')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycSelfie')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
                         </div>
@@ -3096,6 +3096,20 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             previewKycPhoto(slotId);
         }
 
+        function cancelKycPhoto(inputId) {
+            const input = document.getElementById(inputId);
+            if (input) { input.value = ''; delete input.dataset.confirmed; }
+            previewKycPhoto(inputId);
+        }
+        function confirmKycPhoto(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input || !input.files || !input.files[0]) return;
+            input.dataset.confirmed = '1';
+            const actions = document.getElementById(inputId + 'Actions');
+            if (actions) actions.classList.add('hidden');
+            updateKycSubmitState();
+        }
+
         function previewKycPhoto(inputId) {
             const slot = KYC_PHOTO_SLOTS.find(item => item.inputId === inputId);
             const input = document.getElementById(inputId);
@@ -3112,10 +3126,12 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const actions = document.getElementById(inputId + 'Actions');
             if (thumb.dataset.objectUrl) URL.revokeObjectURL(thumb.dataset.objectUrl);
             if (!chosen) {
+                delete input.dataset.confirmed;
                 thumb.classList.add('hidden'); thumb.removeAttribute('src'); delete thumb.dataset.objectUrl;
                 guide.classList.remove('hidden'); check.classList.add('hidden'); check.classList.remove('flex');
                 actions.classList.add('hidden'); card.classList.remove('is-captured');
             } else {
+                delete input.dataset.confirmed;
                 const objectUrl = URL.createObjectURL(chosen);
                 thumb.src = objectUrl; thumb.dataset.objectUrl = objectUrl; thumb.classList.remove('hidden');
                 guide.classList.add('hidden'); check.classList.remove('hidden'); check.classList.add('flex');
@@ -3126,7 +3142,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         function updateKycSubmitState(showError) {
             const button = document.getElementById('kycSubmitBtn');
             if (!button) return;
-            const completed = KYC_PHOTO_SLOTS.filter(slot => document.getElementById(slot.inputId).files.length > 0).length;
+            const completed = KYC_PHOTO_SLOTS.filter(slot => { const input = document.getElementById(slot.inputId); return input.files.length > 0 && input.dataset.confirmed === '1'; }).length;
             const ready = completed === KYC_PHOTO_SLOTS.length;
             button.disabled = !ready;
             button.textContent = ready ? 'Submit KYC' : 'Complete all 3 photos to submit';
@@ -3139,6 +3155,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             KYC_PHOTO_SLOTS.forEach(slot => {
                 const input = document.getElementById(slot.inputId);
                 input.value = '';
+                delete input.dataset.confirmed;
                 previewKycPhoto(slot.inputId);
             });
             updateKycSubmitState(false);
@@ -3178,8 +3195,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (!idNumber) { niceAlert('Please enter your document number.'); return; }
             if (!dob) { niceAlert('Please enter your date of birth.'); return; }
             if (dob > new Date().toISOString().slice(0, 10)) { niceAlert('Date of birth cannot be in the future.'); return; }
-            const slots = KYC_PHOTO_SLOTS.map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0] }));
-            if (slots.some(s => !s.file)) { updateKycSubmitState(true); document.getElementById('kycPhotoError').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+            const slots = KYC_PHOTO_SLOTS.map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0], confirmed: document.getElementById(s.inputId).dataset.confirmed === '1' }));
+            if (slots.some(s => !s.file || !s.confirmed)) { updateKycSubmitState(true); document.getElementById('kycPhotoError').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
             for (const s of slots) {
                 if (!s.file.type.startsWith('image/')) { niceAlert(s.label + ': please choose an image file.'); return; }
             }
