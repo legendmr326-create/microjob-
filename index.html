@@ -3008,10 +3008,29 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             return;
           }
           try {
-            kycCameraStream = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:facing || 'environment'}, width:{ideal:1280}, height:{ideal:720}}});
             const video = document.getElementById('kycCamVideo');
+            video.setAttribute('playsinline', '');
+            video.playsInline = true;
+            video.muted = true;
+            video.autoplay = true;
+            // Try the requested rear/front camera first; retry with browser defaults on
+            // devices whose camera drivers reject facingMode or resolution constraints.
+            try {
+              kycCameraStream = await navigator.mediaDevices.getUserMedia({
+                audio: false,
+                video: { facingMode: { ideal: facing || 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+              });
+            } catch (constraintError) {
+              if (constraintError && ['OverconstrainedError', 'NotFoundError', 'TypeError'].includes(constraintError.name)) {
+                kycCameraStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+              } else {
+                throw constraintError;
+              }
+            }
             video.srcObject = kycCameraStream;
-            await video.play();
+            try { await video.play(); } catch (playError) {
+              document.getElementById('kycCamError').textContent = 'ক্যামেরা চালু হয়েছে—ভিডিও প্রস্তুত হচ্ছে, এক মুহূর্ত অপেক্ষা করুন।';
+            }
           } catch (e) {
             const messages = {
               NotAllowedError: 'ক্যামেরার অনুমতি বন্ধ আছে। Chrome-এর Site settings থেকে Camera → Allow করুন।',
@@ -3085,21 +3104,39 @@ alter table public.kyc_verifications add column if not exists personal_details_j
           closeKycCamera();
           previewKycPhoto(id);
         }
-        // Reliable delegated KYC camera tap handler (works even when inline handlers fail).
-        document.addEventListener('click', function(event) {
+        // Start camera directly from the physical tap (pointerup preserves Android user activation).
+        // The following synthetic click is ignored to prevent a second camera request.
+        function handleKycCameraTrigger(event) {
             const trigger = event.target && event.target.closest ? event.target.closest('[data-kyc-camera="true"]') : null;
-            if (!trigger) return;
+            if (!trigger) return false;
             event.preventDefault();
             event.stopPropagation();
+            if (trigger.dataset.kycOpening === '1') return true;
+            trigger.dataset.kycOpening = '1';
+            setTimeout(() => { delete trigger.dataset.kycOpening; }, 1400);
             const inputId = trigger.getAttribute('data-input');
             const facing = trigger.getAttribute('data-facing') || 'environment';
             if (typeof window.openKycCamera === 'function') {
                 window.openKycCamera(inputId, facing);
             } else {
-                const fallbackInput = document.getElementById(inputId);
-                if (fallbackInput) fallbackInput.click();
+                const error = document.getElementById('kycPhotoError');
+                if (error) error.textContent = 'ক্যামেরা চালু করার কোড লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।';
             }
-        }, true);
+            return true;
+        }
+        if (window.PointerEvent) {
+            document.addEventListener('pointerup', handleKycCameraTrigger, true);
+            document.addEventListener('click', function(event) {
+                // Keyboard activation has detail=0; pointer taps were already handled above.
+                if (event.detail === 0) handleKycCameraTrigger(event);
+                else if (event.target && event.target.closest && event.target.closest('[data-kyc-camera="true"]')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }, true);
+        } else {
+            document.addEventListener('click', handleKycCameraTrigger, true);
+        }
 
         // Expose camera handlers for the inline buttons and dynamically-created modal controls.
         window.openKycCamera = openKycCamera;
