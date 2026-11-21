@@ -983,10 +983,10 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">Verification photos <span class="text-rose-300">*</span></p>
                             <span id="kycPhotoProgress" class="text-[11px] font-semibold text-violet-200/70">0 of 3 photos done</span>
                         </div>
-                        <p id="kycPhotoError" class="text-xs kyc-inline-error" role="alert">All three photos are required. Capture each photo to continue.</p>
+                        <p id="kycPhotoError" class="text-xs kyc-inline-error" role="alert">All required photos must be captured and confirmed to continue.</p>
                         <div class="space-y-3">
                             <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold">Front side of ID</label>
+                                <label id="kycFrontLabel" class="block text-xs font-semibold">Front side of ID</label>
                                 <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
                                     
                                     <button type="button" onclick="startKycPhotoCamera('kycFront', 'environment')" aria-label="Open camera for kycFront" class="relative block w-full text-left cursor-pointer border-0 bg-transparent p-0"><div class="flex items-center gap-3">
@@ -997,8 +997,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             </div>
                                             <div class="min-w-0 flex-1">
                                                 <p class="text-sm font-bold">Tap to capture</p>
-                                                <p class="mt-1 text-xs opacity-70">Place your ID inside the frame</p>
-                                                <p class="mt-1 text-[11px] opacity-60">Make sure all text is readable</p>
+                                                <p id="kycFrontHint" class="mt-1 text-xs opacity-70">Place your ID inside the frame</p>
+                                                <p id="kycFrontHint2" class="mt-1 text-[11px] opacity-60">Make sure all text is readable</p>
                                             </div>
                                             <i class="fa-solid fa-camera text-lg text-amber-400"></i>
                                         </div></button>
@@ -1006,7 +1006,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                     <div id="kycFrontActions" class="hidden mt-3 flex items-center justify-end gap-3"><button type="button" onclick="cancelKycPhoto('kycFront')" aria-label="ছবি বাতিল করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-rose-600 text-white text-xl"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="confirmKycPhoto('kycFront')" aria-label="ছবি নিশ্চিত করুন" class="w-11 h-11 rounded-full flex items-center justify-center bg-emerald-600 text-white text-xl"><i class="fa-solid fa-check"></i></button></div>
                                 </div>
                             </div>
-                            <div class="space-y-1.5">
+                            <div id="kycBackWrap" class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Back side of ID</label>
                                 <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3 relative">
                                     
@@ -1028,7 +1028,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 </div>
                             </div>
                             <div class="space-y-1.5">
-                                <label class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
+                                <label id="kycSelfieLabel" class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
                                 <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative">
                                     
                                     <button type="button" onclick="startKycPhotoCamera('kycSelfie', 'user')" aria-label="Open camera for kycSelfie" class="relative block w-full text-left cursor-pointer border-0 bg-transparent p-0"><div class="flex items-center gap-3"><div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1038,7 +1038,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                         </div>
                                         <div class="min-w-0 flex-1">
                                             <p class="text-sm font-bold">ক্যামেরা খুলতে এখানে চাপ দিন</p>
-                                            <p class="mt-1 text-xs opacity-70">NID হাতে ধরে মুখ ও কার্ড দুটোই স্পষ্ট রাখুন</p>
+                                            <p id="kycSelfieHint" class="mt-1 text-xs opacity-70">NID হাতে ধরে মুখ ও কার্ড দুটোই স্পষ্ট রাখুন</p>
                                             <p class="mt-1 text-[11px] opacity-60">সামনের ক্যামেরা দিয়ে ছবি তুলুন</p>
                                         </div>
                                         <i class="fa-solid fa-camera text-lg text-amber-400"></i></div></button>
@@ -2970,7 +2970,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         const KYC_PHOTO_SLOTS = [
             { type: 'front', label: 'Front side of ID', inputId: 'kycFront' },
             { type: 'back', label: 'Back side of ID', inputId: 'kycBack' },
-            { type: 'selfie', label: 'Selfie holding the ID', inputId: 'kycSelfie' }
+            { type: 'selfie', label: 'Selfie holding the document', inputId: 'kycSelfie' }
         ];
 
         // KYC photo capture uses the browser camera stream; it never opens a file/gallery picker.
@@ -3200,15 +3200,41 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             }
             updateKycSubmitState();
         }
+        function kycDocMode() {
+            const el = document.getElementById('kycDocType');
+            const v = el ? el.value : '';
+            return v === 'Passport' ? 'passport' : (v === 'National ID (NID)' ? 'nid' : '');
+        }
+        function kycActiveSlots() {
+            return kycDocMode() === 'passport' ? KYC_PHOTO_SLOTS.filter(x => x.type !== 'back') : KYC_PHOTO_SLOTS;
+        }
+        function applyKycDocMode() {
+            const pass = kycDocMode() === 'passport';
+            const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
+            const wrap = document.getElementById('kycBackWrap');
+            if (wrap) wrap.classList.toggle('hidden', pass);
+            const doc = pass ? 'Passport' : 'ID';
+            const docBn = pass ? 'পাসপোর্ট' : 'NID';
+            set('kycFrontLabel', pass ? 'Passport photo page (identity page)' : 'Front side of ID');
+            set('kycFrontHint', pass ? 'Place your passport photo page inside the frame' : 'Place your ID inside the frame');
+            set('kycFrontHint2', pass ? 'Make sure the photo and all text are readable' : 'Make sure all text is readable');
+            set('kycSelfieLabel', pass ? 'নিজের মুখসহ হাতে পাসপোর্ট ধরে ছবি (Selfie with Passport)' : 'নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)');
+            set('kycSelfieHint', docBn + ' হাতে ধরে মুখ ও ' + (pass ? 'পাসপোর্ট' : 'কার্ড') + ' দুটোই স্পষ্ট রাখুন');
+            const fi = document.getElementById('kycFrontThumb'); if (fi) fi.alt = pass ? 'Passport photo page preview' : 'Front side of ID preview';
+            const si = document.getElementById('kycSelfieThumb'); if (si) si.alt = 'Selfie holding ' + (pass ? 'passport' : 'NID') + ' preview';
+            updateKycSubmitState(false);
+        }
+        document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('kycDocType'); if (d) { d.addEventListener('change', () => { resetKycPhotos(); applyKycDocMode(); }); applyKycDocMode(); } });
         function updateKycSubmitState(showError) {
             const button = document.getElementById('kycSubmitBtn');
             if (!button) return;
-            const completed = KYC_PHOTO_SLOTS.filter(slot => { const input = document.getElementById(slot.inputId); return input.files.length > 0 && input.dataset.confirmed === '1'; }).length;
-            const ready = completed === KYC_PHOTO_SLOTS.length;
+            const active = kycActiveSlots();
+            const completed = active.filter(slot => { const input = document.getElementById(slot.inputId); return input.files.length > 0 && input.dataset.confirmed === '1'; }).length;
+            const ready = !!kycDocMode() && completed === active.length;
             button.disabled = !ready;
             button.textContent = ready ? 'Verify Now' : 'Verify Now';
             const progress = document.getElementById('kycPhotoProgress');
-            if (progress) progress.textContent = completed + ' of 3 photos done';
+            if (progress) progress.textContent = completed + ' of ' + active.length + ' photos done';
             const error = document.getElementById('kycPhotoError');
             if (error) error.classList.toggle('hidden', !(showError && !ready));
         }
@@ -3256,7 +3282,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (!idNumber) { niceAlert('Please enter your document number.'); return; }
             if (!dob) { niceAlert('Please enter your date of birth.'); return; }
             if (dob > new Date().toISOString().slice(0, 10)) { niceAlert('Date of birth cannot be in the future.'); return; }
-            const slots = KYC_PHOTO_SLOTS.map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0], confirmed: document.getElementById(s.inputId).dataset.confirmed === '1' }));
+            const slots = kycActiveSlots().map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0], confirmed: document.getElementById(s.inputId).dataset.confirmed === '1' }));
             if (slots.some(s => !s.file || !s.confirmed)) { updateKycSubmitState(true); document.getElementById('kycPhotoError').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
             for (const s of slots) {
                 if (!s.file.type.startsWith('image/')) { niceAlert(s.label + ': please choose an image file.'); return; }
@@ -3309,6 +3335,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             document.getElementById('kycDob').value = '';
             document.getElementById('kycDocType').value = '';
             resetKycPhotos();
+            applyKycDocMode();
             document.getElementById('kycFormPanel').classList.add('hidden');
             await loadMyKyc();
             niceAlert('KYC submitted! Status: In Review.');
