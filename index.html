@@ -988,7 +988,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Front side of ID</label>
                                 <div id="kycFrontCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycFront" accept="image/*" capture="environment" onchange="previewKycPhoto('kycFront')" class="hidden" style="display:none" aria-label="Capture front side of ID">
+                                    <input type="file" id="kycFront" accept="image/*" onchange="previewKycPhoto('kycFront')" class="hidden" style="display:none" aria-label="Capture front side of ID">
                                     <button type="button" data-kyc-camera="true" data-input="kycFront" data-facing="environment" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1010,7 +1010,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">Back side of ID</label>
                                 <div id="kycBackCard" class="kyc-capture-card rounded-2xl p-3 relative">
-                                    <input type="file" id="kycBack" accept="image/*" capture="environment" onchange="previewKycPhoto('kycBack')" class="hidden" style="display:none" aria-label="Capture back side of ID">
+                                    <input type="file" id="kycBack" accept="image/*" onchange="previewKycPhoto('kycBack')" class="hidden" style="display:none" aria-label="Capture back side of ID">
                                     <button type="button" data-kyc-camera="true" data-input="kycBack" data-facing="environment" class="w-full text-left">
                                         <div class="flex items-center gap-3">
                                             <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
@@ -1032,7 +1032,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                             <div class="space-y-1.5">
                                 <label class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
                                 <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative space-y-3">
-                                    <input type="file" id="kycSelfie" accept="image/*" capture="user" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="display:none">
+                                    <input type="file" id="kycSelfie" accept="image/*" onchange="previewKycPhoto('kycSelfie')" aria-label="Selfie holding your NID" style="display:none">
                                     <button type="button" data-kyc-camera="true" data-input="kycSelfie" data-facing="user" class="w-full flex items-center gap-3 text-left">
                                         <div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                             <img id="kycSelfieThumb" alt="Selfie holding NID preview" class="hidden absolute inset-0 h-full w-full object-cover">
@@ -2977,173 +2977,20 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             { type: 'selfie', label: 'Selfie holding the ID', inputId: 'kycSelfie' }
         ];
 
-        let kycCameraStream = null;
-        let kycCameraTarget = null;
-        let kycCameraBlob = null;
-        function ensureKycCameraModal() {
-          if (document.getElementById('kycLiveCameraModal')) return;
-          const modal = document.createElement('div');
-          modal.id = 'kycLiveCameraModal';
-          modal.style.cssText = 'display:none;position:fixed;inset:0;z-index:99999;background:rgba(3,7,18,.97);padding:16px;align-items:center;justify-content:center;color:white';
-          modal.innerHTML = '<section style="width:100%;max-width:520px"><header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div><b id="kycCamTitle">ছবি তুলুন</b><p id="kycCamHint" style="font-size:12px;color:#c4b5fd;margin-top:4px"></p></div><button type="button" onclick="closeKycCamera()" style="font-size:28px;padding:4px 12px">×</button></header><div style="background:#000;border-radius:20px;overflow:hidden;aspect-ratio:3/4;max-height:65vh"><video id="kycCamVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover"></video><img id="kycCamPreview" style="display:none;width:100%;height:100%;object-fit:contain;background:#000"></div><p id="kycCamError" style="color:#fda4af;font-size:12px;min-height:20px;margin:8px 0"></p><div style="display:flex;gap:10px"><button id="kycCamTake" type="button" onclick="captureKycLivePhoto()" style="flex:1;background:#fbbf24;color:#111827;padding:14px;border-radius:14px;font-weight:800">ছবি তুলুন</button><button id="kycCamAgain" type="button" onclick="retakeKycLivePhoto()" style="display:none;flex:1;background:#ffffff22;padding:14px;border-radius:14px">আবার তুলুন</button><button id="kycCamUse" type="button" onclick="useKycLivePhoto()" style="display:none;flex:1;background:#16a34a;padding:14px;border-radius:14px;font-weight:800">ছবি ব্যবহার করুন</button></div></section>';
-          document.body.appendChild(modal);
-        }
-        async function openKycCamera(inputId, facing) {
-          ensureKycCameraModal();
-          closeKycCamera();
-          kycCameraTarget = inputId;
-          kycCameraBlob = null;
-          const modal = document.getElementById('kycLiveCameraModal');
-          modal.style.display = 'flex';
-          document.getElementById('kycCamTitle').textContent = inputId === 'kycSelfie' ? 'NID হাতে সেলফি তুলুন' : (inputId === 'kycFront' ? 'NID-এর সামনের ছবি তুলুন' : 'NID-এর পেছনের ছবি তুলুন');
-          document.getElementById('kycCamHint').textContent = inputId === 'kycSelfie' ? 'মুখ ও হাতে ধরা NID দুটোই ফ্রেমে রাখুন' : 'NID সোজা করে ফ্রেমের মধ্যে রাখুন';
-          document.getElementById('kycCamError').textContent = '';
-          document.getElementById('kycCamPreview').style.display = 'none';
-          document.getElementById('kycCamVideo').style.display = 'block';
-          document.getElementById('kycCamTake').style.display = 'block';
-          document.getElementById('kycCamAgain').style.display = 'none';
-          document.getElementById('kycCamUse').style.display = 'none';
-          if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            document.getElementById('kycCamError').textContent = 'এই পেজে ক্যামেরা চালু করার সুবিধা পাওয়া যাচ্ছে না। Chrome-এ https://workzenbd.vercel.app খুলুন।';
-            return;
-          }
-          try {
-            const video = document.getElementById('kycCamVideo');
-            video.setAttribute('playsinline', '');
-            video.playsInline = true;
-            video.muted = true;
-            video.autoplay = true;
-            // Try the requested rear/front camera first; retry with browser defaults on
-            // devices whose camera drivers reject facingMode or resolution constraints.
-            try {
-              kycCameraStream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
-                video: { facingMode: { ideal: facing || 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
-              });
-            } catch (constraintError) {
-              if (constraintError && ['OverconstrainedError', 'NotFoundError', 'TypeError'].includes(constraintError.name)) {
-                kycCameraStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
-              } else {
-                throw constraintError;
-              }
-            }
-            video.srcObject = kycCameraStream;
-            try { await video.play(); } catch (playError) {
-              document.getElementById('kycCamError').textContent = 'ক্যামেরা চালু হয়েছে—ভিডিও প্রস্তুত হচ্ছে, এক মুহূর্ত অপেক্ষা করুন।';
-            }
-          } catch (e) {
-            const messages = {
-              NotAllowedError: 'ক্যামেরার অনুমতি বন্ধ আছে। Chrome-এর Site settings থেকে Camera → Allow করুন।',
-              NotFoundError: 'ফোনে উপযুক্ত ক্যামেরা পাওয়া যায়নি।',
-              NotReadableError: 'অন্য কোনো অ্যাপ ক্যামেরা ব্যবহার করছে। অন্য অ্যাপ বন্ধ করে আবার চেষ্টা করুন।',
-              OverconstrainedError: 'নির্বাচিত ক্যামেরাটি পাওয়া যায়নি। আবার চেষ্টা করুন।',
-              SecurityError: 'নিরাপত্তার কারণে ক্যামেরা বন্ধ। HTTPS ঠিকানায় খুলুন।'
-            };
-            const errorNode = document.getElementById('kycCamError');
-            errorNode.textContent = (messages[e && e.name] || 'লাইভ ক্যামেরা চালু হয়নি।') + ' (' + (e && e.name ? e.name : 'Unknown error') + ')';
-            let fallback = document.getElementById('kycCamNativeFallback');
-            if (!fallback) {
-              fallback = document.createElement('button');
-              fallback.id = 'kycCamNativeFallback';
-              fallback.type = 'button';
-              fallback.textContent = 'ফোনের ক্যামেরা দিয়ে ছবি তুলুন';
-              fallback.style.cssText = 'display:block;width:100%;margin:8px 0 12px;padding:12px;border-radius:12px;background:#2563eb;color:white;font-weight:700';
-              errorNode.insertAdjacentElement('afterend', fallback);
-            }
-            fallback.onclick = function() {
-              const targetInput = document.getElementById(kycCameraTarget);
-              if (targetInput) targetInput.click();
-            };
-            console.error('WorkZen KYC camera error:', e);
-          }
-        }
-        function stopKycLiveCamera() {
-          if (kycCameraStream) kycCameraStream.getTracks().forEach(track => track.stop());
-          kycCameraStream = null;
-          const video = document.getElementById('kycCamVideo');
-          if (video) video.srcObject = null;
-        }
-        function closeKycCamera() {
-          stopKycLiveCamera();
-          const modal = document.getElementById('kycLiveCameraModal');
-          if (modal) modal.style.display = 'none';
-        }
-        async function captureKycLivePhoto() {
-          const video = document.getElementById('kycCamVideo');
-          if (!video || !video.videoWidth) { document.getElementById('kycCamError').textContent = 'ক্যামেরা প্রস্তুত হচ্ছে, একটু অপেক্ষা করুন।'; return; }
-          const canvas = document.createElement('canvas');
-          const scale = Math.min(1, 1920 / video.videoWidth);
-          canvas.width = Math.round(video.videoWidth * scale);
-          canvas.height = Math.round(video.videoHeight * scale);
-          canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-          kycCameraBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .9));
-          if (!kycCameraBlob) return;
-          const preview = document.getElementById('kycCamPreview');
-          preview.src = URL.createObjectURL(kycCameraBlob);
-          preview.style.display = 'block';
-          video.style.display = 'none';
-          document.getElementById('kycCamTake').style.display = 'none';
-          document.getElementById('kycCamAgain').style.display = 'block';
-          document.getElementById('kycCamUse').style.display = 'block';
-        }
-        function retakeKycLivePhoto() {
-          kycCameraBlob = null;
-          document.getElementById('kycCamPreview').style.display = 'none';
-          document.getElementById('kycCamVideo').style.display = 'block';
-          document.getElementById('kycCamTake').style.display = 'block';
-          document.getElementById('kycCamAgain').style.display = 'none';
-          document.getElementById('kycCamUse').style.display = 'none';
-        }
-        function useKycLivePhoto() {
-          if (!kycCameraBlob || !kycCameraTarget) return;
-          const file = new File([kycCameraBlob], kycCameraTarget + '-' + Date.now() + '.jpg', {type:'image/jpeg'});
-          const transfer = new DataTransfer();
-          transfer.items.add(file);
-          const id = kycCameraTarget;
-          document.getElementById(id).files = transfer.files;
-          closeKycCamera();
-          previewKycPhoto(id);
-        }
-        // Start camera directly from the physical tap (pointerup preserves Android user activation).
-        // The following synthetic click is ignored to prevent a second camera request.
+        // Use the phone's native image picker so users can choose Camera or Gallery.
+        // Call input.click() directly from the tap to preserve Android user activation.
         function handleKycCameraTrigger(event) {
             const trigger = event.target && event.target.closest ? event.target.closest('[data-kyc-camera="true"]') : null;
-            if (!trigger) return false;
+            if (!trigger) return;
             event.preventDefault();
             event.stopPropagation();
-            if (trigger.dataset.kycOpening === '1') return true;
-            trigger.dataset.kycOpening = '1';
-            setTimeout(() => { delete trigger.dataset.kycOpening; }, 1400);
             const inputId = trigger.getAttribute('data-input');
-            const facing = trigger.getAttribute('data-facing') || 'environment';
-            if (typeof window.openKycCamera === 'function') {
-                window.openKycCamera(inputId, facing);
-            } else {
-                const error = document.getElementById('kycPhotoError');
-                if (error) error.textContent = 'ক্যামেরা চালু করার কোড লোড হয়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।';
-            }
-            return true;
+            const input = inputId ? document.getElementById(inputId) : null;
+            if (!input) return;
+            input.value = '';
+            input.click();
         }
-        if (window.PointerEvent) {
-            document.addEventListener('pointerup', handleKycCameraTrigger, true);
-            document.addEventListener('click', function(event) {
-                // Keyboard activation has detail=0; pointer taps were already handled above.
-                if (event.detail === 0) handleKycCameraTrigger(event);
-                else if (event.target && event.target.closest && event.target.closest('[data-kyc-camera="true"]')) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            }, true);
-        } else {
-            document.addEventListener('click', handleKycCameraTrigger, true);
-        }
-
-        // Expose camera handlers for the inline buttons and dynamically-created modal controls.
-        window.openKycCamera = openKycCamera;
-        window.closeKycCamera = closeKycCamera;
-        window.captureKycLivePhoto = captureKycLivePhoto;
-        window.retakeKycLivePhoto = retakeKycLivePhoto;
-        window.useKycLivePhoto = useKycLivePhoto;
+        document.addEventListener('click', handleKycCameraTrigger, true);
 
         function isMissingKycColumnError(err) {
             if (!err) return false;
