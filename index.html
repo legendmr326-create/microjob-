@@ -3762,7 +3762,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 updateNotifBadge(0);
                 return;
             }
-            const { data, error } = await supabaseClient.from('notifications').select('id,title,body,message,created_at,is_read')
+            const { data, error } = await supabaseClient.from('notifications').select('id,title,body,created_at,is_read')
                 .ilike('user_email', currentUser.email).order('created_at', { ascending: false }).limit(100);
             if (error) {
                 console.error('Notification load failed:', error);
