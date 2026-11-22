@@ -978,7 +978,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Date of Birth</label>
                         <input type="date" id="kycDob" max="2026-11-19" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
-                    <div class="space-y-3">
+                    <div id="kycPhotoArea" class="space-y-3 hidden">
                         <div class="flex items-center justify-between gap-3">
                             <p class="text-[11px] font-semibold uppercase tracking-wider text-violet-200/70">Verification photos <span class="text-rose-300">*</span></p>
                             <span id="kycPhotoProgress" class="text-[11px] font-semibold text-violet-200/70">0 of 3 photos done</span>
@@ -3213,6 +3213,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const set = (id, t) => { const e = document.getElementById(id); if (e) e.textContent = t; };
             const wrap = document.getElementById('kycBackWrap');
             if (wrap) wrap.classList.toggle('hidden', pass);
+            const area = document.getElementById('kycPhotoArea'); if (area) area.classList.toggle('hidden', !kycDocMode());
             const doc = pass ? 'Passport' : 'ID';
             const docBn = pass ? 'পাসপোর্ট' : 'NID';
             set('kycFrontLabel', pass ? 'Passport photo page (identity page)' : 'Front side of ID');
