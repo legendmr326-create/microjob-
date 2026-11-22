@@ -1658,8 +1658,6 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 }
                 const appForgotTitle = document.querySelector('#forgotPasswordCard > h3');
                 if (appForgotTitle) appForgotTitle.style.display = form === 'forgot' ? 'none' : '';
-                const appBrand = document.getElementById('workzen-app-login-brand');
-                if (appBrand) appBrand.classList.toggle('hidden', form === 'verify');
                 const appRegisterTitle = document.querySelector('#registerCard > h3');
                 if (appRegisterTitle) appRegisterTitle.style.display = form === 'register' ? 'none' : '';
             }
