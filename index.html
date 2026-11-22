@@ -1710,7 +1710,6 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
         async function handleRegister() {
             if (signupInProgress) return;
-            signupInProgress = true;
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const pass = document.getElementById('regPass').value;
             const refInput = document.getElementById('regReferralCode');
@@ -1721,6 +1720,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             if (pass !== pass2) { niceAlert('Passwords do not match! Enter the same password twice.'); return; }
             const client = await waitForSupabase();
             if (!client) { niceAlert('Connection unavailable. Please refresh and try again.'); return; }
+            signupInProgress = true;
             const submitBtn = document.querySelector('#registerCard button[onclick="handleRegister()"]');
             if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Creating account...'; }
             try {
