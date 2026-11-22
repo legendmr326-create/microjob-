@@ -1,6 +1,9 @@
 package bd.taskflex.app;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.webkit.PermissionRequest;
 import android.os.Bundle;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -25,6 +28,8 @@ public class MainActivity extends Activity {
     private FrameLayout root;
     private FrameLayout splash;
     private LinearLayout errorPanel;
+    private static final int CAMERA_PERMISSION_REQUEST = 701;
+    private PermissionRequest pendingWebPermissionRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +56,29 @@ public class MainActivity extends Activity {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(webView, true);
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                runOnUiThread(() -> {
+                    boolean asksForVideo = false;
+                    for (String resource : request.getResources()) {
+                        if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resource)) asksForVideo = true;
+                    }
+                    if (!asksForVideo) { request.deny(); return; }
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                    } else {
+                        if (pendingWebPermissionRequest != null) pendingWebPermissionRequest.deny();
+                        pendingWebPermissionRequest = request;
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
+                    }
+                });
+            }
+            @Override
+            public void onPermissionRequestCanceled(PermissionRequest request) {
+                if (pendingWebPermissionRequest == request) pendingWebPermissionRequest = null;
+            }
+        });
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -95,6 +122,21 @@ public class MainActivity extends Activity {
 
         setContentView(root);
         webView.loadUrl(HOME_URL);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST) {
+            PermissionRequest request = pendingWebPermissionRequest;
+            pendingWebPermissionRequest = null;
+            if (request == null) return;
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+            } else {
+                request.deny();
+            }
+        }
     }
 
     private void showError() {
