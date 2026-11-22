@@ -1059,7 +1059,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Date of Birth</label>
-                        <input type="date" id="kycDob" max="2026-11-19" class="field w-full rounded-2xl px-4 py-3 text-sm">
+                        <input type="date" id="kycDob" class="field w-full rounded-2xl px-4 py-3 text-sm">
                     </div>
                     <div id="kycPhotoArea" class="space-y-3 hidden">
                         <div class="flex items-center justify-between gap-3">
@@ -3317,6 +3317,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             updateKycSubmitState(false);
         }
         document.addEventListener('DOMContentLoaded', () => {
+            const dobInput = document.getElementById('kycDob');
+            if (dobInput) dobInput.max = new Date().toISOString().slice(0, 10);
             const d = document.getElementById('kycDocType');
             if (d) {
                 d.addEventListener('change', () => { resetKycPhotos(); applyKycDocMode(); });
@@ -3355,10 +3357,16 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             button.classList.remove('bg-black', 'text-white/60', 'border-white/10', 'cursor-not-allowed', 'bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'border-emerald-500');
             if (ready) {
                 button.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'border-emerald-500');
+                button.style.backgroundColor = '#059669';
+                button.style.borderColor = '#10b981';
+                button.style.color = '#ffffff';
                 button.style.opacity = '1';
                 button.style.cursor = 'pointer';
             } else {
                 button.classList.add('bg-black', 'text-white/60', 'border-white/10', 'cursor-not-allowed');
+                button.style.backgroundColor = '#000000';
+                button.style.borderColor = 'rgba(255,255,255,0.1)';
+                button.style.color = 'rgba(255,255,255,0.6)';
                 button.style.opacity = '1';
                 button.style.cursor = 'not-allowed';
             }
