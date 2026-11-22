@@ -799,7 +799,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         <!-- TAB: NOTIFICATIONS -->
         <div id="tab-notifications" class="space-y-3 hidden">
-            <h2 class="text-xl font-bold text-white">Notifications</h2>
+            <div class="flex items-center justify-between gap-3">
+                <h2 class="text-xl font-bold text-white">Notifications</h2>
+                <button type="button" id="deleteAllNotificationsBtn" onclick="deleteAllNotifications()" class="hidden text-xs font-bold px-3 py-2 rounded-xl bg-rose-500/15 border border-rose-400/30 text-rose-300">সব মুছুন</button>
+            </div>
             <div id="notificationsList" class="space-y-2.5"></div>
         </div>
 
@@ -3751,25 +3754,65 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 
         async function loadNotifications() {
             const container = document.getElementById('notificationsList');
+            const clearBtn = document.getElementById('deleteAllNotificationsBtn');
             if (!container) return;
-            let items = [];
-            let total = 0;
-            if (supabaseClient) {
-                const { data, error } = await supabaseClient.from('notifications').select('*').ilike('user_email', currentUser.email).order('created_at', { ascending: false }).limit(20);
-                if (!error && data) {
-                    items = data.map(n => n.title || n.message || n.body || '');
-                    total = data.length;
-                }
-                const cnt = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true }).ilike('user_email', currentUser.email);
-                if (!cnt.error && typeof cnt.count === 'number') total = cnt.count;
+            if (!currentUser || !currentUser.email || !supabaseClient) {
+                container.innerHTML = '<div class="text-center py-8 text-violet-200/60 text-xs">নোটিফিকেশন লোড করা যায়নি।</div>';
+                if (clearBtn) clearBtn.classList.add('hidden');
+                updateNotifBadge(0);
+                return;
             }
-            updateNotifBadge(total);
-            if (items.length === 0) {
-                items = ['Welcome! Welcome to Micro job WorkZen.', 'To see new jobs, open the Dashboard.', 'To deposit, use the Deposit page in the Account & Settings menu.'];
+            const { data, error } = await supabaseClient.from('notifications').select('id,title,body,message,created_at,is_read')
+                .ilike('user_email', currentUser.email).order('created_at', { ascending: false }).limit(100);
+            if (error) {
+                console.error('Notification load failed:', error);
+                container.innerHTML = '<div class="text-center py-8 text-violet-200/60 text-xs">নোটিফিকেশন লোড করা যায়নি।</div>';
+                if (clearBtn) clearBtn.classList.add('hidden');
+                return;
             }
-            container.innerHTML = items.map(t => `
-                <div class="glass-card rounded-2xl p-4 text-sm text-violet-100/90 flex gap-3 items-start"><i class="fa-solid fa-bell text-amber-300 mt-0.5 text-base"></i><span>${esc(t)}</span></div>
+            const rows = data || [];
+            const cnt = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true }).ilike('user_email', currentUser.email);
+            updateNotifBadge(!cnt.error && typeof cnt.count === 'number' ? cnt.count : rows.length);
+            if (clearBtn) clearBtn.classList.toggle('hidden', rows.length === 0);
+            if (!rows.length) {
+                container.innerHTML = '<div class="text-center py-8 text-violet-200/60 text-xs">এখনো কোনো নোটিফিকেশন নেই।</div>';
+                return;
+            }
+            container.innerHTML = rows.map(n => `
+                <div class="glass-card rounded-2xl p-4 text-sm text-violet-100/90 flex gap-3 items-start">
+                    <i class="fa-solid fa-bell text-amber-300 mt-0.5 text-base"></i>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-white">${esc(n.title || 'Notification')}</p>
+                        <p class="mt-1">${esc(n.body || n.message || '')}</p>
+                        <p class="mt-2 text-[10px] text-violet-200/50">${n.created_at ? esc(new Date(n.created_at).toLocaleString()) : ''}</p>
+                    </div>
+                    <button type="button" onclick="deleteNotification(${Number(n.id)})" class="shrink-0 w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-400/20 text-rose-300" aria-label="নোটিফিকেশন মুছুন" title="মুছুন"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
             `).join('');
+        }
+
+        async function deleteNotification(id) {
+            if (!supabaseClient || !currentUser || !currentUser.email || !Number.isFinite(Number(id))) return;
+            if (!window.confirm('এই নোটিফিকেশনটি মুছে ফেলবেন?')) return;
+            const { error } = await supabaseClient.from('notifications').delete().eq('id', Number(id)).ilike('user_email', currentUser.email);
+            if (error) {
+                console.error('Notification delete failed:', error);
+                niceAlert('নোটিফিকেশন মুছতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+                return;
+            }
+            await loadNotifications();
+        }
+
+        async function deleteAllNotifications() {
+            if (!supabaseClient || !currentUser || !currentUser.email) return;
+            if (!window.confirm('আপনার সব নোটিফিকেশন মুছে ফেলবেন?')) return;
+            const { error } = await supabaseClient.from('notifications').delete().ilike('user_email', currentUser.email);
+            if (error) {
+                console.error('All notifications delete failed:', error);
+                niceAlert('নোটিফিকেশন মুছতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+                return;
+            }
+            await loadNotifications();
         }
 
         function renderWallet() {
