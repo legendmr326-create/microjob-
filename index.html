@@ -3319,23 +3319,28 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const si = document.getElementById('kycSelfieThumb'); if (si) si.alt = 'Selfie holding ' + (pass ? 'passport' : 'NID') + ' preview';
             updateKycSubmitState(false);
         }
-        document.addEventListener('DOMContentLoaded', () => {
+        function initKycSubmitState() {
             const dobInput = document.getElementById('kycDob');
             if (dobInput) dobInput.max = new Date().toISOString().slice(0, 10);
             const d = document.getElementById('kycDocType');
             if (d) {
-                d.addEventListener('change', () => { resetKycPhotos(); applyKycDocMode(); });
+                d.addEventListener('change', () => { resetKycPhotos(); applyKycDocMode(); updateKycSubmitState(false); });
                 applyKycDocMode();
             }
-            ['kycName', 'kycIdNumber', 'kycDob'].forEach(id => {
-                const field = document.getElementById(id);
-                if (field) {
-                    field.addEventListener('input', () => updateKycSubmitState(false));
-                    field.addEventListener('change', () => updateKycSubmitState(false));
-                }
+            // Delegated listeners also cover mobile autofill and photo inputs.
+            document.addEventListener('input', event => {
+                if (event.target && ['kycName', 'kycIdNumber', 'kycDob'].includes(event.target.id)) updateKycSubmitState(false);
+            });
+            document.addEventListener('change', event => {
+                if (event.target && ['kycName', 'kycIdNumber', 'kycDob', 'kycFront', 'kycBack', 'kycSelfie'].includes(event.target.id)) updateKycSubmitState(false);
             });
             updateKycSubmitState(false);
-        });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initKycSubmitState, { once: true });
+        } else {
+            initKycSubmitState();
+        }
         function updateKycSubmitState(showError) {
             const button = document.getElementById('kycSubmitBtn');
             if (!button) return;
@@ -3356,22 +3361,24 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const photosComplete = active.length > 0 && completed === active.length;
             const ready = formComplete && photosComplete;
             button.disabled = !ready;
+            button.dataset.kycReady = ready ? '1' : '0';
+            button.setAttribute('aria-disabled', ready ? 'false' : 'true');
             button.textContent = 'Verification Submit';
             button.classList.remove('bg-black', 'text-white/60', 'border-white/10', 'cursor-not-allowed', 'bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'border-emerald-500');
             if (ready) {
                 button.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'border-emerald-500');
-                button.style.backgroundColor = '#059669';
-                button.style.borderColor = '#10b981';
-                button.style.color = '#ffffff';
-                button.style.opacity = '1';
-                button.style.cursor = 'pointer';
+                button.style.setProperty('background-color', '#059669', 'important');
+                button.style.setProperty('border-color', '#10b981', 'important');
+                button.style.setProperty('color', '#ffffff', 'important');
+                button.style.setProperty('opacity', '1', 'important');
+                button.style.setProperty('cursor', 'pointer', 'important');
             } else {
                 button.classList.add('bg-black', 'text-white/60', 'border-white/10', 'cursor-not-allowed');
-                button.style.backgroundColor = '#000000';
-                button.style.borderColor = 'rgba(255,255,255,0.1)';
-                button.style.color = 'rgba(255,255,255,0.6)';
-                button.style.opacity = '1';
-                button.style.cursor = 'not-allowed';
+                button.style.setProperty('background-color', '#000000', 'important');
+                button.style.setProperty('border-color', 'rgba(255,255,255,0.1)', 'important');
+                button.style.setProperty('color', 'rgba(255,255,255,0.6)', 'important');
+                button.style.setProperty('opacity', '1', 'important');
+                button.style.setProperty('cursor', 'not-allowed', 'important');
             }
             const progress = document.getElementById('kycPhotoProgress');
             if (progress) progress.textContent = completed + ' of ' + active.length + ' photos done';
