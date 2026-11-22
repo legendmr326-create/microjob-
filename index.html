@@ -3316,19 +3316,46 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const si = document.getElementById('kycSelfieThumb'); if (si) si.alt = 'Selfie holding ' + (pass ? 'passport' : 'NID') + ' preview';
             updateKycSubmitState(false);
         }
-        document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('kycDocType'); if (d) { d.addEventListener('change', () => { resetKycPhotos(); applyKycDocMode(); }); applyKycDocMode(); } });
+        document.addEventListener('DOMContentLoaded', () => {
+            const d = document.getElementById('kycDocType');
+            if (d) {
+                d.addEventListener('change', () => { resetKycPhotos(); applyKycDocMode(); });
+                applyKycDocMode();
+            }
+            ['kycName', 'kycIdNumber', 'kycDob'].forEach(id => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.addEventListener('input', () => updateKycSubmitState(false));
+                    field.addEventListener('change', () => updateKycSubmitState(false));
+                }
+            });
+            updateKycSubmitState(false);
+        });
         function updateKycSubmitState(showError) {
             const button = document.getElementById('kycSubmitBtn');
             if (!button) return;
+            const docType = document.getElementById('kycDocType');
+            const name = document.getElementById('kycName');
+            const idNumber = document.getElementById('kycIdNumber');
+            const dob = document.getElementById('kycDob');
+            const formComplete = !!(docType && ['National ID (NID)', 'Passport'].includes(docType.value)
+                && name && name.value.trim()
+                && idNumber && idNumber.value.trim()
+                && dob && dob.value
+                && dob.value <= new Date().toISOString().slice(0, 10));
             const active = kycActiveSlots();
-            const completed = active.filter(slot => { const input = document.getElementById(slot.inputId); return input.files.length > 0 && input.dataset.confirmed === '1'; }).length;
-            const ready = !!kycDocMode() && completed === active.length;
+            const completed = active.filter(slot => {
+                const input = document.getElementById(slot.inputId);
+                return input && input.files && input.files.length > 0 && input.dataset.confirmed === '1';
+            }).length;
+            const photosComplete = active.length > 0 && completed === active.length;
+            const ready = formComplete && photosComplete;
             button.disabled = !ready;
-            button.textContent = ready ? 'Verify Now' : 'Verify Now';
+            button.textContent = 'Verify Now';
             const progress = document.getElementById('kycPhotoProgress');
             if (progress) progress.textContent = completed + ' of ' + active.length + ' photos done';
             const error = document.getElementById('kycPhotoError');
-            if (error) error.classList.toggle('hidden', !(showError && !ready));
+            if (error) error.classList.toggle('hidden', !(showError && !photosComplete));
         }
         function resetKycPhotos() {
             KYC_PHOTO_SLOTS.forEach(slot => {
