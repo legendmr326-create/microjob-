@@ -3286,11 +3286,12 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 guide.classList.remove('hidden'); check.classList.add('hidden'); check.classList.remove('flex');
                 actions.classList.add('hidden'); actions.style.display = 'none'; card.classList.remove('is-captured');
             } else {
-                delete input.dataset.confirmed;
+                // A captured KYC image is accepted immediately; no manual X/check step.
+                input.dataset.confirmed = '1';
                 const objectUrl = URL.createObjectURL(chosen);
                 thumb.src = objectUrl; thumb.dataset.objectUrl = objectUrl; thumb.classList.remove('hidden');
                 guide.classList.add('hidden'); check.classList.remove('hidden'); check.classList.add('flex');
-                actions.classList.remove('hidden'); actions.style.display = 'flex'; card.classList.add('is-captured');
+                actions.classList.add('hidden'); actions.style.display = 'none'; card.classList.add('is-captured');
             }
             updateKycSubmitState();
         }
