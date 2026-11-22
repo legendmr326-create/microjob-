@@ -2466,7 +2466,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             renderApplicationsModal();
         }
         
-        function niceConfirm(message, onYes) {
+        function niceConfirm(message, onYes, yesLabel = 'Yes, delete') {
             const ov = document.getElementById('niceConfirmOverlay');
             if (!ov) { if (window.confirm(message)) onYes(); return; }
             document.getElementById('niceConfirmText').textContent = message;
@@ -2474,6 +2474,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             ov.style.display = 'flex';
             const yes = document.getElementById('niceConfirmYes');
             const no = document.getElementById('niceConfirmNo');
+            yes.textContent = yesLabel;
+            no.textContent = 'Cancel';
             const close = () => { ov.classList.add('hidden'); ov.style.display = 'none'; yes.onclick = null; no.onclick = null; };
             yes.onclick = () => { close(); onYes(); };
             no.onclick = close;
@@ -3791,28 +3793,30 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             `).join('');
         }
 
-        async function deleteNotification(id) {
+        function deleteNotification(id) {
             if (!supabaseClient || !currentUser || !currentUser.email || !Number.isFinite(Number(id))) return;
-            if (!window.confirm('এই নোটিফিকেশনটি মুছে ফেলবেন?')) return;
-            const { error } = await supabaseClient.from('notifications').delete().eq('id', Number(id)).ilike('user_email', currentUser.email);
-            if (error) {
-                console.error('Notification delete failed:', error);
-                niceAlert('নোটিফিকেশন মুছতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
-                return;
-            }
-            await loadNotifications();
+            niceConfirm('এই নোটিফিকেশনটি মুছে ফেলবেন?', async () => {
+                const { error } = await supabaseClient.from('notifications').delete().eq('id', Number(id)).ilike('user_email', currentUser.email);
+                if (error) {
+                    console.error('Notification delete failed:', error);
+                    niceAlert('নোটিফিকেশন মুছতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+                    return;
+                }
+                await loadNotifications();
+            }, 'OK');
         }
 
-        async function deleteAllNotifications() {
+        function deleteAllNotifications() {
             if (!supabaseClient || !currentUser || !currentUser.email) return;
-            if (!window.confirm('আপনার সব নোটিফিকেশন মুছে ফেলবেন?')) return;
-            const { error } = await supabaseClient.from('notifications').delete().ilike('user_email', currentUser.email);
-            if (error) {
-                console.error('All notifications delete failed:', error);
-                niceAlert('নোটিফিকেশন মুছতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
-                return;
-            }
-            await loadNotifications();
+            niceConfirm('আপনার সব নোটিফিকেশন মুছে ফেলবেন?', async () => {
+                const { error } = await supabaseClient.from('notifications').delete().ilike('user_email', currentUser.email);
+                if (error) {
+                    console.error('All notifications delete failed:', error);
+                    niceAlert('নোটিফিকেশন মুছতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+                    return;
+                }
+                await loadNotifications();
+            }, 'OK');
         }
 
         function renderWallet() {
