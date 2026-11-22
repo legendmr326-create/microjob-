@@ -20,7 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=7";
+    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=8";
     private WebView webView;
     private FrameLayout root;
     private FrameLayout splash;
