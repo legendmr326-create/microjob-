@@ -5,7 +5,7 @@
         android:allowBackup="false"
         android:label="WorkZen"
         android:icon="@drawable/workzen_logo"
-        android:roundIcon="@drawable/workzen_logo"
+        android:roundIcon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
         <activity
