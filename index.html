@@ -1038,6 +1038,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     <span id="kycBadge" class="hidden text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap"></span>
                 </div>
                 <p id="kycMsg" class="text-xs text-violet-200/80"></p>
+                <div id="kycRejectionBox" class="hidden rounded-2xl border border-rose-400/40 bg-rose-500/10 p-3 space-y-1.5"><p class="text-[11px] font-bold text-rose-200">Rejection Reason</p><p id="kycRejectionReason" class="text-sm text-rose-100 whitespace-pre-wrap break-words"></p></div>
                 <button type="button" id="kycVerifyBtn" onclick="openKycForm()" class="hidden btn-amber w-full font-bold py-3 rounded-2xl text-sm">Verify Now</button>
                 <button type="button" id="kycResubmitBtn" onclick="openKycForm()" class="hidden w-full font-bold py-3 rounded-2xl text-sm bg-rose-500/20 border border-rose-400/40 text-rose-100">Verify Now</button>
                 <div id="kycFormPanel" class="hidden space-y-3 pt-1">
@@ -3008,6 +3009,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (!card) return;
             const badge = document.getElementById('kycBadge');
             const msg = document.getElementById('kycMsg');
+            const rejectionBox = document.getElementById('kycRejectionBox');
+            const rejectionReason = document.getElementById('kycRejectionReason');
             const verifyBtn = document.getElementById('kycVerifyBtn');
             const resubBtn = document.getElementById('kycResubmitBtn');
             const formPanel = document.getElementById('kycFormPanel');
@@ -3025,6 +3028,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             // Keep the entry buttons hidden while the KYC form is already open.
             // Background status refreshes must not make "Verify Now" reappear over the form.
             const formIsOpen = !formPanel.classList.contains('hidden');
+            rejectionBox.classList.add('hidden');
+            rejectionReason.textContent = '';
             if (st === 'approved') {
                 msg.textContent = 'Your identity is verified. You can apply for jobs now.';
                 formPanel.classList.add('hidden');
@@ -3032,7 +3037,9 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 msg.textContent = 'We are reviewing your documents. Please wait.';
                 formPanel.classList.add('hidden');
             } else if (st === 'rejected') {
-                msg.textContent = 'Your KYC was rejected. Reason: ' + String(myKyc && myKyc.rejection_reason || 'Please check your details and resubmit.');
+                msg.textContent = 'Your KYC was rejected.';
+                rejectionReason.textContent = String(myKyc && myKyc.rejection_reason || 'No rejection reason was provided. Please contact support.');
+                rejectionBox.classList.remove('hidden');
                 if (!formIsOpen) resubBtn.classList.remove('hidden');
             } else if (st === 'missing') {
                 msg.textContent = 'KYC is not set up on the server yet. Please try again later.';
