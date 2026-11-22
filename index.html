@@ -428,6 +428,64 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .auth-menu-brand { color: #211A32; border: 0; background: transparent; padding: 0; cursor: pointer; }
         .auth-menu-close { color: #0F5C63; border-radius: 12px; }
         .auth-menu-close:hover, .auth-menu-close:focus-visible { background: rgba(124, 58, 237, .12); outline: 2px solid rgba(124, 58, 237, .3); }
+
+        /* Signup email verification: keep the WorkZen identity compact and avoid a duplicate logo. */
+        #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) {
+            justify-content: flex-start !important;
+            align-items: center !important;
+            padding-top: max(5vh, 28px) !important;
+            padding-bottom: max(4vh, 24px) !important;
+            gap: 0 !important;
+        }
+        #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-brand {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 12px !important;
+            margin: 0 auto 24px !important;
+            width: 100% !important;
+        }
+        #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-brand img {
+            width: 56px !important;
+            height: 56px !important;
+            flex: 0 0 56px !important;
+            border-radius: 14px !important;
+            object-fit: contain !important;
+            background: #fff;
+            padding: 4px;
+        }
+        #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-brand .workzen-app-brand-name {
+            display: block !important;
+            font-size: 24px !important;
+            line-height: 1.1 !important;
+            font-weight: 800 !important;
+        }
+        #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-heading {
+            display: none !important;
+        }
+        #verifyEmailCard {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto !important;
+            padding: 24px !important;
+            gap: 14px !important;
+            border-radius: 24px !important;
+            box-shadow: 0 18px 48px rgba(10, 20, 40, .12);
+        }
+        #verifyEmailCard > img { display: none !important; }
+        #verifyEmailCard input {
+            min-height: 54px;
+            letter-spacing: .22em !important;
+            font-size: 18px !important;
+        }
+        #verifyEmailCard button {
+            min-height: 48px;
+        }
+        @media (max-width: 420px) {
+            #verifyEmailCard { padding: 20px !important; }
+        }
+
     </style>
     <style>
         @media (max-width: 768px) {
@@ -1600,6 +1658,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 }
                 const appForgotTitle = document.querySelector('#forgotPasswordCard > h3');
                 if (appForgotTitle) appForgotTitle.style.display = form === 'forgot' ? 'none' : '';
+                const appBrand = document.getElementById('workzen-app-login-brand');
+                if (appBrand) appBrand.classList.toggle('hidden', form === 'verify');
                 const appRegisterTitle = document.querySelector('#registerCard > h3');
                 if (appRegisterTitle) appRegisterTitle.style.display = form === 'register' ? 'none' : '';
             }
