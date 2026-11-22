@@ -1633,7 +1633,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             var hero = document.getElementById('landingHero');
             var cards = ['loginCard', 'registerCard', 'forgotPasswordCard', 'verifyEmailCard'];
             const isWorkZenApp = document.documentElement.classList.contains('workzen-app-mode');
-            if (overlay) overlay.classList.toggle('auth-login-centered', form === 'login' || (isWorkZenApp && (form === 'forgot' || form === 'register')));
+            if (overlay) overlay.classList.toggle('auth-login-centered', form === 'login' || (isWorkZenApp && (form === 'forgot' || form === 'register' || form === 'verify')));
             // Auth views are mutually exclusive: hide the landing hero and every card first.
             if (hero) hero.style.display = 'none';
             cards.forEach(id => {
