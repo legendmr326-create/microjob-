@@ -1130,7 +1130,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 </div>
                             </div>
                         </div>
-                    <button type="button" id="kycSubmitBtn" onclick="submitKyc()" disabled class="w-full font-bold py-3 rounded-2xl text-sm bg-black text-white/60 border border-white/10 cursor-not-allowed transition-colors">Verify Now</button>
+                    <button type="button" id="kycSubmitBtn" onclick="submitKyc()" disabled class="w-full font-bold py-3 rounded-2xl text-sm bg-black text-white/60 border border-white/10 cursor-not-allowed transition-colors">Verification Submit</button>
                     <button type="button" onclick="closeKycForm()" class="w-full py-2.5 rounded-2xl text-sm text-violet-200/70">Cancel</button>
                     </div>
                 </div>
@@ -3353,7 +3353,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const photosComplete = active.length > 0 && completed === active.length;
             const ready = formComplete && photosComplete;
             button.disabled = !ready;
-            button.textContent = 'Verify Now';
+            button.textContent = 'Verification Submit';
             button.classList.remove('bg-black', 'text-white/60', 'border-white/10', 'cursor-not-allowed', 'bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'border-emerald-500');
             if (ready) {
                 button.classList.add('bg-emerald-600', 'hover:bg-emerald-500', 'text-white', 'border-emerald-500');
