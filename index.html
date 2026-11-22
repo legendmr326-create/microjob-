@@ -1038,8 +1038,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     <span id="kycBadge" class="hidden text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap"></span>
                 </div>
                 <p id="kycMsg" class="text-xs text-violet-200/80"></p>
-                <button type="button" id="kycVerifyBtn" onclick="openKycForm()" class="hidden btn-amber w-full font-bold py-3 rounded-2xl text-sm">Verify Now</button>
-                <button type="button" id="kycResubmitBtn" onclick="openKycForm()" class="hidden w-full font-bold py-3 rounded-2xl text-sm bg-rose-500/20 border border-rose-400/40 text-rose-100">Resubmit KYC</button>
+                <button type="button" id="kycVerifyBtn" onclick="openKycForm()" class="hidden btn-amber w-full font-bold py-3 rounded-2xl text-sm">Verification Submit</button>
+                <button type="button" id="kycResubmitBtn" onclick="openKycForm()" class="hidden w-full font-bold py-3 rounded-2xl text-sm bg-rose-500/20 border border-rose-400/40 text-rose-100">Verification Submit</button>
                 <div id="kycFormPanel" class="hidden space-y-3 pt-1">
                     <div>
                         <label class="block text-[11px] font-semibold uppercase tracking-wider text-violet-200/70 mb-1.5">Document Type</label>
@@ -3258,7 +3258,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (!input || !input.files || !input.files[0]) return;
             input.dataset.confirmed = '1';
             const actions = document.getElementById(inputId + 'Actions');
-            if (actions) actions.classList.add('hidden');
+            if (actions) { actions.classList.add('hidden'); actions.style.display = 'none'; }
             updateKycSubmitState();
         }
 
@@ -3281,13 +3281,13 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 delete input.dataset.confirmed;
                 thumb.classList.add('hidden'); thumb.removeAttribute('src'); delete thumb.dataset.objectUrl;
                 guide.classList.remove('hidden'); check.classList.add('hidden'); check.classList.remove('flex');
-                actions.classList.add('hidden'); card.classList.remove('is-captured');
+                actions.classList.add('hidden'); actions.style.display = 'none'; card.classList.remove('is-captured');
             } else {
                 delete input.dataset.confirmed;
                 const objectUrl = URL.createObjectURL(chosen);
                 thumb.src = objectUrl; thumb.dataset.objectUrl = objectUrl; thumb.classList.remove('hidden');
                 guide.classList.add('hidden'); check.classList.remove('hidden'); check.classList.add('flex');
-                actions.classList.remove('hidden'); card.classList.add('is-captured');
+                actions.classList.remove('hidden'); actions.style.display = 'flex'; card.classList.add('is-captured');
             }
             updateKycSubmitState();
         }
