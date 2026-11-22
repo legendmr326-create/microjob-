@@ -508,6 +508,24 @@ Check your Browserslist config to be sure that your targets are set up correctly
             #tab-profile .min-w-0, #tab-withdraw .min-w-0 { min-width: 0; }
         }
     </style>
+
+    <!-- WORKZEN_DISABLE_UNWANTED_TEXT_COPY: prevent selecting/copying ordinary app text -->
+    <style id="workzen-copy-selection-guard">
+      html, body, body * {
+        -webkit-user-select: none !important;
+        user-select: none !important;
+        -webkit-touch-callout: none !important;
+      }
+      input, textarea, select, [contenteditable="true"],
+      input *, textarea *, [contenteditable="true"] *,
+      .allow-copy, .allow-copy *,
+      .copyable, .copyable * {
+        -webkit-user-select: text !important;
+        user-select: text !important;
+        -webkit-touch-callout: default !important;
+      }
+    </style>
+
 </head>
 <body class="flex justify-center min-h-screen">
 
