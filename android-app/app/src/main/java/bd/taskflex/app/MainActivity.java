@@ -3,6 +3,11 @@ package bd.taskflex.app;
 import android.app.Activity;
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.webkit.ValueCallback;
 import android.webkit.PermissionRequest;
 import android.os.Bundle;
 import android.graphics.Color;
@@ -23,13 +28,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=8";
+    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=10";
     private WebView webView;
     private FrameLayout root;
     private FrameLayout splash;
     private LinearLayout errorPanel;
     private static final int CAMERA_PERMISSION_REQUEST = 701;
     private PermissionRequest pendingWebPermissionRequest;
+    private ValueCallback<Uri[]> pendingFileChooserCallback;
+    private Uri pendingCameraImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +80,14 @@ public class MainActivity extends Activity {
                         requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
                     }
                 });
+            }
+            @Override
+            public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
+                if (pendingFileChooserCallback != null) pendingFileChooserCallback.onReceiveValue(null);
+                pendingFileChooserCallback = callback;
+                if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) launchCameraCapture();
+                else requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
+                return true;
             }
             @Override
             public void onPermissionRequestCanceled(PermissionRequest request) {
@@ -131,14 +146,40 @@ public class MainActivity extends Activity {
             PermissionRequest request = pendingWebPermissionRequest;
             pendingWebPermissionRequest = null;
             if (request == null) return;
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
-            } else {
-                request.deny();
-            }
+            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (request != null) { if (granted) request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE}); else request.deny(); }
+            if (pendingFileChooserCallback != null) { if (granted) launchCameraCapture(); else finishCameraCapture(null); }
         }
     }
 
+    private static final int CAMERA_CAPTURE_REQUEST = 702;
+    private void launchCameraCapture() {
+        if (pendingFileChooserCallback == null) return;
+        try {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, "WorkZen-KYC-" + System.currentTimeMillis() + ".jpg");
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            pendingCameraImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+            if (pendingCameraImageUri == null) { finishCameraCapture(null); return; }
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, pendingCameraImageUri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            if (intent.resolveActivity(getPackageManager()) != null) startActivityForResult(intent, CAMERA_CAPTURE_REQUEST);
+            else finishCameraCapture(null);
+        } catch (Exception e) { finishCameraCapture(null); }
+    }
+    private void finishCameraCapture(Uri[] result) {
+        if (pendingFileChooserCallback != null) { pendingFileChooserCallback.onReceiveValue(result); pendingFileChooserCallback = null; }
+        if (result == null && pendingCameraImageUri != null) { try { getContentResolver().delete(pendingCameraImageUri, null, null); } catch (Exception ignored) {} }
+        pendingCameraImageUri = null;
+    }
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CAMERA_CAPTURE_REQUEST) {
+            if (resultCode == RESULT_OK && pendingCameraImageUri != null) finishCameraCapture(new Uri[]{pendingCameraImageUri});
+            else finishCameraCapture(null);
+        }
+    }
     private void showError() {
         hideSplash();
         if (errorPanel != null) return;
