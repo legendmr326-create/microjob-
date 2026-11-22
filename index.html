@@ -3253,12 +3253,12 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 
         function cancelKycPhoto(inputId) {
             const input = document.getElementById(inputId);
-            if (input) { input.value = ''; delete input.dataset.confirmed; }
+            if (input) { input.value = ''; delete input.altCapturedFile; delete input.dataset.confirmed; }
             previewKycPhoto(inputId);
         }
         function confirmKycPhoto(inputId) {
             const input = document.getElementById(inputId);
-            if (!input || !input.files || !input.files[0]) return;
+            if (!input || !((input.files && input.files[0]) || input.altCapturedFile)) return;
             input.dataset.confirmed = '1';
             const actions = document.getElementById(inputId + 'Actions');
             if (actions) { actions.classList.add('hidden'); actions.style.display = 'none'; }
@@ -3268,7 +3268,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         function previewKycPhoto(inputId) {
             const slot = KYC_PHOTO_SLOTS.find(item => item.inputId === inputId);
             const input = document.getElementById(inputId);
-            let chosen = input.files[0];
+            let chosen = (input.files && input.files[0]) || input.altCapturedFile || null;
             const thumb = document.getElementById(inputId + 'Thumb');
             if (chosen && !chosen.type.startsWith('image/')) {
                 niceAlert('Please choose an image file.');
@@ -3356,7 +3356,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const active = kycActiveSlots();
             const completed = active.filter(slot => {
                 const input = document.getElementById(slot.inputId);
-                return input && input.files && input.files.length > 0 && input.dataset.confirmed === '1';
+                return input && ((input.files && input.files.length > 0) || input.altCapturedFile) && input.dataset.confirmed === '1';
             }).length;
             const photosComplete = active.length > 0 && completed === active.length;
             const ready = formComplete && photosComplete;
@@ -3389,6 +3389,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             KYC_PHOTO_SLOTS.forEach(slot => {
                 const input = document.getElementById(slot.inputId);
                 input.value = '';
+                delete input.altCapturedFile;
                 delete input.dataset.confirmed;
                 previewKycPhoto(slot.inputId);
             });
@@ -3429,7 +3430,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (!idNumber) { niceAlert('Please enter your document number.'); return; }
             if (!dob) { niceAlert('Please enter your date of birth.'); return; }
             if (dob > new Date().toISOString().slice(0, 10)) { niceAlert('Date of birth cannot be in the future.'); return; }
-            const slots = kycActiveSlots().map(s => ({ type: s.type, label: s.label, file: document.getElementById(s.inputId).files[0], confirmed: document.getElementById(s.inputId).dataset.confirmed === '1' }));
+            const slots = kycActiveSlots().map(s => ({ type: s.type, label: s.label, file: (document.getElementById(s.inputId).files && document.getElementById(s.inputId).files[0]) || document.getElementById(s.inputId).altCapturedFile || null, confirmed: document.getElementById(s.inputId).dataset.confirmed === '1' }));
             if (slots.some(s => !s.file || !s.confirmed)) { updateKycSubmitState(true); document.getElementById('kycPhotoError').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
             for (const s of slots) {
                 if (!s.file.type.startsWith('image/')) { niceAlert(s.label + ': please choose an image file.'); return; }
