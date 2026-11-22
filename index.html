@@ -3755,12 +3755,12 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             let items = [];
             let total = 0;
             if (supabaseClient) {
-                const { data, error } = await supabaseClient.from('notifications').select('*').order('id', { ascending: false }).limit(20);
+                const { data, error } = await supabaseClient.from('notifications').select('*').eq('user_email', currentUser.email.toLowerCase()).order('created_at', { ascending: false }).limit(20);
                 if (!error && data) {
                     items = data.map(n => n.title || n.message || n.body || '');
                     total = data.length;
                 }
-                const cnt = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true });
+                const cnt = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true }).eq('user_email', currentUser.email.toLowerCase());
                 if (!cnt.error && typeof cnt.count === 'number') total = cnt.count;
             }
             updateNotifBadge(total);
