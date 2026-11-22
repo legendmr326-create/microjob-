@@ -446,14 +446,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
             margin: 0 auto 24px !important;
             width: 100% !important;
         }
+        #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-brand {
+            margin-bottom: 34px !important;
+        }
         #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-brand img {
-            width: 56px !important;
-            height: 56px !important;
-            flex: 0 0 56px !important;
-            border-radius: 14px !important;
+            width: 68px !important;
+            height: 68px !important;
+            flex: 0 0 68px !important;
+            border-radius: 50% !important;
             object-fit: contain !important;
-            background: #fff;
-            padding: 4px;
+            background: transparent;
+            padding: 0;
         }
         #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-brand .workzen-app-brand-name {
             display: block !important;
@@ -462,7 +465,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
             font-weight: 800 !important;
         }
         #authOverlay.auth-login-centered:has(#verifyEmailCard:not(.hidden)) #workzen-app-login-heading {
-            display: none !important;
+            display: block !important;
+            margin-bottom: 22px !important;
         }
         #verifyEmailCard {
             width: 100%;
@@ -1650,11 +1654,11 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 if (appHeading) {
                     const title = appHeading.querySelector('h2');
                     const subtitle = appHeading.querySelector('p');
-                    if (title) title.textContent = form === 'forgot' ? 'Forgot Password' : (form === 'register' ? 'Create Account' : 'Welcome Back');
+                    if (title) title.textContent = form === 'forgot' ? 'Forgot Password' : ((form === 'register' || form === 'verify') ? 'Create Account' : 'Welcome Back');
                     if (subtitle) subtitle.textContent = form === 'forgot'
                         ? 'Please enter your email address to receive a verification code'
-                        : (form === 'register' ? 'Please fill in the details to register' : 'Please sign up to continue');
-                    appHeading.classList.toggle('hidden', form !== 'login' && form !== 'forgot' && form !== 'register');
+                        : ((form === 'register' || form === 'verify') ? 'Please fill in the details to register' : 'Please sign up to continue');
+                    appHeading.classList.toggle('hidden', form !== 'login' && form !== 'forgot' && form !== 'register' && form !== 'verify');
                 }
                 const appForgotTitle = document.querySelector('#forgotPasswordCard > h3');
                 if (appForgotTitle) appForgotTitle.style.display = form === 'forgot' ? 'none' : '';
