@@ -1410,6 +1410,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         let currentBalance = 0;
         let depositBalance = 0;
         let pendingSignup = null;
+        let signupInProgress = false;
         let resendSignupAt = 0;
         let resendSignupTimer = null;
         let passwordResetEmail = '';
@@ -1708,6 +1709,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         }
 
         async function handleRegister() {
+            if (signupInProgress) return;
+            signupInProgress = true;
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const pass = document.getElementById('regPass').value;
             const refInput = document.getElementById('regReferralCode');
@@ -1723,6 +1726,10 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             try {
                 const { data, error } = await client.auth.signUp({ email, password: pass, options: { data: { phone: '' } } });
                 if (error) throw error;
+                // Supabase may return an obfuscated user with no identities for an email that already has an account.
+                if (!data || !data.user || (Array.isArray(data.user.identities) && data.user.identities.length === 0)) {
+                    throw new Error('এই ইমেইল দিয়ে আগে থেকেই অ্যাকাউন্ট আছে। Login করুন অথবা Forgot Password ব্যবহার করুন।');
+                }
                 pendingSignup = { email, phone: '', referralCode };
                 if (data && data.session) {
                     await finishSignup(data.user);
@@ -1737,6 +1744,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             } catch (error) {
                 niceAlert('Sign up failed: ' + (error.message || 'Please try again.'));
             } finally {
+                signupInProgress = false;
                 if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account'; }
             }
         }
