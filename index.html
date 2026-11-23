@@ -3797,6 +3797,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         }
 
         async function applyToJob() {
+            if (!(await requireApprovedKyc())) return;
             if (!currentUser) { niceAlert('Please log in first.'); return; }
             if (!(await isKycApproved())) { niceAlert('Please complete KYC verification first'); openKycProfile(); return; }
             const job = allJobs.find(j => Number(j.id) === Number(currentJobId));
