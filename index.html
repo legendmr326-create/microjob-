@@ -2787,12 +2787,20 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             });
         }
 
+        function depositLogoUrl(method) {
+            if(method && method.logo_url)return method.logo_url;
+            const slug=String(method&&method.name||'').toLowerCase();
+            const known={bkash:'bkash',nagad:'nagad',rocket:'rocket',upay:'upay'};
+            return known[slug]?'https://workzenbd.vercel.app/icons/pay/'+known[slug]+'.png':'';
+        }
         function renderDepositPaymentMethods() {
             const box=document.getElementById('depositGatewayList'); if(!box)return;
             const active=depositPaymentMethods.filter(function(x){return x.enabled!==false;});
             if(!active.length){box.innerHTML='<p class="text-xs text-rose-300">এই মুহূর্তে কোনো ডিপোজিট পদ্ধতি চালু নেই।</p>';return;}
             box.innerHTML=active.map(function(x){
-                return '<button type="button" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition w-full text-left" data-type="manual" data-payment-id="'+esc(x.id)+'"><div class="flex items-center gap-3">'+(x.logo_url?'<img src="'+esc(x.logo_url)+'" alt="'+esc(x.name)+'" class="w-10 h-10 rounded-xl object-contain bg-transparent p-0">':'<div class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-xs font-extrabold text-amber-300">'+esc(String(x.name||'').slice(0,2).toUpperCase())+'</div>')+'<div><h4 class="text-sm font-bold text-white">'+esc(x.name)+'</h4><p class="text-[11px] text-violet-200/60">'+esc(x.instruction||'Personal, Send Money')+'</p></div></div><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold">manual</span></button>';
+                const logo=depositLogoUrl(x);
+                const image=logo?'<img src="'+esc(logo)+'" alt="'+esc(x.name)+'" width="30" height="30" class="w-[30px] h-[30px] rounded-xl object-contain shrink-0 bg-transparent">':'<span class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-[10px] font-extrabold text-amber-300 shrink-0">'+esc(String(x.name||'').slice(0,2).toUpperCase())+'</span>';
+                return '<button type="button" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition w-full text-left" data-type="manual" data-payment-id="'+esc(x.id)+'"><div class="flex items-center gap-3">'+image+'<div><h4 class="text-sm font-bold text-white">'+esc(x.name)+'</h4><p class="text-[11px] text-violet-200/60">'+esc(x.instruction||'Personal, Send Money')+'</p></div></div><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold">manual</span></button>';
             }).join('');
         }
         document.getElementById('depositGatewayList').addEventListener('click',function(e){
@@ -2810,7 +2818,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             if(!method)return;
             selectedPaymentMethod=method;selectedGateway=method.name;
             document.querySelectorAll('#tab-deposit .gateway-item[data-type]').forEach(function(el){el.setAttribute('data-selected',el.dataset.paymentId===String(method.id)?'true':'false');});
-            document.getElementById('selectedGatewayTitle').innerHTML='<span class="align-middle">Selected:</span>'+(method.logo_url?'<img src="'+esc(method.logo_url)+'" alt="'+esc(method.name)+'" class="inline-block w-6 h-6 rounded-md object-contain align-middle mx-1.5 bg-transparent">':'<span class="inline-flex w-6 h-6 rounded-md items-center justify-center align-middle mx-1.5 text-[9px] font-extrabold bg-violet-400/15 text-amber-300">'+esc(String(method.name||'').slice(0,2).toUpperCase())+'</span>')+'<span class="align-middle">'+esc(method.name)+'</span>';
+            document.getElementById('selectedGatewayTitle').innerHTML='<span class="align-middle">Selected:</span>'+(depositLogoUrl(method)?'<img src="'+esc(depositLogoUrl(method))+'" alt="'+esc(method.name)+'" class="inline-block w-6 h-6 rounded-md object-contain align-middle mx-1.5 bg-transparent">':'<span class="inline-flex w-6 h-6 rounded-md items-center justify-center align-middle mx-1.5 text-[9px] font-extrabold bg-violet-400/15 text-amber-300">'+esc(String(method.name||'').slice(0,2).toUpperCase())+'</span>')+'<span class="align-middle">'+esc(method.name)+'</span>';
             document.getElementById('depositNumber').textContent=method.number||'নম্বর এখনো সেট করা হয়নি';
             document.getElementById('depositNumberCopy').disabled=!method.number;
             document.getElementById('depositGwLabel').textContent='('+ (method.instruction||method.name+' Personal, Send Money') +')';
