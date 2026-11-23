@@ -2771,7 +2771,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             if(!method)return;
             selectedPaymentMethod=method;selectedGateway=method.name;
             document.querySelectorAll('#tab-deposit .gateway-item[data-type]').forEach(function(el){el.setAttribute('data-selected',el.dataset.paymentId===String(method.id)?'true':'false');});
-            document.getElementById('selectedGatewayTitle').innerHTML=(method.logo_url?'<img src="'+esc(method.logo_url)+'" alt="'+esc(method.name)+'" class="inline-block w-6 h-6 rounded-md object-contain align-middle mr-2 bg-transparent">':'<span class="inline-flex w-6 h-6 rounded-md items-center justify-center align-middle mr-2 text-[9px] font-extrabold bg-violet-400/15 text-amber-300">'+esc(String(method.name||'').slice(0,2).toUpperCase())+'</span>')+'<span class="align-middle">Selected: '+esc(method.name)+'</span>';
+            document.getElementById('selectedGatewayTitle').innerHTML='<span class="align-middle">Selected: '+esc(method.name)+'</span>'+(method.logo_url?'<img src="'+esc(method.logo_url)+'" alt="'+esc(method.name)+'" class="inline-block w-6 h-6 rounded-md object-contain align-middle ml-2 bg-transparent">':'<span class="inline-flex w-6 h-6 rounded-md items-center justify-center align-middle ml-2 text-[9px] font-extrabold bg-violet-400/15 text-amber-300">'+esc(String(method.name||'').slice(0,2).toUpperCase())+'</span>');
             document.getElementById('depositNumber').textContent=method.number||'নম্বর এখনো সেট করা হয়নি';
             document.getElementById('depositNumberCopy').disabled=!method.number;
             document.getElementById('depositGwLabel').textContent='('+ (method.instruction||method.name+' Personal, Send Money') +')';
