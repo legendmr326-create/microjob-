@@ -1337,7 +1337,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         <span class="text-[11px] font-semibold text-violet-100">Job Thumbnail <span class="text-violet-200/50 font-normal">(optional, 1 image)</span></span>
                         <div class="flex items-center gap-2.5">
                             <div class="w-14 h-14 shrink-0 rounded-xl bg-bgDark/70 border border-white/10 overflow-hidden flex items-center justify-center">
-                                <img id="newJobThumbPreview" alt="" class="hidden w-full h-full object-cover">
+                                <img id="newJobThumbPreview" alt="" class="hidden w-full h-full object-contain bg-black/30">
                                 <i id="newJobThumbIcon" class="fa-regular fa-image text-violet-200/40"></i>
                             </div>
                             <label class="flex-1 cursor-pointer text-center text-[11px] font-semibold px-3 py-2.5 rounded-2xl bg-violet-500/20 text-violet-100 border border-violet-300/30">
@@ -2666,7 +2666,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     : s === 'Rejected' ? '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-400/15 text-rose-200">Rejected</span>'
                     : '<span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-400/15 text-amber-200">Pending</span>';
                 const imgs = proofImagesOf(a.proof_image);
-                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" onclick="openProofZoom(this.src)" class="w-full max-h-[420px] object-contain rounded-xl bg-black/30 cursor-zoom-in">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
+                const img = imgs.length ? imgs.map(src => `<img src="${esc(src)}" alt="proof screenshot" onclick="openProofZoom(this.src)" class="block w-full h-auto max-h-[70vh] object-contain rounded-xl bg-black/30 cursor-zoom-in">`).join('') : `<p class="text-[11px] text-violet-200/50">No screenshot submitted</p>`;
                 const txt = a.proof_text ? `<div class="space-y-1.5">${proofLinesHtml(a.proof_text)}</div>` : `<p class="text-[11px] text-violet-200/50">No text report</p>`;
                 const actions = s === 'Pending'
                     ? `<div class="flex gap-2 mt-2"><button onclick="reviewApplication(${Number(a.id)}, 'Approved')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-emerald-400/20 text-emerald-200 border border-emerald-300/30">Approve</button><button onclick="reviewApplication(${Number(a.id)}, 'Rejected')" class="flex-1 text-xs font-bold py-2 rounded-xl bg-rose-400/20 text-rose-200 border border-rose-300/30">Reject</button></div>`
@@ -2990,7 +2990,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             document.getElementById('jobDetailCard').innerHTML = `
                 <span class="text-[10px] uppercase tracking-wider text-violet-200/60">${esc(job.category || '')}</span>
                 <h3 class="text-lg font-black text-white">${esc(job.title)}</h3>
-                ${job.thumbnail_url ? `<img src="${esc(job.thumbnail_url)}" alt="" class="w-full max-h-[180px] object-cover rounded-xl">` : ''}
+                ${job.thumbnail_url ? `<div class="w-full max-h-[70vh] rounded-xl overflow-hidden bg-black/30 flex items-center justify-center"><img src="${esc(job.thumbnail_url)}" alt="Job image" loading="lazy" class="block w-full h-auto max-h-[70vh] object-contain rounded-xl"></div>` : ''}
                 <div class="grid grid-cols-2 gap-2.5 text-xs">
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="text-amber-300 mt-0.5">${formatMoney(job.reward || 0)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
