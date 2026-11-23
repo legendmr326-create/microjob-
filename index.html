@@ -880,6 +880,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
 
                 <div id="depositGatewayList" class="space-y-2.5"><p class="text-xs text-violet-200/60">Loading payment methods...</p></div>
+                <div id="instantDepositNotice" class="hidden rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-5 text-center text-sm font-semibold text-amber-200">Instant deposit is temporarily unavailable. It will be enabled here soon.</div>
 
                 <!-- Deposit Input Form -->
                 <div id="depositFormContainer" class="glass-card p-4 rounded-2xl space-y-3 hidden border border-amber-300/40">
@@ -2792,13 +2793,17 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             ['all', 'instant', 'manual'].forEach(t => {
                 document.getElementById('gwTab-' + t).className = t === type ? "py-2.5 rounded-xl bg-amber-400 text-amber-950 transition" : "py-2.5 rounded-xl text-violet-200/70 transition";
             });
+            const instantNotice=document.getElementById('instantDepositNotice');
+            if(instantNotice) instantNotice.classList.toggle('hidden', type !== 'instant');
             document.querySelectorAll('.gateway-item').forEach(item => {
-                if (type === 'all' || item.getAttribute('data-type') === type) {
+                if (type !== 'instant' && (type === 'all' || item.getAttribute('data-type') === type)) {
                     item.classList.remove('hidden');
                 } else {
                     item.classList.add('hidden');
                 }
             });
+            const form=document.getElementById('depositFormContainer');
+            if(type==='instant' && form) form.classList.add('hidden');
         }
 
         function depositLogoUrl(method) {
