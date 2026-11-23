@@ -1175,12 +1175,10 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
     <video id="kycFaceVideo" autoplay playsinline muted class="h-full w-full object-cover" style="transform:scaleX(-1)"></video>
     <img id="kycSelfieReview" alt="আপনার তোলা সেলফি" class="hidden h-full w-full object-contain bg-black">
   </div>
-  <div class="absolute left-0 right-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent px-5 py-5">
+  <div class="absolute left-0 right-0 top-0 flex justify-start px-5 py-5">
     <button type="button" onclick="closeKycFaceCamera()" aria-label="ক্যামেরা বন্ধ করুন" class="flex h-11 w-11 items-center justify-center rounded-full bg-black/40 text-2xl">×</button>
-    <span class="text-sm font-bold">NID হাতে নিয়ে সেলফি তুলুন</span>
-    <span class="w-11"></span>
   </div>
-  <p id="kycFaceNotice" class="absolute left-5 right-5 bottom-36 text-center text-sm font-semibold drop-shadow-lg">মুখ ও NID কার্ডটি ক্যামেরায় পরিষ্কারভাবে দেখান</p>
+  <p id="kycFaceNotice" class="hidden" aria-hidden="true"></p>
   <div id="kycSelfieCaptureControls" class="absolute bottom-0 left-0 right-0 flex items-center justify-center bg-gradient-to-t from-black/80 to-transparent px-6 pb-10 pt-12">
     <button type="button" onclick="captureKycFace()" aria-label="ছবি তুলুন" class="flex h-20 w-20 items-center justify-center rounded-full border-[5px] border-white bg-white/20 shadow-xl"><span class="h-14 w-14 rounded-full bg-white"></span></button>
   </div>
