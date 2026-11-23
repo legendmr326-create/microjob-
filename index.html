@@ -3413,6 +3413,9 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         }
         async function startKycFaceCamera() {
             const notice = document.getElementById('kycFaceNotice');
+            // Speak immediately inside the user's tap, before camera permission awaits.
+            // Android Chrome may block speech if it is first requested after getUserMedia().
+            speakKycFacePrompt('লাইভনেস যাচাই শুরু হচ্ছে। প্রথম ধাপ—মুখটি ফ্রেমের মাঝখানে রেখে ক্যামেরার দিকে সোজা তাকান।', 'welcome', true);
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 if (notice) notice.textContent = 'এই ব্রাউজারে সরাসরি ক্যামেরা চালু হচ্ছে না। Chrome-এ Camera permission দিন।';
                 return;
@@ -3444,7 +3447,6 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 const nextButton = document.getElementById('kycFaceNext');
                 if (nextButton) nextButton.classList.add('hidden');
                 if (notice) notice.textContent = 'AI ক্যামেরা মুখ শনাক্ত করছে। বাংলা ভয়েস নির্দেশনা শুনে ধাপগুলো অনুসরণ করুন।';
-                speakKycFacePrompt('লাইভনেস যাচাই শুরু হচ্ছে। প্রথম ধাপ—মুখটি ফ্রেমের মাঝখানে রেখে ক্যামেরার দিকে সোজা তাকান।', 'welcome');
                 kycFaceSetStep(0);
                 await loadKycFaceDetector();
                 kycFaceDetector = new FaceMesh({
