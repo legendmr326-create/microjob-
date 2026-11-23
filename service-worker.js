@@ -1,4 +1,4 @@
-const CACHE_NAME = 'workzen-shell-v35';
+const CACHE_NAME = 'workzen-shell-v36';
 const SHELL = ['/', '/manifest.webmanifest', '/android-app/workzen-logo.jpg'];
 const NAVIGATION_TIMEOUT_MS = 8000;
 const PRECACHE_TIMEOUT_MS = 12000;
@@ -47,6 +47,36 @@ self.addEventListener('activate', (event) => {
       .filter((key) => (key.startsWith('taskflex-shell-') || key.startsWith('workzone-shell-')) && key !== CACHE_NAME)
       .map((key) => caches.delete(key)));
     await self.clients.claim();
+  })());
+});
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (_) {
+    payload = { body: event.data ? event.data.text() : '' };
+  }
+  const title = payload.title || 'WorkZen';
+  const options = {
+    body: payload.body || 'আপনার WorkZen অ্যাকাউন্টে নতুন আপডেট আছে।',
+    icon: payload.icon || '/android-app/workzen-logo.jpg',
+    badge: payload.badge || '/android-app/workzen-logo.jpg',
+    tag: payload.tag || 'workzen-push',
+    data: { url: payload.url || '/' }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin).href;
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of windows) {
+      if (client.url === targetUrl && 'focus' in client) return client.focus();
+    }
+    if (self.clients.openWindow) return self.clients.openWindow(targetUrl);
   })());
 });
 
