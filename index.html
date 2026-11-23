@@ -928,24 +928,56 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
                 <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
-                <div id="withdrawMethodPicker" class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Withdraw method">
-                    <button type="button" role="radio" data-m="bKash" onclick="pickWithdrawMethod('bKash')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/bkash.png" alt="bKash" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">bKash</span><span class="wm-desc text-[11px] text-violet-200/60">bKash Personal, Send Money</span></span></button>
-                    <button type="button" role="radio" data-m="Nagad" onclick="pickWithdrawMethod('Nagad')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/nagad.png" alt="Nagad" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Nagad</span><span class="wm-desc text-[11px] text-violet-200/60">Nagad Personal, Send Money</span></span></button>
-                    <button type="button" role="radio" data-m="Rocket" onclick="pickWithdrawMethod('Rocket')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/rocket.png" alt="Rocket" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Rocket</span><span class="wm-desc text-[11px] text-violet-200/60">Rocket Personal, Send Money</span></span></button>
-                    <button type="button" role="radio" data-m="Upay" onclick="pickWithdrawMethod('Upay')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition"><img src="/icons/pay/upay.png" alt="Upay" width="30" height="30" class="rounded-xl object-cover shrink-0"><span class="wm-txt"><span class="wm-name text-sm font-bold text-white">Upay</span><span class="wm-desc text-[11px] text-violet-200/60">Upay Personal, Send Money</span></span></button>
-                    </div>
+                <div id="withdrawMethodPicker" class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Withdraw method"></div>
                 <script>
-                function pickWithdrawMethod(m){var sel=document.getElementById('withdrawMethod');if(sel)sel.value=m;document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===m;b.setAttribute('aria-checked',on?'true':'false');});var lg=document.getElementById('withdrawSelectedLogo');if(lg)lg.src='/icons/pay/'+m.toLowerCase()+'.png';var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+m;}
-function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
+                var withdrawPaymentMethods = [];
+                function wdEscape(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
+                function wdLogoUrl(method){
+                    if(method && method.logo_url)return method.logo_url;
+                    var slug=String(method&&method.name||'').toLowerCase();
+                    var known={bkash:'bkash',nagad:'nagad',rocket:'rocket',upay:'upay'};
+                    return known[slug]?'https://workzenbd.vercel.app/icons/pay/'+known[slug]+'.png':'';
+                }
+                function renderWithdrawMethodPicker(){
+                    var box=document.getElementById('withdrawMethodPicker');if(!box)return;
+                    var active=withdrawPaymentMethods.filter(function(x){return x.enabled!==false;});
+                    if(!active.length){box.innerHTML='<p class="text-xs text-rose-300 col-span-2">No withdrawal methods are available right now.</p>';document.getElementById('withdrawMethod').innerHTML='';return;}
+                    box.innerHTML=active.map(function(x){
+                        var name=String(x.name||'');var logo=wdLogoUrl(x);
+                        var image=logo?'<img src="'+wdEscape(logo)+'" alt="'+wdEscape(name)+'" width="30" height="30" class="rounded-xl object-contain shrink-0 bg-transparent">':'<span class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-[10px] font-extrabold text-amber-300 shrink-0">'+wdEscape(name.slice(0,2).toUpperCase())+'</span>';
+                        return '<button type="button" role="radio" data-m="'+wdEscape(name)+'" onclick="pickWithdrawMethod('+JSON.stringify(name).replace(/</g,'\\u003c')+')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition">'+image+'<span class="wm-txt"><span class="wm-name text-sm font-bold text-white">'+wdEscape(name)+'</span><span class="wm-desc text-[11px] text-violet-200/60">'+wdEscape(x.instruction||('Withdraw to '+name+' account'))+'</span></span></button>';
+                    }).join('');
+                    document.getElementById('withdrawMethod').innerHTML=active.map(function(x){return '<option value="'+wdEscape(x.name)+'">'+wdEscape(x.name)+'</option>';}).join('');
+                    var current=document.getElementById('withdrawMethod').value;
+                    var selected=active.find(function(x){return x.name===current;})||active[0];
+                    pickWithdrawMethod(selected.name);
+                }
+                async function loadWithdrawPaymentMethods(){
+                    if(!supabaseClient)return;
+                    var r=await supabaseClient.from('platform_settings').select('setting_value').eq('setting_key','withdraw_payment_methods').maybeSingle();
+                    if(r.error){console.warn('Withdrawal methods could not be loaded:',r.error.message);return;}
+                    try{withdrawPaymentMethods=JSON.parse(r.data&&r.data.setting_value||'[]');if(!Array.isArray(withdrawPaymentMethods))withdrawPaymentMethods=[];}catch(e){withdrawPaymentMethods=[];}
+                    if(!withdrawPaymentMethods.length)withdrawPaymentMethods=[
+                        {id:'bkash',name:'bKash',instruction:'Withdraw to bKash account',enabled:true},
+                        {id:'nagad',name:'Nagad',instruction:'Withdraw to Nagad account',enabled:true},
+                        {id:'rocket',name:'Rocket',instruction:'Withdraw to Rocket account',enabled:true},
+                        {id:'upay',name:'Upay',instruction:'Withdraw to Upay account',enabled:true}
+                    ];
+                    renderWithdrawMethodPicker();
+                }
+                function pickWithdrawMethod(m){
+                    var method=withdrawPaymentMethods.find(function(x){return String(x.name)===String(m);});
+                    if(!method)return;
+                    var sel=document.getElementById('withdrawMethod');if(sel)sel.value=method.name;
+                    document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===method.name;b.setAttribute('aria-checked',on?'true':'false');});
+                    var lg=document.getElementById('withdrawSelectedLogo');if(lg){var logo=wdLogoUrl(method);if(logo){lg.src=logo;lg.classList.remove('hidden');}else{lg.classList.add('hidden');}}
+                    var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+method.name;
+                }
+                function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
                 document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
                 </script>
-                <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><img id="withdrawSelectedLogo" src="/icons/pay/bkash.png" alt="" width="20" height="20" style="width:20px;height:20px;border-radius:6px;object-fit:cover"><span id="withdrawSelectedText">Selected: bKash</span></div>
-                <select id="withdrawMethod" class="hidden field w-full rounded-2xl px-3.5 py-2.5 text-xs">
-                    <option value="bKash">bKash</option>
-                    <option value="Nagad">Nagad</option>
-                    <option value="Rocket">Rocket</option>
-                    <option value="Upay">Upay</option>
-                </select>
+                <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><img id="withdrawSelectedLogo" src="https://workzenbd.vercel.app/icons/pay/bkash.png" alt="" width="24" height="24" class="w-6 h-6 rounded-md object-contain bg-transparent"><span id="withdrawSelectedText">Selected: bKash</span></div>
+                <select id="withdrawMethod" class="hidden field w-full rounded-2xl px-3.5 py-2.5 text-xs"></select>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
                 <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                 <div class="wd-summary bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-2">
@@ -1379,6 +1411,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             try {
                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
                 loadDepositPaymentMethods();
+                loadWithdrawPaymentMethods();
             } catch (e) {
                 console.error('Supabase init failed:', e);
             }
