@@ -3274,6 +3274,11 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         let kycFaceFirstTurnDirection = null;
         let kycFaceEyesWereOpen = false;
         let kycFaceBlinkClosed = false;
+        let kycFaceOpenEyeSamples = [];
+        let kycFaceOpenEyeBaseline = null;
+        let kycFaceClosedFrames = 0;
+        let kycFaceOpenFrames = 0;
+        let kycFaceLastVoiceKey = '';
         let kycFaceCaptured = false;
         const KYC_FACE_STEPS = [
             'ক্যামেরার দিকে সোজা তাকান',
@@ -3281,23 +3286,28 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             'এবার মাথা বাম দিকে ঘোরান',
             'এবার একবার চোখের পলক ফেলুন'
         ];
-        function speakKycFacePrompt(text) {
+        function speakKycFacePrompt(text, key) {
             try {
                 if (!('speechSynthesis' in window)) return;
+                if (key && kycFaceLastVoiceKey === key) return;
+                if (key) kycFaceLastVoiceKey = key;
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'bn-BD';
-                utterance.rate = 0.88;
+                utterance.rate = 0.86;
+                utterance.pitch = 1;
                 window.speechSynthesis.speak(utterance);
             } catch (_) {}
         }
         function kycFaceDistance(a, b) {
             return Math.hypot(a.x - b.x, a.y - b.y);
         }
-        function kycFaceEyeRatio(points, cornerA, cornerB, upper, lower) {
+        function kycFaceEyeRatio(points, cornerA, cornerB, upperA, lowerA, upperB, lowerB) {
             const width = kycFaceDistance(points[cornerA], points[cornerB]);
-            if (!width) return 1;
-            return kycFaceDistance(points[upper], points[lower]) / width;
+            if (!width) return 0;
+            const verticalA = kycFaceDistance(points[upperA], points[lowerA]);
+            const verticalB = kycFaceDistance(points[upperB], points[lowerB]);
+            return (verticalA + verticalB) / (2 * width);
         }
         function kycFaceSetStep(index) {
             kycFaceStepIndex = index;
@@ -3308,7 +3318,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 if (prompt) prompt.textContent = 'লাইভনেস সফল! ছবি তোলা হচ্ছে…';
                 if (step) step.textContent = 'যাচাই সম্পন্ন';
                 if (notice) notice.textContent = 'চোখের পলক শনাক্ত হয়েছে। এখন স্বয়ংক্রিয়ভাবে ছবি নেওয়া হচ্ছে।';
-                speakKycFacePrompt('ধন্যবাদ। আপনার লাইভনেস যাচাই সম্পন্ন হয়েছে।');
+                speakKycFacePrompt('ধন্যবাদ। আপনার চোখের পলক শনাক্ত হয়েছে। লাইভনেস যাচাই সফল। এখন আপনার ছবি তোলা হচ্ছে।', 'success');
                 kycFaceAutoCaptureTimer = setTimeout(() => {
                     kycFaceAutoCaptureTimer = null;
                     captureKycFace();
@@ -3326,7 +3336,13 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 ];
                 notice.textContent = messages[index];
             }
-            speakKycFacePrompt(KYC_FACE_STEPS[index]);
+            const voiceMessages = [
+                'প্রথম ধাপ। আপনার মুখ ক্যামেরার মাঝখানে রেখে সোজা সামনে তাকিয়ে থাকুন।',
+                'দ্বিতীয় ধাপ। এবার ধীরে ধীরে আপনার মাথা ডান দিকে ঘোরান। ক্যামেরা বুঝতে পারলে পরের ধাপে যাবে।',
+                'তৃতীয় ধাপ। এবার ধীরে ধীরে মাথা বাম দিকে ঘোরান।',
+                'শেষ ধাপ। ক্যামেরার দিকে তাকিয়ে চোখ স্বাভাবিকভাবে একবার বন্ধ করে আবার খুলুন। পলক শনাক্ত হলেই ছবি নিজে থেকে উঠবে।'
+            ];
+            speakKycFacePrompt(voiceMessages[index], 'step-' + index);
         }
         async function loadKycFaceDetector() {
             if (window.FaceMesh) return;
@@ -3368,6 +3384,11 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 kycFaceFirstTurnDirection = null;
                 kycFaceEyesWereOpen = false;
                 kycFaceBlinkClosed = false;
+                kycFaceOpenEyeSamples = [];
+                kycFaceOpenEyeBaseline = null;
+                kycFaceClosedFrames = 0;
+                kycFaceOpenFrames = 0;
+                kycFaceLastVoiceKey = '';
                 kycFaceLastFrameAt = 0;
                 kycFaceStream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -3382,7 +3403,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 const nextButton = document.getElementById('kycFaceNext');
                 if (nextButton) nextButton.classList.add('hidden');
                 kycFaceSetStep(0);
-                if (notice) notice.textContent = 'AI ক্যামেরা মুখ শনাক্ত করছে। নির্দেশনা অনুসরণ করুন—কোনো বাটন চাপতে হবে না।';
+                if (notice) notice.textContent = 'AI ক্যামেরা মুখ শনাক্ত করছে। প্রতিটি নির্দেশনা বাংলায় ভয়েসে বলা হবে—কোনো বাটন চাপতে হবে না।';
+                speakKycFacePrompt('লাইভনেস যাচাই শুরু হচ্ছে। মুখটি ক্যামেরার সামনে রাখুন এবং আমার বাংলা নির্দেশনা অনুসরণ করুন।', 'welcome');
                 await loadKycFaceDetector();
                 kycFaceDetector = new FaceMesh({
                     locateFile: file => 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/' + file
@@ -3399,6 +3421,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             } catch (e) {
                 stopKycFaceCamera();
                 if (notice) notice.textContent = 'মুখ শনাক্তকরণ চালু হয়নি। ইন্টারনেট সংযোগ ও Camera permission পরীক্ষা করে আবার চেষ্টা করুন।';
+                speakKycFacePrompt('দুঃখিত, মুখ শনাক্তকরণ চালু হয়নি। ইন্টারনেট সংযোগ ও ক্যামেরার অনুমতি পরীক্ষা করে আবার চেষ্টা করুন।', 'error');
             }
         }
         function runKycFaceDetectionLoop() {
@@ -3422,6 +3445,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const notice = document.getElementById('kycFaceNotice');
             if (!points) {
                 if (notice) notice.textContent = 'মুখ দেখা যাচ্ছে না—আলোতে ক্যামেরার সামনে সোজা তাকান।';
+                speakKycFacePrompt('আপনার মুখ ক্যামেরায় দেখা যাচ্ছে না। একটু আলোতে আসুন এবং মুখটি ক্যামেরার সামনে রাখুন।', 'no-face');
                 return;
             }
             const leftCheek = points[234];
@@ -3441,6 +3465,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 } else {
                     kycFaceNeutralSamples = [];
                     if (notice) notice.textContent = 'মুখটি ক্যামেরার ঠিক সামনে ও ফ্রেমের মাঝখানে আনুন।';
+                    speakKycFacePrompt('অনুগ্রহ করে মুখটি ক্যামেরার ঠিক সামনে ও মাঝখানে আনুন।', 'center-face');
                 }
                 return;
             }
@@ -3457,17 +3482,49 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                     kycFaceSetStep(3);
                     kycFaceEyesWereOpen = false;
                     kycFaceBlinkClosed = false;
+                    kycFaceOpenEyeSamples = [];
+                    kycFaceOpenEyeBaseline = null;
+                    kycFaceClosedFrames = 0;
+                    kycFaceOpenFrames = 0;
                 }
                 return;
             }
             if (kycFaceStepIndex === 3) {
-                const leftEye = kycFaceEyeRatio(points, 33, 133, 159, 145);
-                const rightEye = kycFaceEyeRatio(points, 362, 263, 386, 374);
+                // Use two vertical landmark pairs per eye (EAR) and calibrate to this user's open-eye shape.
+                const leftEye = kycFaceEyeRatio(points, 33, 133, 160, 144, 158, 153);
+                const rightEye = kycFaceEyeRatio(points, 362, 263, 385, 380, 387, 373);
                 const eyeRatio = (leftEye + rightEye) / 2;
-                if (eyeRatio > 0.22) kycFaceEyesWereOpen = true;
-                if (kycFaceEyesWereOpen && eyeRatio < 0.17) kycFaceBlinkClosed = true;
-                if (kycFaceEyesWereOpen && kycFaceBlinkClosed && eyeRatio > 0.22) {
-                    kycFaceSetStep(4);
+                if (!kycFaceEyesWereOpen) {
+                    if (eyeRatio > 0.16) {
+                        kycFaceOpenEyeSamples.push(eyeRatio);
+                        if (kycFaceOpenEyeSamples.length >= 7) {
+                            const sorted = [...kycFaceOpenEyeSamples].sort((a, b) => a - b);
+                            kycFaceOpenEyeBaseline = sorted[Math.floor(sorted.length / 2)];
+                            kycFaceEyesWereOpen = true;
+                            if (notice) notice.textContent = 'চোখ খোলা শনাক্ত হয়েছে। এবার একবার স্বাভাবিকভাবে পলক ফেলুন।';
+                            speakKycFacePrompt('চোখ খোলা শনাক্ত হয়েছে। এবার একবার স্বাভাবিকভাবে চোখ বন্ধ করে আবার খুলুন।', 'eyes-ready');
+                        }
+                    } else {
+                        kycFaceOpenEyeSamples = [];
+                    }
+                    return;
+                }
+                const closedThreshold = Math.max(0.095, kycFaceOpenEyeBaseline * 0.58);
+                const reopenedThreshold = Math.max(0.15, kycFaceOpenEyeBaseline * 0.78);
+                // Require both eyes to close briefly, then reopen; a single noisy frame won't pass.
+                const bothEyesClosed = leftEye < closedThreshold && rightEye < closedThreshold;
+                const bothEyesOpenAgain = leftEye > reopenedThreshold && rightEye > reopenedThreshold;
+                if (!kycFaceBlinkClosed) {
+                    kycFaceClosedFrames = bothEyesClosed ? kycFaceClosedFrames + 1 : 0;
+                    if (kycFaceClosedFrames >= 1) {
+                        kycFaceBlinkClosed = true;
+                        kycFaceOpenFrames = 0;
+                    }
+                } else {
+                    kycFaceOpenFrames = bothEyesOpenAgain ? kycFaceOpenFrames + 1 : 0;
+                    if (kycFaceOpenFrames >= 2) {
+                        kycFaceSetStep(4);
+                    }
                 }
             }
         }
