@@ -2996,7 +2996,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             applyJobFilters();
         }
 
-        function openJobDetail(id) {
+        async function openJobDetail(id) {
             if (!(await requireApprovedKyc())) return;
             const job = allJobs.find(j => Number(j.id) === Number(id));
             if (!job) return;
