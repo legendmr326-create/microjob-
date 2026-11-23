@@ -817,6 +817,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <h2 class="text-xl font-bold text-white">Notifications</h2>
                 <button type="button" id="deleteAllNotificationsBtn" onclick="deleteAllNotifications()" class="hidden text-xs font-bold px-3 py-2 rounded-xl bg-rose-500/15 border border-rose-400/30 text-rose-300">সব মুছুন</button>
             </div>
+            <div class="glass-card rounded-2xl border border-blue-400/20 p-4 space-y-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-300 shrink-0"><i class="fa-solid fa-bell text-lg"></i></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-white text-sm">মোবাইল নোটিফিকেশন</p>
+                        <p class="text-xs text-violet-200/70 mt-1">অ্যাপ বন্ধ থাকলেও নোটিফিকেশন পাওয়ার অনুমতি চালু করুন এবং একটি টেস্ট নোটিফিকেশন দেখুন।</p>
+                    </div>
+                </div>
+                <button type="button" onclick="enableAndTestPushNotifications()" class="w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm py-3 px-4">নোটিফিকেশন Allow করুন ও টেস্ট করুন</button>
+                <p id="pushNotificationStatus" class="text-xs text-violet-200/70" aria-live="polite">এখনো পরীক্ষা করা হয়নি।</p>
+            </div>
             <div id="notificationsList" class="space-y-2.5"></div>
         </div>
 
@@ -3850,6 +3861,42 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             badge.innerText = n > 99 ? '99+' : String(n);
             badge.classList.remove('hidden');
             badge.classList.add('flex');
+        }
+
+        async function enableAndTestPushNotifications() {
+            const status = document.getElementById('pushNotificationStatus');
+            const setStatus = (message, isError) => {
+                if (!status) return;
+                status.textContent = message;
+                status.classList.toggle('text-rose-300', !!isError);
+                status.classList.toggle('text-emerald-300', !isError);
+            };
+            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+                setStatus('এই ব্রাউজারে মোবাইল নোটিফিকেশন সমর্থিত নয়। Chrome দিয়ে চেষ্টা করুন।', true);
+                return;
+            }
+            try {
+                let permission = Notification.permission;
+                if (permission === 'default') permission = await Notification.requestPermission();
+                if (permission !== 'granted') {
+                    setStatus(permission === 'denied'
+                        ? 'নোটিফিকেশন Block করা আছে। Chrome-এর Site settings থেকে Notifications Allow করুন।'
+                        : 'নোটিফিকেশন অনুমতি দেওয়া হয়নি।', true);
+                    return;
+                }
+                const registration = await navigator.serviceWorker.ready;
+                await registration.showNotification('WorkZen টেস্ট নোটিফিকেশন', {
+                    body: 'সফল! আপনার মোবাইলে WorkZen নোটিফিকেশন দেখানোর অনুমতি চালু হয়েছে।',
+                    icon: '/android-app/workzen-logo.jpg',
+                    badge: '/android-app/workzen-logo.jpg',
+                    tag: 'workzen-permission-test',
+                    data: { url: '/' }
+                });
+                setStatus('অনুমতি চালু হয়েছে এবং টেস্ট নোটিফিকেশন পাঠানো হয়েছে। এটি এখনো সার্ভার থেকে আসা আসল Push নয়।');
+            } catch (error) {
+                console.error('Push notification permission/test failed:', error);
+                setStatus('টেস্ট নোটিফিকেশন দেখানো যায়নি। Chrome-এর Notification permission পরীক্ষা করুন।', true);
+            }
         }
 
         async function loadNotifications() {
