@@ -871,7 +871,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <button onclick="filterGateways('manual')" id="gwTab-manual" class="py-2.5 rounded-xl text-violet-200/70 transition">Manual</button>
                 </div>
 
-                <div id="depositGatewayList" class="space-y-2.5"><p class="text-xs text-violet-200/60">Loading payment methods...</p></div>\n\n                <!-- Deposit Input Form -->
+                <div id="depositGatewayList" class="space-y-2.5"><p class="text-xs text-violet-200/60">Loading payment methods...</p></div>
+
+                <!-- Deposit Input Form -->
                 <div id="depositFormContainer" class="glass-card p-4 rounded-2xl space-y-3 hidden border border-amber-300/40">
                     <div class="flex justify-between items-center text-xs">
                         <h4 id="selectedGatewayTitle" class="font-bold text-amber-300">Selected: bKash</h4>
@@ -1375,7 +1377,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         var supabaseClient = null;
         function __initSupabase() {
             try {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);\n                loadDepositPaymentMethods();
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+                loadDepositPaymentMethods();
             } catch (e) {
                 console.error('Supabase init failed:', e);
             }
@@ -1386,7 +1389,9 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
     <script>
         let currentUser = null;
-        let selectedGateway = 'bKash';\n        let depositPaymentMethods = [];\n        let selectedPaymentMethod = null;
+        let selectedGateway = 'bKash';
+        let depositPaymentMethods = [];
+        let selectedPaymentMethod = null;
         const DEFAULT_JOB_LOCATION = 'International';
         let allJobs = [];
         let allDeposits = [];
@@ -2748,9 +2753,12 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const active=depositPaymentMethods.filter(function(x){return x.enabled!==false;});
             if(!active.length){box.innerHTML='<p class="text-xs text-rose-300">এই মুহূর্তে কোনো ডিপোজিট পদ্ধতি চালু নেই।</p>';return;}
             box.innerHTML=active.map(function(x){
-                return '<button type="button" onclick="selectPaymentGateway(\''+String(x.id).replace(/\\\\/g,'').replace(/'/g,'\\\\\'')+'\')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition w-full text-left" data-type="manual" data-payment-id="'+esc(x.id)+'"><div class="flex items-center gap-3"><div class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-xs font-extrabold text-amber-300">'+esc(String(x.name||'').slice(0,2).toUpperCase())+'</div><div><h4 class="text-sm font-bold text-white">'+esc(x.name)+'</h4><p class="text-[11px] text-violet-200/60">'+esc(x.instruction||'Personal, Send Money')+'</p></div></div><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold">manual</span></button>';
+                return '<button type="button" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition w-full text-left" data-type="manual" data-payment-id="'+esc(x.id)+'"><div class="flex items-center gap-3"><div class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-xs font-extrabold text-amber-300">'+esc(String(x.name||'').slice(0,2).toUpperCase())+'</div><div><h4 class="text-sm font-bold text-white">'+esc(x.name)+'</h4><p class="text-[11px] text-violet-200/60">'+esc(x.instruction||'Personal, Send Money')+'</p></div></div><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold">manual</span></button>';
             }).join('');
         }
+        document.getElementById('depositGatewayList').addEventListener('click',function(e){
+            const button=e.target.closest('[data-payment-id]');if(button)selectPaymentGateway(button.dataset.paymentId);
+        });
         async function loadDepositPaymentMethods() {
             if(!supabaseClient)return;
             const r=await supabaseClient.from('platform_settings').select('setting_value').eq('setting_key','deposit_payment_methods').maybeSingle();
