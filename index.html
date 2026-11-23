@@ -1156,7 +1156,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                 <label id="kycSelfieLabel" class="block text-xs font-semibold">নিজের মুখসহ হাতে NID ধরে ছবি (Selfie with NID)</label>
                                 <div id="kycSelfieCard" class="kyc-capture-card rounded-2xl p-3 relative">
                                     
-                                    <button type="button" onclick="startKycFaceCamera()" aria-label="Start guided face check" class="relative block w-full text-left cursor-pointer border-0 bg-transparent p-0"><div class="flex items-center gap-3"><div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
+                                    <button type="button" id="kycFaceStart" onclick="startKycFaceCamera()" aria-label="Start guided face check" class="relative block w-full text-left cursor-pointer border-0 bg-transparent p-0"><div class="flex items-center gap-3"><div class="kyc-capture-frame relative flex h-20 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl" style="aspect-ratio:1.586/1">
                                             <img id="kycSelfieThumb" alt="KYC face check photo preview" class="hidden absolute inset-0 h-full w-full object-cover">
                                             <i id="kycSelfieGuide" class="fa-solid fa-face-smile text-2xl"></i>
                                             <span id="kycSelfieCheck" class="hidden absolute right-1.5 top-1.5 rounded-full bg-emerald-500 text-white w-6 h-6 items-center justify-center"><i class="fa-solid fa-check text-xs"></i></span>
@@ -3323,10 +3323,11 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             speakKycFacePrompt(KYC_FACE_STEPS[kycFaceStepIndex]);
             if (kycFaceStepIndex === KYC_FACE_STEPS.length - 1) {
                 document.getElementById('kycFaceNext').classList.add('hidden');
-                document.getElementById('kycFacePrompt').textContent = 'এখন ধীরে বাম দিকে মাথা ঘোরান—৩ সেকেন্ড পর ছবি উঠবে';
-                document.getElementById('kycFaceStep').textContent = 'ধাপ ৩ / ৩ · স্বয়ংক্রিয় ছবি';
+                document.getElementById('kycFacePrompt').textContent = 'এবার চোখের পলক ফেলুন—৩ সেকেন্ড পর ছবি উঠবে';
+                document.getElementById('kycFaceStep').textContent = 'ধাপ ৪ / ৪ · স্বয়ংক্রিয় ছবি';
+                speakKycFacePrompt('এবার চোখের পলক ফেলুন। তিন সেকেন্ড পর ছবি তোলা হবে।');
                 const notice = document.getElementById('kycFaceNotice');
-                if (notice) notice.textContent = 'মাথা বাম দিকে ঘোরান। ৩ সেকেন্ড পর ক্যামেরা নিজে থেকেই ছবি তুলবে।';
+                if (notice) notice.textContent = 'শেষ নির্দেশনার পর ৩ সেকেন্ডে ক্যামেরা নিজে থেকেই ছবি তুলবে।';
                 kycFaceAutoCaptureTimer = setTimeout(() => {
                     kycFaceAutoCaptureTimer = null;
                     captureKycFace();
