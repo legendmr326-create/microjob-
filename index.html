@@ -911,9 +911,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 </div>
             </div>
 
-            <div class="glass-card rounded-3xl p-5 space-y-2">
-                <h3 class="text-sm font-bold text-white">Deposit History</h3>
-                <div id="depositHistoryList" class="divide-y divide-white/5"></div>
+            <div class="glass-card rounded-3xl p-4 space-y-3">
+                <button type="button" id="depositHistoryToggle" onclick="toggleDepositHistory()" aria-expanded="false" class="w-full flex items-center justify-between rounded-2xl border border-white/10 bg-bgDark/40 px-4 py-3 text-sm font-bold text-white">
+                    <span class="flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-emerald-300"></i> Deposit History</span>
+                    <i id="depositHistoryToggleIcon" class="fa-solid fa-chevron-down text-violet-200"></i>
+                </button>
+                <div id="depositHistoryList" class="hidden divide-y divide-white/5"></div>
             </div>
         </div>
 
@@ -3925,6 +3928,18 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             } finally {
                 claimingJobCredit = false;
             }
+        }
+
+        function toggleDepositHistory() {
+            const list = document.getElementById('depositHistoryList');
+            const button = document.getElementById('depositHistoryToggle');
+            const icon = document.getElementById('depositHistoryToggleIcon');
+            if (!list || !button) return;
+            const opening = list.classList.contains('hidden');
+            list.classList.toggle('hidden', !opening);
+            button.setAttribute('aria-expanded', opening ? 'true' : 'false');
+            if (icon) icon.className = opening ? 'fa-solid fa-chevron-up text-violet-200' : 'fa-solid fa-chevron-down text-violet-200';
+            if (opening) renderDepositHistory();
         }
 
         async function renderDepositHistory() {
