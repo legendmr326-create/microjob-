@@ -932,14 +932,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <h3 class="text-base font-bold text-white">Withdraw Funds</h3>
                     <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Fee 7%</span>
                 </div>
-                <div class="flex items-center gap-2.5"><span class="wd-step">1</span><h3 class="text-sm font-bold text-white">Amount</h3></div>
-                <div class="flex gap-2">
-                    <input type="number" id="withdrawAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
-                    <button type="button" onclick="withdrawAll()" class="wd-all bg-bgDark/70 border border-white/10 text-amber-200 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap">Withdraw All</button>
-                </div>
-                <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
-                <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
-                <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
+                <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">1</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
                 <div id="withdrawMethodPicker" class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Withdraw method"></div>
                 <script>
                 var withdrawPaymentMethods = [
@@ -1002,6 +995,13 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 </script>
                 <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><span id="withdrawSelectedText">Selected: bKash</span></div>
                 <select id="withdrawMethod" class="hidden field w-full rounded-2xl px-3.5 py-2.5 text-xs"></select>
+                <div class="flex items-center gap-2.5"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Amount</h3></div>
+                <div class="flex gap-2">
+                    <input type="number" id="withdrawAmount" min="50" oninput="updateFeePreview(); validateMinimumAmount('withdrawAmount', 'withdrawAmountError', 'Minimum withdrawal amount is ৳50')" placeholder="Amount (BDT ৳)" class="field flex-1 min-w-0 rounded-2xl px-4 py-2.5 text-xs" aria-describedby="withdrawMinHint withdrawAmountError">
+                    <button type="button" onclick="withdrawAll()" class="wd-all bg-bgDark/70 border border-white/10 text-amber-200 rounded-2xl px-3.5 text-[11px] font-bold whitespace-nowrap">Withdraw All</button>
+                </div>
+                <p id="withdrawMinHint" class="text-[11px] text-violet-200/70">Min: ৳50</p>
+                <p id="withdrawAmountError" class="hidden text-[11px] text-rose-700 dark:text-rose-300" role="alert">Minimum withdrawal amount is ৳50</p>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
                 <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
                 <div class="wd-summary bg-bgDark/70 border border-amber-300/20 rounded-xl p-2.5 text-[11px] text-violet-100 space-y-2">
