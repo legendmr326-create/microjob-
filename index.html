@@ -2405,6 +2405,12 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             switchTab(t);
         }
         async function switchTab(tabId) {
+            // Until admin approves KYC, only Home and Profile/KYC remain accessible.
+            const kycExemptTabs = ['dashboard', 'profile'];
+            if (!kycExemptTabs.includes(tabId) && !(await isKycApproved())) {
+                niceAlert('KYC Verification Admin দ্বারা Approved না হওয়া পর্যন্ত এই অপশন ব্যবহার করা যাবে না। আগে Profile থেকে KYC সম্পন্ন করুন।');
+                tabId = 'profile';
+            }
             if (tabId !== currentTabId) { prevTabId = currentTabId; currentTabId = tabId; }
             ALL_TABS.forEach(id => {
                 const tabElem = document.getElementById('tab-' + id);
@@ -2895,6 +2901,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         }
 
         async function submitDeposit() {
+            if (!(await requireApprovedKyc())) return;
             const amt = document.getElementById('depositAmount').value;
             if (!validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳50')) return;
             const sender = document.getElementById('depositSender').value;
@@ -2990,6 +2997,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         }
 
         function openJobDetail(id) {
+            if (!(await requireApprovedKyc())) return;
             const job = allJobs.find(j => Number(j.id) === Number(id));
             if (!job) return;
             currentJobId = job.id;
@@ -3574,6 +3582,12 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             await loadMyKyc();
             return kycStatusKey() === 'approved';
         }
+        async function requireApprovedKyc() {
+            if (await isKycApproved()) return true;
+            niceAlert('এই অপশন ব্যবহার করতে হলে আগে KYC Verification সম্পন্ন করে Admin Approval নিতে হবে।');
+            openKycProfile();
+            return false;
+        }
         function openKycProfile() {
             switchTab('profile');
             setTimeout(() => { const c = document.getElementById('kycCard'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
@@ -3708,6 +3722,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         }
 
         async function submitJobWork() {
+            if (!(await requireApprovedKyc())) return;
             if (!currentUser) { niceAlert('Please log in first.'); return; }
             if (!(await isKycApproved())) { niceAlert('Please complete KYC verification first'); openKycProfile(); return; }
             const job = allJobs.find(j => Number(j.id) === Number(currentJobId));
@@ -4062,6 +4077,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         function renderMyTakenJobs() {}
 
         async function submitWithdraw() {
+            if (!(await requireApprovedKyc())) return;
             if (!currentUser) { niceAlert('Please log in first.'); return; }
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
@@ -4439,6 +4455,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 
         let jobPublishInFlight = false;
         async function submitNewJob() {
+            if (!(await requireApprovedKyc())) return;
             if (jobPublishInFlight) return;
             const publishButton = document.getElementById('jobPublishBtn');
             if (publishButton && publishButton.disabled) return;
