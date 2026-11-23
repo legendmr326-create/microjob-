@@ -1,4 +1,4 @@
-const CACHE_NAME = 'workzen-shell-v39';
+const CACHE_NAME = 'workzen-shell-v40';
 const SHELL = ['/', '/manifest.webmanifest', '/android-app/workzen-logo.jpg'];
 const NAVIGATION_TIMEOUT_MS = 8000;
 const PRECACHE_TIMEOUT_MS = 12000;
