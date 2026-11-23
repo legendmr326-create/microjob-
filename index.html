@@ -3004,7 +3004,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             document.getElementById('jobDetailCard').innerHTML = `
                 <span class="text-[10px] uppercase tracking-wider text-violet-200/60">${esc(job.category || '')}</span>
                 <h3 class="text-lg font-black text-white">${esc(job.title)}</h3>
-                ${job.thumbnail_url ? `<div class="w-full h-[180px] rounded-xl overflow-hidden bg-black/30 flex items-center justify-center"><img src="${esc(job.thumbnail_url)}" alt="Job image" loading="lazy" class="block w-auto max-w-full h-auto max-h-[180px] object-contain rounded-xl"></div>` : ''}
+                ${job.thumbnail_url ? `<div class="w-full h-[230px] rounded-xl overflow-hidden bg-black/30 flex items-center justify-center"><img src="${esc(job.thumbnail_url)}" alt="Job image" loading="lazy" class="block w-auto max-w-full h-auto max-h-[230px] object-contain rounded-xl"></div>` : ''}
                 <div class="grid grid-cols-2 gap-2.5 text-xs">
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward</p><p class="text-amber-300 mt-0.5">${formatMoney(job.reward || 0)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
