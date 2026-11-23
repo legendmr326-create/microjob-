@@ -789,16 +789,20 @@ Check your Browserslist config to be sure that your targets are set up correctly
 
         <!-- TAB: JOB DETAILS -->
         <div id="tab-jobdetail" class="space-y-3.5 hidden">
-            <button onclick="switchTab('dashboard')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back</button>
-            <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
-            <div id="proofPanel" class="glass-card rounded-3xl p-4 space-y-3">
-                <button type="button" id="proofTitle" onclick="toggleProofFields()" aria-expanded="false" class="w-full flex items-center justify-between gap-3 rounded-xl border border-emerald-300/30 bg-emerald-500/15 px-3.5 py-3 text-left text-sm font-bold text-emerald-200">
-                    <span>Submit Your Proof</span><i id="proofToggleIcon" class="fa-solid fa-chevron-down text-xs"></i>
-                </button>
-                <div id="proofFields" class="hidden space-y-3"></div>
-                <p id="proofError" class="hidden text-[11px] font-semibold text-rose-300"></p>
+            <div id="jobDetailView" class="space-y-3.5">
+                <button onclick="switchTab('dashboard')" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                <div id="jobDetailCard" class="glass-card rounded-3xl p-5 space-y-3"></div>
+                <button type="button" onclick="openSubmissionForm()" id="applyJobBtn" class="w-full rounded-2xl border border-emerald-300/30 bg-emerald-500/15 px-4 py-3.5 text-sm font-bold text-emerald-200">Submission</button>
             </div>
-            <button type="button" onclick="submitJobWork()" id="applyJobBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Submit <span class="font-normal text-[11px] opacity-80">সাবমিট করুন</span></button>
+            <div id="submissionFormView" class="hidden space-y-3.5">
+                <button type="button" onclick="backToJobDetails()" class="text-xs font-semibold text-violet-200/80 flex items-center gap-1.5"><i class="fa-solid fa-arrow-left"></i> Back to Job Details</button>
+                <div class="glass-card rounded-3xl p-4 space-y-3">
+                    <h3 id="proofTitle" class="text-sm font-bold text-emerald-200">Submission Form</h3>
+                    <div id="proofFields" class="space-y-3"></div>
+                    <p id="proofError" class="hidden text-[11px] font-semibold text-rose-300"></p>
+                </div>
+                <button type="button" onclick="submitJobWork()" id="submitWorkBtn" class="btn-amber w-full font-bold py-3.5 rounded-2xl text-sm">Submit</button>
+            </div>
         </div>
 
         <!-- TAB: MY APPLICATIONS / MY JOBS -->
@@ -3003,18 +3007,11 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const btn = document.getElementById('applyJobBtn');
             const isPreview = jobPreviewMode === true;
             jobPreviewMode = false;
-            // Job View (employer preview): view only, no submit tools
-            document.getElementById('proofPanel').classList.toggle('hidden', already || isPreview);
+            // Keep the job details and submission form as separate views.
+            document.getElementById('jobDetailView').classList.remove('hidden');
+            document.getElementById('submissionFormView').classList.add('hidden');
+            document.getElementById('applyJobBtn').classList.toggle('hidden', already || isPreview);
             renderProofPanel(job);
-            if (isPreview) {
-                btn.innerText = 'Preview only \u2014 workers submit this job';
-                btn.disabled = true;
-                btn.className = "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60";
-            } else {
-                btn.innerText = already ? 'Already submitted' : 'Submit';
-                btn.disabled = already;
-                btn.className = already ? "w-full font-bold py-3.5 rounded-2xl text-sm bg-white/10 text-violet-200/60" : "btn-amber w-full font-bold py-3.5 rounded-2xl text-sm";
-            }
             switchTab('jobdetail');
         }
 
@@ -3633,13 +3630,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const title = document.getElementById('proofTitle');
             const wrap = document.getElementById('proofFields');
             if (!wrap) return;
-            if (title) {
-                title.querySelector('span').textContent = rows.length ? 'Submission' : 'No Proof Required';
-                title.setAttribute('aria-expanded', 'false');
-            }
-            wrap.classList.add('hidden');
-            const icon = document.getElementById('proofToggleIcon');
-            if (icon) icon.className = 'fa-solid fa-chevron-down text-xs';
+            if (title) title.textContent = rows.length ? 'Submission Form' : 'No Proof Required';
+            wrap.classList.remove('hidden');
             wrap.innerHTML = rows.map((r, ri) =>
                 '<div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2.5">'
                 + '<p class="text-sm font-bold text-white break-words">' + esc(r.title) + '</p>'
@@ -3649,15 +3641,17 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             setProofError('');
         }
 
-        function toggleProofFields() {
-            const wrap = document.getElementById('proofFields');
-            const title = document.getElementById('proofTitle');
-            const icon = document.getElementById('proofToggleIcon');
-            if (!wrap || !title) return;
-            const opening = wrap.classList.contains('hidden');
-            wrap.classList.toggle('hidden', !opening);
-            title.setAttribute('aria-expanded', opening ? 'true' : 'false');
-            if (icon) icon.className = opening ? 'fa-solid fa-chevron-up text-xs' : 'fa-solid fa-chevron-down text-xs';
+        function openSubmissionForm() {
+            if (!currentUser) { niceAlert('Please log in first.'); return; }
+            document.getElementById('jobDetailView').classList.add('hidden');
+            document.getElementById('submissionFormView').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function backToJobDetails() {
+            document.getElementById('submissionFormView').classList.add('hidden');
+            document.getElementById('jobDetailView').classList.remove('hidden');
+            window.scrollTo(0, 0);
         }
 
         function setProofAnswer(k, v) {
@@ -3755,7 +3749,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const proofImage = images.length === 0 ? '' : images.length === 1 ? images[0] : JSON.stringify(images);
             const proofText = lines.join('\n');
 
-            const btn = document.getElementById('applyJobBtn');
+            const btn = document.getElementById('submitWorkBtn');
             btn.disabled = true; btn.textContent = 'Submitting...';
             let savedOnServer = false;
             let serverErr = null;
