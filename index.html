@@ -3634,7 +3634,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const wrap = document.getElementById('proofFields');
             if (!wrap) return;
             if (title) {
-                title.querySelector('span').textContent = rows.length ? 'Submit Your Proof' : 'No Proof Required';
+                title.querySelector('span').textContent = rows.length ? 'Submission' : 'No Proof Required';
                 title.setAttribute('aria-expanded', 'false');
             }
             wrap.classList.add('hidden');
