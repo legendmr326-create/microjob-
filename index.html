@@ -1323,16 +1323,16 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 <!-- Job details (only step) -->
                 <div id="jobStep2" class="space-y-2.5 text-xs">
                     <p class="font-semibold text-violet-100">Category & Details</p>
-                    <label class="block text-[10px] font-semibold text-violet-200/80 mb-1"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">1</span> Category</label>
+                    <label class="block text-[10px] font-semibold text-violet-200/80 mb-1">Category</label>
                     <select id="newJobCategory" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs"></select>
-                    <label class="block text-[10px] font-semibold text-violet-200/80 mb-1"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">2</span> Job Title</label>
+                    <label class="block text-[10px] font-semibold text-violet-200/80 mb-1">Job Title</label>
                     <input type="text" id="newJobTitle" placeholder="Job Title" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     <div class="space-y-1.5">
-                        <span class="text-[11px] font-semibold text-violet-100"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">3</span> Description</span>
+                        <span class="text-[11px] font-semibold text-violet-100">Description</span>
                         <textarea id="newJobDescription" rows="4" placeholder="What the worker must do, step by step" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs resize-y"></textarea>
                     </div>
                     <div class="space-y-1.5">
-                        <span class="text-[11px] font-semibold text-violet-100"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">4</span> Job Thumbnail <span class="text-violet-200/50 font-normal">(optional, 1 image)</span></span>
+                        <span class="text-[11px] font-semibold text-violet-100">Job Thumbnail <span class="text-violet-200/50 font-normal">(optional, 1 image)</span></span>
                         <div class="flex items-center gap-2.5">
                             <div class="w-14 h-14 shrink-0 rounded-xl bg-bgDark/70 border border-white/10 overflow-hidden flex items-center justify-center">
                                 <img id="newJobThumbPreview" alt="" class="hidden w-full h-full object-cover">
@@ -1347,18 +1347,18 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     </div>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-semibold text-violet-100"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">5</span> Proof Requirements</span>
+                            <span class="text-[11px] font-semibold text-violet-100">Proof Requirements</span>
                             <button type="button" onclick="addProofRow()" class="text-[11px] font-semibold px-3 py-1 rounded-xl bg-violet-500/20 text-violet-100 border border-violet-300/30">+ Add Proof</button>
                         </div>
                         <div id="proofReqList" class="space-y-2"></div>
                     </div>
                     <div>
-                        <label class="block text-[10px] text-violet-200/70 mb-1"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">7</span> Cost per Worker (৳)</label>
+                        <label class="block text-[10px] text-violet-200/70 mb-1">Cost per Worker (৳)</label>
                         <input type="number" id="newJobReward" min="1" step="any" oninput="updateJobFeePreview()" aria-describedby="newJobRewardError" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                         <p id="newJobRewardError" class="hidden mt-1 text-[11px] font-semibold text-rose-300" role="alert">Minimum total job cost is ৳50 (reward x workers)</p>
                     </div>
                     <div>
-                        <label class="block text-[10px] text-violet-200/70 mb-1"><span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-300 text-slate-900 mr-1">6</span> Workers Needed</label>
+                        <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
                         <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="e.g. 10" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-3 text-[12px] text-violet-100 space-y-1">
