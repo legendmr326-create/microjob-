@@ -871,44 +871,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <button onclick="filterGateways('manual')" id="gwTab-manual" class="py-2.5 rounded-xl text-violet-200/70 transition">Manual</button>
                 </div>
 
-                <div class="space-y-2.5">
-                    <!-- bKash -->
-                    <div onclick="selectPaymentGateway('bKash', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                        <div class="flex items-center gap-3">
-                            <img src="/icons/pay/bkash.png" alt="bKash" width="30" height="30" class="rounded-xl object-cover shrink-0">
-                            <div><h4 class="text-sm font-bold text-white">bKash</h4><p class="text-[11px] text-violet-200/60">bKash Personal, Send Money</p></div>
-                        </div>
-                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                    </div>
-                    <!-- Nagad -->
-                    <div onclick="selectPaymentGateway('Nagad', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                        <div class="flex items-center gap-3">
-                            <img src="/icons/pay/nagad.png" alt="Nagad" width="30" height="30" class="rounded-xl object-cover shrink-0">
-                            <div><h4 class="text-sm font-bold text-white">Nagad</h4><p class="text-[11px] text-violet-200/60">Nagad Personal, Send Money</p></div>
-                        </div>
-                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                    </div>
-                    <!-- Rocket -->
-                    <div onclick="selectPaymentGateway('Rocket', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                        <div class="flex items-center gap-3">
-                            <img src="/icons/pay/rocket.png" alt="Rocket" width="30" height="30" class="rounded-xl object-cover shrink-0">
-                            <div><h4 class="text-sm font-bold text-white">Rocket</h4><p class="text-[11px] text-violet-200/60">Rocket Personal, Send Money</p></div>
-                        </div>
-                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                    </div>
-
-
-                    <!-- Upay -->
-                    <div onclick="selectPaymentGateway('Upay', 'manual')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition" data-type="manual">
-                        <div class="flex items-center gap-3">
-                            <img src="/icons/pay/upay.png" alt="Upay" width="30" height="30" class="rounded-xl object-cover shrink-0">
-                            <div><h4 class="text-sm font-bold text-white">Upay</h4><p class="text-[11px] text-violet-200/60">Upay Personal, Send Money</p></div>
-                        </div>
-                        <span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wide">manual</span>
-                    </div>
-                </div>
-
-                <!-- Deposit Input Form -->
+                <div id="depositGatewayList" class="space-y-2.5"><p class="text-xs text-violet-200/60">Loading payment methods...</p></div>\n\n                <!-- Deposit Input Form -->
                 <div id="depositFormContainer" class="glass-card p-4 rounded-2xl space-y-3 hidden border border-amber-300/40">
                     <div class="flex justify-between items-center text-xs">
                         <h4 id="selectedGatewayTitle" class="font-bold text-amber-300">Selected: bKash</h4>
@@ -1412,7 +1375,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         var supabaseClient = null;
         function __initSupabase() {
             try {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);\n                loadDepositPaymentMethods();
             } catch (e) {
                 console.error('Supabase init failed:', e);
             }
@@ -1423,7 +1386,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
     <script>
         let currentUser = null;
-        let selectedGateway = 'bKash';
+        let selectedGateway = 'bKash';\n        let depositPaymentMethods = [];\n        let selectedPaymentMethod = null;
         const DEFAULT_JOB_LOCATION = 'International';
         let allJobs = [];
         let allDeposits = [];
@@ -2780,12 +2743,29 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             });
         }
 
+        function renderDepositPaymentMethods() {
+            const box=document.getElementById('depositGatewayList'); if(!box)return;
+            const active=depositPaymentMethods.filter(function(x){return x.enabled!==false;});
+            if(!active.length){box.innerHTML='<p class="text-xs text-rose-300">এই মুহূর্তে কোনো ডিপোজিট পদ্ধতি চালু নেই।</p>';return;}
+            box.innerHTML=active.map(function(x){
+                return '<button type="button" onclick="selectPaymentGateway(\''+String(x.id).replace(/\\\\/g,'').replace(/'/g,'\\\\\'')+'\')" class="gateway-item glass-card p-3.5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-amber-300/50 transition w-full text-left" data-type="manual" data-payment-id="'+esc(x.id)+'"><div class="flex items-center gap-3"><div class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-xs font-extrabold text-amber-300">'+esc(String(x.name||'').slice(0,2).toUpperCase())+'</div><div><h4 class="text-sm font-bold text-white">'+esc(x.name)+'</h4><p class="text-[11px] text-violet-200/60">'+esc(x.instruction||'Personal, Send Money')+'</p></div></div><span class="text-[10px] bg-violet-400/15 text-violet-200 px-2.5 py-0.5 rounded-full font-bold">manual</span></button>';
+            }).join('');
+        }
+        async function loadDepositPaymentMethods() {
+            if(!supabaseClient)return;
+            const r=await supabaseClient.from('platform_settings').select('setting_value').eq('setting_key','deposit_payment_methods').maybeSingle();
+            if(r.error){console.warn('Payment methods could not be loaded:',r.error.message);return;}
+            try{depositPaymentMethods=JSON.parse(r.data&&r.data.setting_value||'[]');if(!Array.isArray(depositPaymentMethods))depositPaymentMethods=[];}catch(e){depositPaymentMethods=[];}
+            renderDepositPaymentMethods();
+        }
         function selectPaymentGateway(gw) {
-            selectedGateway = gw;
-            document.querySelectorAll('#tab-deposit .gateway-item[data-type]').forEach(function(el){ el.setAttribute('data-selected', el.getAttribute('onclick').includes(gw) ? 'true' : 'false'); });
-            document.getElementById('selectedGatewayTitle').innerText = `Selected: ${gw}`;
-            const info = { bKash: 'bKash Personal, Send Money', Nagad: 'Nagad Personal, Send Money', Rocket: 'Rocket Personal, Send Money', Upay: 'Upay Personal, Send Money' };
-            document.getElementById('depositGwLabel').textContent = '(' + (info[gw] || gw + ' Personal, Send Money') + ')';
+            const method=depositPaymentMethods.find(function(x){return String(x.id)===String(gw)||String(x.name)===String(gw);});
+            if(!method)return;
+            selectedPaymentMethod=method;selectedGateway=method.name;
+            document.querySelectorAll('#tab-deposit .gateway-item[data-type]').forEach(function(el){el.setAttribute('data-selected',el.dataset.paymentId===String(method.id)?'true':'false');});
+            document.getElementById('selectedGatewayTitle').innerText='Selected: '+method.name;
+            document.getElementById('depositNumber').textContent=method.number||'নম্বর এখনো সেট করা হয়নি';
+            document.getElementById('depositGwLabel').textContent='('+ (method.instruction||method.name+' Personal, Send Money') +')';
             document.getElementById('depositFormContainer').classList.remove('hidden');
         }
 
