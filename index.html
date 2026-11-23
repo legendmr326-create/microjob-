@@ -2995,7 +2995,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Reward per worker</p><p class="text-amber-300 mt-0.5">${formatMoney(job.reward || 0)}</p></div>
                     <div class="bg-bgDark/60 rounded-xl p-3"><p class="text-violet-200/60 text-[10px]">Workers</p><p class="font-black text-white mt-0.5">${job.limit_count ? esc(job.slots || 0) + ' / ' + esc(job.limit_count) + ' taken' : 'Unlimited'}</p></div>
                 </div>
-                ${job.description ? `<div class="text-sm"><p class="text-violet-200/70 text-xs font-semibold mb-1">What to do</p><p class="text-violet-100/90 text-[18px] leading-relaxed whitespace-pre-line">${esc(job.description)}</p></div>` : ''}
+                ${job.description ? `<div class="text-sm"><p class="text-violet-200/70 text-xs font-semibold mb-1">What to do</p><p class="text-violet-100/90 text-[18px] leading-relaxed whitespace-pre-wrap">${esc(job.description)}</p></div>` : ''}
             `;
             const already = getLocalList('workzen_applications').some(a => a.email === (currentUser && currentUser.email) && Number(a.job_id) === Number(job.id));
             const btn = document.getElementById('applyJobBtn');
@@ -4451,7 +4451,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const jobFee = Math.round(budget * 10) / 100;
             const jobTotal = Math.round((budget + jobFee) * 100) / 100;
             if (jobTotal > depositBalance) { niceAlert('Insufficient deposit balance. Required: ৳' + jobTotal.toFixed(2) + ' (payment + 10% job post fee). Deposit Balance: ৳' + depositBalance.toFixed(2) + '. Please add funds in Deposit tab.'); return; }
-            const description = (document.getElementById('newJobDescription').value || '').trim();
+            // Keep the description exactly as the user typed it, including line breaks and repeated spaces.
+            const description = document.getElementById('newJobDescription').value || '';
             jobPublishInFlight = true;
             if (publishButton) {
                 publishButton.disabled = true;
@@ -4480,15 +4481,18 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             if (thumbFile) {
                 try {
                     const path = 'thumbnails/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ((thumbFile.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg');
+                    let uploadBucket = 'job-thumbs';
                     let up;
-                    try { up = await supabaseClient.storage.from('job-thumbs').upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type }); }
+                    try { up = await supabaseClient.storage.from(uploadBucket).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type }); }
                     catch (e) { up = { error: e }; }
                     if (up.error) {
-                        // Fallback: legacy bucket if job-thumbs is not created yet
-                        up = await supabaseClient.storage.from(KYC_BUCKET).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
+                        // Fallback to the existing public KYC bucket only if the job thumbnail bucket is unavailable.
+                        uploadBucket = KYC_BUCKET;
+                        up = await supabaseClient.storage.from(uploadBucket).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
                     }
                     if (up.error) throw up.error;
-                    const pub = supabaseClient.storage.from(KYC_BUCKET).getPublicUrl(path);
+                    // Generate the public URL from the SAME bucket that received the upload.
+                    const pub = supabaseClient.storage.from(uploadBucket).getPublicUrl(path);
                     thumbnailUrl = (pub && pub.data && pub.data.publicUrl) || null;
                     if (!thumbnailUrl) throw new Error('no public url returned');
                 } catch (e) {
