@@ -3997,7 +3997,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             el.innerHTML = rows.map(d => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(d.gateway || '')}</p><p class="text-[10px] text-violet-200/60">${esc((d.created_at || '').slice(0, 10))}${' • Deposit fund'}</p></div>
-                    <div class="text-right"><span class="text-white">${formatMoney(d.amount || 0)}</span><p class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full border font-bold ${/^approved$/i.test(String(d.status||'')) ? 'bg-green-800 text-green-100 border-green-700' : /^rejected$/i.test(String(d.status||'')) ? 'bg-rose-500/20 text-rose-200 border-rose-400/40' : 'bg-yellow-500/20 text-yellow-200 border-yellow-400/40'}">${esc(d.status || 'Pending')}</p></div>
+                    <div class="text-right"><span class="text-white">${formatMoney(d.amount || 0)}</span><p class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full border font-bold ${/^approved$/i.test(String(d.status||'')) ? 'bg-green-800 text-green-100 border-green-700' : /^rejected$/i.test(String(d.status||'')) ? 'bg-rose-500/20 text-rose-200 border-rose-400/40' : 'bg-yellow-500/20 text-yellow-200 border-yellow-400/40'}">${/^approved$/i.test(String(d.status||'')) ? 'Cash In' : /^rejected$/i.test(String(d.status||'')) ? 'Rejected' : 'Pending'}</p></div>
                 </div>`).join('');
         }
 
@@ -4013,7 +4013,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             el.innerHTML = rows.map(w => `
                 <div class="flex items-center justify-between py-2.5 text-xs">
                     <div><p class="font-bold text-white">${esc(w.method || '')}</p><p class="text-[10px] text-violet-200/60">${esc((w.created_at || '').slice(0, 10))}</p></div>
-                    <div class="text-right"><span class="text-white">${formatMoney(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100)}</span><p class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full border font-bold ${/^approved$/i.test(String(w.status||'')) ? 'bg-green-800 text-green-100 border-green-700' : /^rejected$/i.test(String(w.status||'')) ? 'bg-rose-500/20 text-rose-200 border-rose-400/40' : 'bg-yellow-500/20 text-yellow-200 border-yellow-400/40'}">${esc(w.status || 'Pending')}</p></div>
+                    <div class="text-right"><span class="text-white">${formatMoney(w.net_amount != null ? w.net_amount : (w.amount || 0) - Math.round((w.amount || 0) * 7) / 100)}</span><p class="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full border font-bold ${/^approved$/i.test(String(w.status||'')) ? 'bg-green-800 text-green-100 border-green-700' : /^rejected$/i.test(String(w.status||'')) ? 'bg-rose-500/20 text-rose-200 border-rose-400/40' : 'bg-yellow-500/20 text-yellow-200 border-yellow-400/40'}">${/^approved$/i.test(String(w.status||'')) ? 'Payment' : /^rejected$/i.test(String(w.status||'')) ? 'Rejected' : 'Pending'}</p></div>
                 </div>`).join('');
         }
 
