@@ -369,6 +369,14 @@ Check your Browserslist config to be sure that your targets are set up correctly
         .wm-btn[aria-checked="true"] { background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
         .wm-btn[aria-checked="true"]::after { content: "\2713"; position: absolute; top: 4px; right: 5px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
         .wm-btn[aria-checked="true"] .wm-name { color: #fcd34d !important; }
+        #tab-withdraw .wm-btn { position: relative; display: flex !important; flex-direction: column !important; align-items: flex-start !important; justify-content: flex-start !important; gap: 6px !important; padding: 8px 10px !important; min-height: 86px; }
+        #tab-withdraw .wm-btn img { width: 30px !important; height: 30px !important; }
+        #tab-withdraw .wm-btn .wm-txt { display: block; width: 100%; min-width: 0; }
+        #tab-withdraw .wm-btn .wm-name, #tab-withdraw .wm-btn .wm-desc { display: block; }
+        #tab-withdraw .wm-btn .wm-desc { margin-top: 2px; white-space: normal; }
+        #tab-withdraw .wm-btn[data-selected="true"] { background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
+        #tab-withdraw .wm-btn[data-selected="true"]::after { content: "\\2713"; position: absolute; top: 4px; right: 5px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
+        #tab-withdraw .wm-btn[data-selected="true"] .wm-name { color: #fcd34d !important; }
         #tab-deposit .gateway-item { position: relative; }
         #tab-deposit .gateway-item[data-selected="true"] { background: rgba(245,185,66,.22) !important; border: 2px solid #fcd34d !important; box-shadow: 0 0 0 3px rgba(252,211,77,.35), 0 8px 20px -8px rgba(245,185,66,.6) !important; }
         #tab-deposit .gateway-item[data-selected="true"]::after { content: "\2713"; position: absolute; top: 4px; right: 5px; width: 18px; height: 18px; border-radius: 9999px; background: #fcd34d; color: #1a1030; font-size: 12px; font-weight: 900; line-height: 18px; text-align: center; }
@@ -950,13 +958,16 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     box.innerHTML=active.map(function(x){
                         var name=String(x.name||'');var logo=wdLogoUrl(x);
                         var image=logo?'<img src="'+wdEscape(logo)+'" alt="'+wdEscape(name)+'" width="30" height="30" class="rounded-xl object-contain shrink-0 bg-transparent">':'<span class="w-[30px] h-[30px] rounded-xl bg-violet-400/15 flex items-center justify-center text-[10px] font-extrabold text-amber-300 shrink-0">'+wdEscape(name.slice(0,2).toUpperCase())+'</span>';
-                        return '<button type="button" role="radio" data-m="'+wdEscape(name)+'" onclick="pickWithdrawMethod('+JSON.stringify(name).replace(/</g,'\\u003c')+')" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition">'+image+'<span class="wm-txt"><span class="wm-name text-sm font-bold text-white">'+wdEscape(name)+'</span><span class="wm-desc text-[11px] text-violet-200/60">'+wdEscape(x.instruction||('Withdraw to '+name+' account'))+'</span></span></button>';
+                        return '<button type="button" role="radio" data-m="'+wdEscape(name)+'" class="wm-btn gateway-item glass-card w-full text-left rounded-2xl cursor-pointer hover:border-amber-300/50 transition">'+image+'<span class="wm-txt"><span class="wm-name text-sm font-bold text-white">'+wdEscape(name)+'</span><span class="wm-desc text-[11px] text-violet-200/60">'+wdEscape(x.instruction||('Withdraw to '+name+' account'))+'</span></span></button>';
                     }).join('');
                     document.getElementById('withdrawMethod').innerHTML=active.map(function(x){return '<option value="'+wdEscape(x.name)+'">'+wdEscape(x.name)+'</option>';}).join('');
                     var current=document.getElementById('withdrawMethod').value;
                     var selected=active.find(function(x){return x.name===current;})||active[0];
                     pickWithdrawMethod(selected.name);
                 }
+                document.getElementById('withdrawMethodPicker').addEventListener('click',function(e){
+                    var button=e.target.closest('.wm-btn[data-m]');if(button)pickWithdrawMethod(button.getAttribute('data-m'));
+                });
                 async function loadWithdrawPaymentMethods(){
                     if(!supabaseClient)return;
                     var r=await supabaseClient.from('platform_settings').select('setting_value').eq('setting_key','withdraw_payment_methods').maybeSingle();
@@ -974,7 +985,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     var method=withdrawPaymentMethods.find(function(x){return String(x.name)===String(m);});
                     if(!method)return;
                     var sel=document.getElementById('withdrawMethod');if(sel)sel.value=method.name;
-                    document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===method.name;b.setAttribute('aria-checked',on?'true':'false');});
+                    document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===method.name;b.setAttribute('aria-checked',on?'true':'false');b.setAttribute('data-selected',on?'true':'false');});
                     var lg=document.getElementById('withdrawSelectedLogo');if(lg){var logo=wdLogoUrl(method);if(logo){lg.src=logo;lg.classList.remove('hidden');}else{lg.classList.add('hidden');}}
                     var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+method.name;
                 }
