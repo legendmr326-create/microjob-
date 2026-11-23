@@ -1315,14 +1315,15 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         </div>
 
         <div id="postJobModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden px-4">
-            <div class="w-full max-w-sm glass-card rounded-3xl p-5 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-                <div class="flex justify-between items-center pb-3 border-b border-white/10">
+            <div class="w-full max-w-sm glass-card rounded-3xl p-5 flex flex-col max-h-[90dvh] overflow-hidden">
+                <div class="flex justify-between items-center pb-3 border-b border-white/10 shrink-0">
                     <h3 class="text-base font-bold text-white">Post New Job</h3>
                     <button onclick="closePostJobModal()" class="text-violet-200/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
+                <div id="jobStepScroll" class="flex-1 min-h-0 overflow-y-auto overscroll-contain custom-scrollbar py-3 pr-1">
                 <!-- Step 1: job details -->
-                <div id="jobStep2" class="space-y-2.5 text-xs">
-                    <p class="font-semibold text-violet-100">Step 1 of 2 · Job Details</p>
+                <div id="jobStep2" class="space-y-3 text-xs">
+                    <div class="flex items-center justify-between gap-3 rounded-xl bg-violet-500/10 border border-violet-300/20 px-3 py-2.5"><span class="text-sm font-bold text-white tracking-wide">Job Details</span><span class="text-[10px] font-bold tracking-widest text-violet-200">STEP 1 / 2</span></div>
                     <p class="font-semibold text-violet-100">Category & Details</p>
                     <label class="block text-[10px] font-semibold text-violet-200/80 mb-1">Category</label>
                     <select id="newJobCategory" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs"></select>
@@ -1354,8 +1355,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         <div id="proofReqList" class="space-y-2"></div>
                     </div>
                 </div>
-                <div id="jobStep3" class="hidden space-y-2.5 text-xs">
-                    <p class="font-semibold text-violet-100">Step 2 of 2 · Budget & Publishing</p>
+                <div id="jobStep3" class="hidden space-y-3 text-xs">
+                    <div class="flex items-center justify-between gap-3 rounded-xl bg-violet-500/10 border border-violet-300/20 px-3 py-2.5"><span class="text-sm font-bold text-white tracking-wide">Budget & Publishing</span><span class="text-[10px] font-bold tracking-widest text-violet-200">STEP 2 / 2</span></div>
                     <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
                         <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="e.g. 10" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
@@ -1376,8 +1377,9 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         </div>
                     </div>
                 </div>
+                </div>
 
-                <div class="flex gap-2.5 pt-2">
+                <div class="flex gap-2.5 pt-3 border-t border-white/10 shrink-0 bg-bgDark/95">
                     <button type="button" onclick="previousJobStep()" id="jobBackBtn" class="hidden btn-violet flex-1 font-bold py-2.5 rounded-2xl text-xs">Back</button>
                     <button type="button" onclick="nextJobStep()" id="jobNextBtn" class="btn-violet w-full font-bold py-2.5 rounded-2xl text-xs">Next</button>
                     <button type="button" onclick="submitNewJob()" id="jobPublishBtn" class="hidden btn-amber flex-1 font-bold py-2.5 rounded-2xl text-xs">Publish Job</button>
