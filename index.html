@@ -4476,29 +4476,21 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             };
             // Thumbnail is optional: if the upload fails, the job still saves without it.
             let thumbnailUrl = null;
-            let thumbFailed = false;
             const thumbFile = jobThumbFile;
             if (thumbFile) {
                 try {
                     const path = 'thumbnails/' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) + '.' + ((thumbFile.name.split('.').pop() || 'jpg').replace(/[^a-z0-9]/gi, '').toLowerCase() || 'jpg');
-                    let uploadBucket = 'job-thumbs';
-                    let up;
-                    try { up = await supabaseClient.storage.from(uploadBucket).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type }); }
-                    catch (e) { up = { error: e }; }
-                    if (up.error) {
-                        // Fallback to the existing public KYC bucket only if the job thumbnail bucket is unavailable.
-                        uploadBucket = KYC_BUCKET;
-                        up = await supabaseClient.storage.from(uploadBucket).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
-                    }
+                    const uploadBucket = 'job-thumbs';
+                    const up = await supabaseClient.storage.from(uploadBucket).upload(path, thumbFile, { cacheControl: '3600', upsert: false, contentType: thumbFile.type });
                     if (up.error) throw up.error;
-                    // Generate the public URL from the SAME bucket that received the upload.
                     const pub = supabaseClient.storage.from(uploadBucket).getPublicUrl(path);
                     thumbnailUrl = (pub && pub.data && pub.data.publicUrl) || null;
-                    if (!thumbnailUrl) throw new Error('no public url returned');
+                    if (!thumbnailUrl) throw new Error('Could not create a public thumbnail URL.');
                 } catch (e) {
-                    console.warn('Job thumbnail upload failed, saving without it:', e);
-                    thumbnailUrl = null;
-                    thumbFailed = true;
+                    console.error('Job thumbnail upload failed:', e);
+                    resetPublishState();
+                    niceAlert('Thumbnail upload failed: ' + (e && e.message ? e.message : 'Please try another image or upload again.'));
+                    return;
                 }
             }
             const row = {
@@ -4514,7 +4506,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 ({ error } = await insertSafe('micro_jobs', row));
             }
             if (error) { resetPublishState(); niceAlert('Error: ' + error.message); return; }
-            niceAlert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2) + (thumbFailed ? '\nThumbnail upload failed, job saved without it.' : ''));
+            niceAlert('Job posted!\nReward: ৳' + R.toFixed(2) + ' x ' + limit + ' workers = ৳' + budget.toFixed(2) + ' | 10% job post fee: ৳' + jobFee.toFixed(2) + ' | Total deducted: ৳' + jobTotal.toFixed(2));
             resetPublishState();
             closePostJobModal();
             fetchJobsFromDatabase();
