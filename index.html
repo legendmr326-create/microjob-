@@ -930,7 +930,12 @@ Check your Browserslist config to be sure that your targets are set up correctly
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">2</span><h3 class="text-sm font-bold text-white">Choose wallet</h3></div>
                 <div id="withdrawMethodPicker" class="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Withdraw method"></div>
                 <script>
-                var withdrawPaymentMethods = [];
+                var withdrawPaymentMethods = [
+                    {id:'bkash',name:'bKash',instruction:'Withdraw to bKash account',enabled:true},
+                    {id:'nagad',name:'Nagad',instruction:'Withdraw to Nagad account',enabled:true},
+                    {id:'rocket',name:'Rocket',instruction:'Withdraw to Rocket account',enabled:true},
+                    {id:'upay',name:'Upay',instruction:'Withdraw to Upay account',enabled:true}
+                ];
                 function wdEscape(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
                 function wdLogoUrl(method){
                     if(method && method.logo_url)return method.logo_url;
@@ -973,7 +978,8 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     var lg=document.getElementById('withdrawSelectedLogo');if(lg){var logo=wdLogoUrl(method);if(logo){lg.src=logo;lg.classList.remove('hidden');}else{lg.classList.add('hidden');}}
                     var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+method.name;
                 }
-                function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
+                                document.addEventListener('DOMContentLoaded',renderWithdrawMethodPicker);
+function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
                 document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
                 </script>
                 <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><img id="withdrawSelectedLogo" src="https://workzenbd.vercel.app/icons/pay/bkash.png" alt="" width="24" height="24" class="w-6 h-6 rounded-md object-contain bg-transparent"><span id="withdrawSelectedText">Selected: bKash</span></div>
