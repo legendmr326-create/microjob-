@@ -1167,13 +1167,26 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             <p class="mt-1 text-[11px] opacity-60">মাথা ডানে-বামে ঘোরান এবং চোখের পলক ফেলুন</p>
                                         </div>
                                         <i class="fa-solid fa-camera text-lg text-amber-400"></i></div></button>
-                                    <div id="kycFaceCamera" class="hidden mt-3 space-y-2">
-                                        <video id="kycFaceVideo" autoplay playsinline muted class="w-full rounded-xl bg-black object-cover" style="max-height:300px;transform:scaleX(-1)"></video>
-                                        <div class="rounded-xl bg-violet-500/10 border border-violet-400/20 p-3 text-center">
-                                            <p id="kycFaceStep" class="text-[11px] font-bold opacity-70">ধাপ ১ / ৪</p>
-                                            <p id="kycFacePrompt" class="text-sm font-bold mt-1">ক্যামেরার দিকে সোজা তাকান</p>
+                                    <div id="kycFaceCamera" class="hidden mt-3 rounded-2xl border border-emerald-400/25 bg-slate-950/80 p-3 space-y-3 shadow-xl">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <div class="flex items-center gap-2 text-xs font-bold text-emerald-300"><span class="relative flex h-2.5 w-2.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400"></span></span> LIVE FACE CHECK</div>
+                                            <span class="text-[10px] text-white/50">সামনের ক্যামেরা</span>
                                         </div>
-                                        <p id="kycFaceNotice" class="text-xs opacity-70 text-center">প্রতিটি নির্দেশনা অনুসরণ করে পরের ধাপ চাপুন।</p>
+                                        <div class="relative mx-auto w-full max-w-[320px] overflow-hidden rounded-2xl border border-white/15 bg-black shadow-inner" style="aspect-ratio:4/5">
+                                            <video id="kycFaceVideo" autoplay playsinline muted class="absolute inset-0 h-full w-full object-cover" style="transform:scaleX(-1)"></video>
+                                            <div class="pointer-events-none absolute inset-[9%] rounded-[48%] border-2 border-dashed border-emerald-300/80 shadow-[0_0_0_999px_rgba(0,0,0,.12)]"></div>
+                                            <div class="pointer-events-none absolute left-3 right-3 top-3 flex items-center justify-between text-[9px] font-bold tracking-wider text-white drop-shadow"><span>WORKZEN • KYC</span><span>● LIVE</span></div>
+                                            <div class="pointer-events-none absolute bottom-3 left-0 right-0 text-center text-[10px] font-semibold text-white drop-shadow">মুখটি ফ্রেমের মাঝখানে রাখুন</div>
+                                        </div>
+                                        <div class="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-center">
+                                            <p id="kycFaceStep" class="text-[10px] font-extrabold tracking-wider text-emerald-300">ধাপ ১ / ৪</p>
+                                            <p id="kycFacePrompt" class="mt-1 text-sm font-bold text-white">ক্যামেরার দিকে সোজা তাকান</p>
+                                        </div>
+                                        <p id="kycFaceNotice" class="text-xs leading-relaxed text-center text-slate-300">বাংলা ভয়েস নির্দেশনা শুনে ধাপগুলো অনুসরণ করুন।</p>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <p id="kycFaceVoiceStatus" class="min-w-0 text-[10px] text-slate-400">বাংলা ভয়েস প্রস্তুত হচ্ছে…</p>
+                                            <button type="button" onclick="repeatKycFaceVoice()" class="shrink-0 rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 py-2 text-[11px] font-bold text-sky-200"><i class="fa-solid fa-volume-high mr-1"></i> ভয়েস আবার শুনুন</button>
+                                        </div>
                                         <button type="button" id="kycFaceNext" onclick="nextKycFaceStep()" class="hidden">পরের ধাপ</button>
                                     </div>
                                     <button type="button" id="kycFaceRetake" onclick="startKycFaceCamera()" class="hidden mt-2 w-full rounded-xl border border-amber-400/40 text-amber-300 font-bold py-2 text-xs">আবার লাইভনেস চেক করুন</button>
@@ -3286,18 +3299,47 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             'এবার মাথা বাম দিকে ঘোরান',
             'এবার একবার চোখের পলক ফেলুন'
         ];
-        function speakKycFacePrompt(text, key) {
+        let kycFaceLastSpokenText = '';
+        function speakKycFacePrompt(text, key, force = false) {
             try {
-                if (!('speechSynthesis' in window)) return;
-                if (key && kycFaceLastVoiceKey === key) return;
+                if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+                    const notice = document.getElementById('kycFaceNotice');
+                    if (notice) notice.textContent = 'এই ব্রাউজারে ভয়েস সুবিধা পাওয়া যাচ্ছে না। Chrome ব্যবহার করুন।';
+                    return;
+                }
+                if (!force && key && kycFaceLastVoiceKey === key) return;
                 if (key) kycFaceLastVoiceKey = key;
-                window.speechSynthesis.cancel();
+                kycFaceLastSpokenText = text;
+                const synth = window.speechSynthesis;
+                synth.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'bn-BD';
-                utterance.rate = 0.86;
+                utterance.rate = 0.9;
                 utterance.pitch = 1;
-                window.speechSynthesis.speak(utterance);
+                utterance.volume = 1;
+                const voices = synth.getVoices ? synth.getVoices() : [];
+                const bengaliVoice = voices.find(v => /^bn(-|_)/i.test(v.lang)) || voices.find(v => /bangla|bengali/i.test(v.name));
+                if (bengaliVoice) utterance.voice = bengaliVoice;
+                utterance.onerror = () => {
+                    const voiceStatus = document.getElementById('kycFaceVoiceStatus');
+                    if (voiceStatus) voiceStatus.textContent = 'ভয়েস চালু হয়নি—নিচের “ভয়েস আবার শুনুন” চাপুন';
+                };
+                utterance.onstart = () => {
+                    const voiceStatus = document.getElementById('kycFaceVoiceStatus');
+                    if (voiceStatus) voiceStatus.textContent = 'বাংলা ভয়েস নির্দেশনা চলছে';
+                };
+                utterance.onend = () => {
+                    const voiceStatus = document.getElementById('kycFaceVoiceStatus');
+                    if (voiceStatus) voiceStatus.textContent = 'পরবর্তী নির্দেশনার জন্য অপেক্ষা করুন';
+                };
+                synth.speak(utterance);
+                // Android Chrome sometimes needs speech resumed after a camera permission prompt.
+                if (synth.paused) synth.resume();
             } catch (_) {}
+        }
+        function repeatKycFaceVoice() {
+            if (kycFaceLastSpokenText) speakKycFacePrompt(kycFaceLastSpokenText, 'manual-repeat-' + Date.now(), true);
+            else speakKycFacePrompt('লাইভনেস যাচাই শুরু করতে ক্যামেরার সামনে মুখ রাখুন।', 'manual-start', true);
         }
         function kycFaceDistance(a, b) {
             return Math.hypot(a.x - b.x, a.y - b.y);
@@ -3342,7 +3384,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 'তৃতীয় ধাপ। এবার ধীরে ধীরে মাথা বাম দিকে ঘোরান।',
                 'শেষ ধাপ। ক্যামেরার দিকে তাকিয়ে চোখ স্বাভাবিকভাবে একবার বন্ধ করে আবার খুলুন। পলক শনাক্ত হলেই ছবি নিজে থেকে উঠবে।'
             ];
-            speakKycFacePrompt(voiceMessages[index], 'step-' + index);
+            if (index > 0) speakKycFacePrompt(voiceMessages[index], 'step-' + index);
         }
         async function loadKycFaceDetector() {
             if (window.FaceMesh) return;
@@ -3402,9 +3444,9 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 document.getElementById('kycFaceRetake').classList.add('hidden');
                 const nextButton = document.getElementById('kycFaceNext');
                 if (nextButton) nextButton.classList.add('hidden');
+                if (notice) notice.textContent = 'AI ক্যামেরা মুখ শনাক্ত করছে। বাংলা ভয়েস নির্দেশনা শুনে ধাপগুলো অনুসরণ করুন।';
+                speakKycFacePrompt('লাইভনেস যাচাই শুরু হচ্ছে। প্রথম ধাপ—মুখটি ফ্রেমের মাঝখানে রেখে ক্যামেরার দিকে সোজা তাকান।', 'welcome');
                 kycFaceSetStep(0);
-                if (notice) notice.textContent = 'AI ক্যামেরা মুখ শনাক্ত করছে। প্রতিটি নির্দেশনা বাংলায় ভয়েসে বলা হবে—কোনো বাটন চাপতে হবে না।';
-                speakKycFacePrompt('লাইভনেস যাচাই শুরু হচ্ছে। মুখটি ক্যামেরার সামনে রাখুন এবং আমার বাংলা নির্দেশনা অনুসরণ করুন।', 'welcome');
                 await loadKycFaceDetector();
                 kycFaceDetector = new FaceMesh({
                     locateFile: file => 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/' + file
