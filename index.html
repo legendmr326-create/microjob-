@@ -2317,38 +2317,22 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
 
         async function fetchUserBalance() {
             if (!currentUser || !supabaseClient) return;
-            const { data: deposits, error } = await supabaseClient
-                .from('deposits')
-                .select('*')
-                .eq('user_email', currentUser.email)
-                .order('id', { ascending: false });
-            if (error) { console.error(error); return; }
-            allDeposits = deposits || [];
+            const [depositResult, ledgerResult] = await Promise.all([
+                supabaseClient.from('deposits').select('*').eq('user_email', currentUser.email).order('id', { ascending: false }),
+                supabaseClient.rpc('get_my_wallet_ledger_totals')
+            ]);
+            if (depositResult.error) { console.error(depositResult.error); return; }
+            if (ledgerResult.error) { console.error('Wallet ledger totals unavailable:', ledgerResult.error); return; }
+            allDeposits = depositResult.data || [];
+            const ledger = (ledgerResult.data && ledgerResult.data[0]) || {};
 
-            // Two separate pockets:
-            // 1) Earned / Available Balance = Approved Job Payment + Referral Bonus ONLY, minus withdrawals (non-Rejected).
-            //    Job posting costs are NEVER subtracted here, so it cannot go negative from posting.
-            // 2) Deposit Balance = Approved manual deposits (bKash/Nagad/Rocket/Upay) minus posted-job costs (non-Rejected micro_jobs).
-            //    This is the fund spent when posting jobs. Manual deposits never enter pocket 1.
-            const CREDIT_GATEWAYS = ['job payment', 'referral bonus'];
-            let earned = 0, approvedManual = 0;
-            allDeposits.forEach(d => {
-                if (String(d.status || '') !== 'Approved') return;
-                const gw = String(d.gateway || '').trim().toLowerCase();
-                const amt = parseFloat(d.amount || 0) || 0;
-                if (CREDIT_GATEWAYS.includes(gw)) earned += amt;
-                else approvedManual += amt;
-            });
-            let postedCosts = 0, wdPending = 0;
+            // The private archive is included in these server-calculated totals,
+            // while only recent active rows are loaded for the visible history.
+            let earned = (Number(ledger.approved_earned) || 0) - (Number(ledger.withdrawal_deduct) || 0);
+            let approvedManual = Number(ledger.approved_manual) || 0;
+            let postedCosts = 0, wdPending = Number(ledger.pending_withdraw) || 0;
             try {
-                const [wdRes, jobRes] = await Promise.all([
-                    supabaseClient.from('withdrawals').select('amount,status').eq('user_email', currentUser.email),
-                    supabaseClient.from('micro_jobs').select('total_cost,status').eq('client_email', currentUser.email)
-                ]);
-                (wdRes.data || []).forEach(w => {
-                    if (String(w.status || 'Pending').toLowerCase() !== 'rejected') earned -= parseFloat(w.amount || 0);
-                    if (/pending/i.test(w.status || 'Pending')) wdPending += parseFloat(w.amount || 0);
-                });
+                const jobRes = await supabaseClient.from('micro_jobs').select('total_cost,status').eq('client_email', currentUser.email);
                 (jobRes.data || []).forEach(j => {
                     if (String(j.status || '') !== 'Rejected') postedCosts += parseFloat(j.total_cost || 0);
                 });
