@@ -1174,7 +1174,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                                             <p id="kycFacePrompt" class="text-sm font-bold mt-1">ক্যামেরার দিকে সোজা তাকান</p>
                                         </div>
                                         <p id="kycFaceNotice" class="text-xs opacity-70 text-center">প্রতিটি নির্দেশনা অনুসরণ করে পরের ধাপ চাপুন।</p>
-                                        <button type="button" id="kycFaceNext" onclick="nextKycFaceStep()" class="w-full rounded-xl bg-emerald-600 text-white font-bold py-2.5 text-sm">পরের ধাপ</button>
+                                        <button type="button" id="kycFaceNext" onclick="nextKycFaceStep()" class="hidden">পরের ধাপ</button>
                                     </div>
                                     <button type="button" id="kycFaceRetake" onclick="startKycFaceCamera()" class="hidden mt-2 w-full rounded-xl border border-amber-400/40 text-amber-300 font-bold py-2 text-xs">আবার লাইভনেস চেক করুন</button>
                                     <input type="file" id="kycSelfie" accept="image/*" aria-hidden="true" tabindex="-1" style="display:none;">
@@ -3263,12 +3263,22 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         }
 
         let kycFaceStream = null;
+        let kycFaceDetector = null;
+        let kycFaceAnimationFrame = null;
+        let kycFaceFrameBusy = false;
+        let kycFaceLastFrameAt = 0;
         let kycFaceStepIndex = 0;
         let kycFaceAutoCaptureTimer = null;
+        let kycFaceNeutralSamples = [];
+        let kycFaceNeutralYaw = null;
+        let kycFaceFirstTurnDirection = null;
+        let kycFaceEyesWereOpen = false;
+        let kycFaceBlinkClosed = false;
+        let kycFaceCaptured = false;
         const KYC_FACE_STEPS = [
             'ক্যামেরার দিকে সোজা তাকান',
             'ধীরে মাথা ডান দিকে ঘোরান',
-            'ধীরে মাথা বাম দিকে ঘোরান',
+            'এবার মাথা বাম দিকে ঘোরান',
             'এবার একবার চোখের পলক ফেলুন'
         ];
         function speakKycFacePrompt(text) {
@@ -3281,69 +3291,201 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 window.speechSynthesis.speak(utterance);
             } catch (_) {}
         }
+        function kycFaceDistance(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+        function kycFaceEyeRatio(points, cornerA, cornerB, upper, lower) {
+            const width = kycFaceDistance(points[cornerA], points[cornerB]);
+            if (!width) return 1;
+            return kycFaceDistance(points[upper], points[lower]) / width;
+        }
+        function kycFaceSetStep(index) {
+            kycFaceStepIndex = index;
+            const prompt = document.getElementById('kycFacePrompt');
+            const step = document.getElementById('kycFaceStep');
+            const notice = document.getElementById('kycFaceNotice');
+            if (index >= KYC_FACE_STEPS.length) {
+                if (prompt) prompt.textContent = 'লাইভনেস সফল! ছবি তোলা হচ্ছে…';
+                if (step) step.textContent = 'যাচাই সম্পন্ন';
+                if (notice) notice.textContent = 'চোখের পলক শনাক্ত হয়েছে। এখন স্বয়ংক্রিয়ভাবে ছবি নেওয়া হচ্ছে।';
+                speakKycFacePrompt('ধন্যবাদ। আপনার লাইভনেস যাচাই সম্পন্ন হয়েছে।');
+                kycFaceAutoCaptureTimer = setTimeout(() => {
+                    kycFaceAutoCaptureTimer = null;
+                    captureKycFace();
+                }, 700);
+                return;
+            }
+            if (prompt) prompt.textContent = KYC_FACE_STEPS[index];
+            if (step) step.textContent = 'ধাপ ' + (index + 1) + ' / ৪';
+            if (notice) {
+                const messages = [
+                    'মুখটি ফ্রেমের মাঝখানে রেখে ক্যামেরার দিকে তাকান।',
+                    'মাথা ডান দিকে ঘোরালে ক্যামেরা নিজে থেকেই বুঝতে পারবে।',
+                    'এবার উল্টো দিকে মাথা ঘোরান—নিজে থেকে পরের ধাপে যাবে।',
+                    'চোখ খোলা রাখুন, তারপর স্বাভাবিকভাবে একবার পলক ফেলুন।'
+                ];
+                notice.textContent = messages[index];
+            }
+            speakKycFacePrompt(KYC_FACE_STEPS[index]);
+        }
+        async function loadKycFaceDetector() {
+            if (window.FaceMesh) return;
+            if (window.kycFaceMeshScriptPromise) return window.kycFaceMeshScriptPromise;
+            window.kycFaceMeshScriptPromise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js';
+                script.crossOrigin = 'anonymous';
+                script.onload = resolve;
+                script.onerror = () => reject(new Error('Face detection library could not load'));
+                document.head.appendChild(script);
+            });
+            return window.kycFaceMeshScriptPromise;
+        }
         function stopKycFaceCamera() {
             if (kycFaceAutoCaptureTimer) { clearTimeout(kycFaceAutoCaptureTimer); kycFaceAutoCaptureTimer = null; }
+            if (kycFaceAnimationFrame) { cancelAnimationFrame(kycFaceAnimationFrame); kycFaceAnimationFrame = null; }
             if (kycFaceStream) kycFaceStream.getTracks().forEach(track => track.stop());
             kycFaceStream = null;
+            kycFaceFrameBusy = false;
             const video = document.getElementById('kycFaceVideo');
             if (video) video.srcObject = null;
+            if (kycFaceDetector) {
+                try { kycFaceDetector.close(); } catch (_) {}
+                kycFaceDetector = null;
+            }
         }
         async function startKycFaceCamera() {
             const notice = document.getElementById('kycFaceNotice');
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                if (notice) notice.textContent = 'এই ব্রাউজারে সরাসরি ক্যামেরা চালু হচ্ছে না। নিচের ছবি দেওয়ার অপশন ব্যবহার করুন।';
+                if (notice) notice.textContent = 'এই ব্রাউজারে সরাসরি ক্যামেরা চালু হচ্ছে না। Chrome-এ Camera permission দিন।';
                 return;
             }
             try {
                 stopKycFaceCamera();
-                kycFaceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+                kycFaceCaptured = false;
+                kycFaceNeutralSamples = [];
+                kycFaceNeutralYaw = null;
+                kycFaceFirstTurnDirection = null;
+                kycFaceEyesWereOpen = false;
+                kycFaceBlinkClosed = false;
+                kycFaceLastFrameAt = 0;
+                kycFaceStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                    audio: false
+                });
                 const video = document.getElementById('kycFaceVideo');
                 video.srcObject = kycFaceStream;
                 await video.play();
-                kycFaceStepIndex = 0;
                 document.getElementById('kycFaceCamera').classList.remove('hidden');
                 document.getElementById('kycFaceStart').classList.add('hidden');
                 document.getElementById('kycFaceRetake').classList.add('hidden');
-                document.getElementById('kycFacePrompt').textContent = KYC_FACE_STEPS[0];
-                document.getElementById('kycFaceStep').textContent = 'ধাপ ১ / ৪';
-                speakKycFacePrompt(KYC_FACE_STEPS[0]);
-                document.getElementById('kycFaceNext').textContent = 'পরের ধাপ';
-                document.getElementById('kycFaceNext').classList.remove('hidden');
-                if (notice) notice.textContent = 'প্রতিটি নির্দেশনা অনুসরণ করে “পরের ধাপ” চাপুন। শেষ ধাপের পর ছবি নিজে থেকেই উঠবে।';
+                const nextButton = document.getElementById('kycFaceNext');
+                if (nextButton) nextButton.classList.add('hidden');
+                kycFaceSetStep(0);
+                if (notice) notice.textContent = 'AI ক্যামেরা মুখ শনাক্ত করছে। নির্দেশনা অনুসরণ করুন—কোনো বাটন চাপতে হবে না।';
+                await loadKycFaceDetector();
+                kycFaceDetector = new FaceMesh({
+                    locateFile: file => 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/' + file
+                });
+                kycFaceDetector.setOptions({
+                    maxNumFaces: 1,
+                    refineLandmarks: true,
+                    minDetectionConfidence: 0.65,
+                    minTrackingConfidence: 0.65
+                });
+                kycFaceDetector.onResults(results => processKycFaceResults(results));
+                await kycFaceDetector.initialize();
+                runKycFaceDetectionLoop();
             } catch (e) {
                 stopKycFaceCamera();
-                if (notice) notice.textContent = 'ক্যামেরা চালু হয়নি। ব্রাউজারে Camera permission দিন, অথবা নিচের ছবি দেওয়ার অপশন ব্যবহার করুন।';
+                if (notice) notice.textContent = 'মুখ শনাক্তকরণ চালু হয়নি। ইন্টারনেট সংযোগ ও Camera permission পরীক্ষা করে আবার চেষ্টা করুন।';
+            }
+        }
+        function runKycFaceDetectionLoop() {
+            const video = document.getElementById('kycFaceVideo');
+            if (!video || !kycFaceStream || kycFaceCaptured) return;
+            const tick = async timestamp => {
+                if (!kycFaceStream || kycFaceCaptured || !kycFaceDetector) return;
+                if (!kycFaceFrameBusy && video.readyState >= 2 && timestamp - kycFaceLastFrameAt > 90) {
+                    kycFaceFrameBusy = true;
+                    kycFaceLastFrameAt = timestamp;
+                    try { await kycFaceDetector.send({ image: video }); } catch (_) {}
+                    kycFaceFrameBusy = false;
+                }
+                if (kycFaceStream && !kycFaceCaptured) kycFaceAnimationFrame = requestAnimationFrame(tick);
+            };
+            kycFaceAnimationFrame = requestAnimationFrame(tick);
+        }
+        function processKycFaceResults(results) {
+            if (kycFaceCaptured || kycFaceStepIndex >= KYC_FACE_STEPS.length) return;
+            const points = results && results.multiFaceLandmarks && results.multiFaceLandmarks[0];
+            const notice = document.getElementById('kycFaceNotice');
+            if (!points) {
+                if (notice) notice.textContent = 'মুখ দেখা যাচ্ছে না—আলোতে ক্যামেরার সামনে সোজা তাকান।';
+                return;
+            }
+            const leftCheek = points[234];
+            const rightCheek = points[454];
+            const nose = points[1];
+            const faceWidth = Math.abs(rightCheek.x - leftCheek.x);
+            if (!faceWidth) return;
+            const yaw = (nose.x - (leftCheek.x + rightCheek.x) / 2) / faceWidth;
+
+            if (kycFaceStepIndex === 0) {
+                if (Math.abs(yaw) < 0.20) {
+                    kycFaceNeutralSamples.push(yaw);
+                    if (kycFaceNeutralSamples.length >= 12) {
+                        kycFaceNeutralYaw = kycFaceNeutralSamples.reduce((sum, value) => sum + value, 0) / kycFaceNeutralSamples.length;
+                        kycFaceSetStep(1);
+                    }
+                } else {
+                    kycFaceNeutralSamples = [];
+                    if (notice) notice.textContent = 'মুখটি ক্যামেরার ঠিক সামনে ও ফ্রেমের মাঝখানে আনুন।';
+                }
+                return;
+            }
+            const yawDelta = yaw - kycFaceNeutralYaw;
+            if (kycFaceStepIndex === 1) {
+                if (Math.abs(yawDelta) > 0.115) {
+                    kycFaceFirstTurnDirection = Math.sign(yawDelta);
+                    kycFaceSetStep(2);
+                }
+                return;
+            }
+            if (kycFaceStepIndex === 2) {
+                if (Math.abs(yawDelta) > 0.115 && Math.sign(yawDelta) !== kycFaceFirstTurnDirection) {
+                    kycFaceSetStep(3);
+                    kycFaceEyesWereOpen = false;
+                    kycFaceBlinkClosed = false;
+                }
+                return;
+            }
+            if (kycFaceStepIndex === 3) {
+                const leftEye = kycFaceEyeRatio(points, 33, 133, 159, 145);
+                const rightEye = kycFaceEyeRatio(points, 362, 263, 386, 374);
+                const eyeRatio = (leftEye + rightEye) / 2;
+                if (eyeRatio > 0.22) kycFaceEyesWereOpen = true;
+                if (kycFaceEyesWereOpen && eyeRatio < 0.17) kycFaceBlinkClosed = true;
+                if (kycFaceEyesWereOpen && kycFaceBlinkClosed && eyeRatio > 0.22) {
+                    kycFaceSetStep(4);
+                }
             }
         }
         function nextKycFaceStep() {
-            if (kycFaceStepIndex >= KYC_FACE_STEPS.length - 1) return;
-            kycFaceStepIndex++;
-            document.getElementById('kycFacePrompt').textContent = KYC_FACE_STEPS[kycFaceStepIndex];
-            document.getElementById('kycFaceStep').textContent = 'ধাপ ' + (kycFaceStepIndex + 1) + ' / ৪';
-            speakKycFacePrompt(KYC_FACE_STEPS[kycFaceStepIndex]);
-            if (kycFaceStepIndex === KYC_FACE_STEPS.length - 1) {
-                document.getElementById('kycFaceNext').classList.add('hidden');
-                document.getElementById('kycFacePrompt').textContent = 'এবার চোখের পলক ফেলুন—৩ সেকেন্ড পর ছবি উঠবে';
-                document.getElementById('kycFaceStep').textContent = 'ধাপ ৪ / ৪ · স্বয়ংক্রিয় ছবি';
-                speakKycFacePrompt('এবার চোখের পলক ফেলুন। তিন সেকেন্ড পর ছবি তোলা হবে।');
-                const notice = document.getElementById('kycFaceNotice');
-                if (notice) notice.textContent = 'শেষ নির্দেশনার পর ৩ সেকেন্ডে ক্যামেরা নিজে থেকেই ছবি তুলবে।';
-                kycFaceAutoCaptureTimer = setTimeout(() => {
-                    kycFaceAutoCaptureTimer = null;
-                    captureKycFace();
-                }, 3000);
-            }
+            // ধাপগুলো FaceMesh নিজে শনাক্ত করে এগিয়ে নেয়; ম্যানুয়াল বাটন ব্যবহার করা হয় না।
         }
         async function captureKycFace() {
+            if (kycFaceCaptured) return;
             const video = document.getElementById('kycFaceVideo');
             if (!kycFaceStream || !video || !video.videoWidth) { niceAlert('ক্যামেরা প্রস্তুত হয়নি। আবার চেষ্টা করুন।'); return; }
+            kycFaceCaptured = true;
             const canvas = document.createElement('canvas');
             const scale = Math.min(1, 1280 / video.videoWidth);
             canvas.width = Math.round(video.videoWidth * scale);
             canvas.height = Math.round(video.videoHeight * scale);
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.88));
-            if (!blob) { niceAlert('ছবি তৈরি করা যায়নি। আবার চেষ্টা করুন।'); return; }
+            if (!blob) { kycFaceCaptured = false; niceAlert('ছবি তৈরি করা যায়নি। আবার চেষ্টা করুন।'); return; }
             const file = new File([blob], 'face-verification.jpg', { type: 'image/jpeg', lastModified: Date.now() });
             const input = document.getElementById('kycSelfie');
             const transfer = new DataTransfer();
@@ -3353,8 +3495,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             document.getElementById('kycFaceCamera').classList.add('hidden');
             document.getElementById('kycFaceRetake').classList.remove('hidden');
             previewKycPhoto('kycSelfie');
-            const notice = document.getElementById('kycFaceNotice');
-            if (notice) notice.textContent = 'মুখের ছবি স্বয়ংক্রিয়ভাবে নেওয়া হয়েছে। অ্যাডমিন আপনার ছবি ও পরিচয়পত্র মিলিয়ে রিভিউ করবেন।';
+            const captureNotice = document.getElementById('kycFaceNotice');
+            if (captureNotice) captureNotice.textContent = 'মুখ, মাথার নড়াচড়া ও চোখের পলক স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে। ছবি নেওয়া হয়েছে—অ্যাডমিন রিভিউ করবেন।';
         }
 
         const KYC_ALT_SOURCES = { kycSelfieBack: 'kycSelfie' };
