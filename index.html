@@ -5023,6 +5023,8 @@ body:not(:has(#landingHero)) .hero-title{background:linear-gradient(90deg,#34D39
 .balance-card .balance-label{font-size:.7rem!important}
 .balance-card .balance-value{font-size:1.6rem!important;color:#A7F3D0!important;line-height:1.15}
 .balance-card .balance-cash-out,.balance-card .balance-add-funds{color:#0B3F45!important}
+/* Slightly separate the taka symbol from the first digit so it does not cover zero. */
+.money-symbol{display:inline-block;position:relative;left:-.08em;margin-right:.08em}
 /* approved = deep green, rejected = deep red */
 .bg-emerald-400\/15,.bg-emerald-400\/20,.bg-emerald-500\/20{background:rgba(5,150,105,.28)!important}
 .bg-rose-400\/15,.bg-rose-500\/20{background:rgba(153,27,27,.45)!important}
