@@ -1320,8 +1320,9 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     <h3 class="text-base font-bold text-white">Post New Job</h3>
                     <button onclick="closePostJobModal()" class="text-violet-200/70 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
                 </div>
-                <!-- Job details (only step) -->
+                <!-- Step 1: job details -->
                 <div id="jobStep2" class="space-y-2.5 text-xs">
+                    <p class="font-semibold text-violet-100">Step 1 of 2 · Job Details</p>
                     <p class="font-semibold text-violet-100">Category & Details</p>
                     <label class="block text-[10px] font-semibold text-violet-200/80 mb-1">Category</label>
                     <select id="newJobCategory" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs"></select>
@@ -1352,6 +1353,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         </div>
                         <div id="proofReqList" class="space-y-2"></div>
                     </div>
+                    <div id="jobStep3" class="hidden space-y-2.5 text-xs">
+                    <p class="font-semibold text-violet-100">Step 2 of 2 · Budget & Publishing</p>
                     <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
                         <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="e.g. 10" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
@@ -1374,7 +1377,9 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 </div>
 
                 <div class="flex gap-2.5 pt-2">
-                    <button onclick="nextJobStep()" id="jobNextBtn" class="btn-violet w-full font-bold py-2.5 rounded-2xl text-xs">Next</button>
+                    <button type="button" onclick="previousJobStep()" id="jobBackBtn" class="hidden btn-violet flex-1 font-bold py-2.5 rounded-2xl text-xs">Back</button>
+                    <button type="button" onclick="nextJobStep()" id="jobNextBtn" class="btn-violet w-full font-bold py-2.5 rounded-2xl text-xs">Next</button>
+                    <button type="button" onclick="submitNewJob()" id="jobPublishBtn" class="hidden btn-amber flex-1 font-bold py-2.5 rounded-2xl text-xs">Publish Job</button>
                 </div>
             </div>
         </div>
@@ -4393,13 +4398,33 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         }
 
         function nextJobStep() {
-            submitNewJob();
+            const category = (document.getElementById("newJobCategory").value || "").trim();
+            const title = (document.getElementById("newJobTitle").value || "").trim();
+            const description = (document.getElementById("newJobDescription").value || "").trim();
+            const proof = getProofRequirements();
+            if (!category) { niceAlert("Please select a job category."); return; }
+            if (!title) { niceAlert("Please enter a job title."); return; }
+            if (!description) { niceAlert("Please enter the job description."); return; }
+            if (proof.error) { niceAlert(proof.error); return; }
+            document.getElementById("jobStep2").classList.add("hidden");
+            document.getElementById("jobStep3").classList.remove("hidden");
+            document.getElementById("jobNextBtn").classList.add("hidden");
+            document.getElementById("jobBackBtn").classList.remove("hidden");
+            document.getElementById("jobPublishBtn").classList.remove("hidden");
+            applyCostPerWorkerRule();
+        }
+        function previousJobStep() {
+            document.getElementById("jobStep3").classList.add("hidden");
+            document.getElementById("jobStep2").classList.remove("hidden");
+            document.getElementById("jobBackBtn").classList.add("hidden");
+            document.getElementById("jobPublishBtn").classList.add("hidden");
+            document.getElementById("jobNextBtn").classList.remove("hidden");
         }
 
         let jobPublishInFlight = false;
         async function submitNewJob() {
             if (jobPublishInFlight) return;
-            const publishButton = document.getElementById('jobNextBtn');
+            const publishButton = document.getElementById('jobPublishBtn');
             if (publishButton && publishButton.disabled) return;
             const title = document.getElementById('newJobTitle').value;
             const reward = parseFloat(document.getElementById('newJobReward').value);
@@ -4587,7 +4612,11 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const d = document.getElementById('newJobDescription');
             if (d) d.value = '';
             document.getElementById('jobStep2').classList.remove('hidden');
-            document.getElementById('jobNextBtn').innerText = "Publish Job";
+            document.getElementById('jobStep3').classList.add('hidden');
+            document.getElementById('jobNextBtn').classList.remove('hidden');
+            document.getElementById('jobBackBtn').classList.add('hidden');
+            document.getElementById('jobPublishBtn').classList.add('hidden');
+            document.getElementById('jobPublishBtn').innerText = "Publish Job";
             document.getElementById('postJobModal').classList.remove('hidden');
             applyCostPerWorkerRule();
         }
@@ -4596,7 +4625,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         const JOB_MIN_TOTAL_BUDGET = 50; // total job cost (reward x workers) must be at least 50
         function applyCostPerWorkerRule() {
             const input = document.getElementById('newJobReward');
-            const btn = document.getElementById('jobNextBtn');
+            const btn = document.getElementById('jobPublishBtn');
             const error = document.getElementById('newJobRewardError');
             const raw = (input.value || '').trim();
             const reward = parseFloat(raw);
