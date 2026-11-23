@@ -986,14 +986,17 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     if(!method)return;
                     var sel=document.getElementById('withdrawMethod');if(sel)sel.value=method.name;
                     document.querySelectorAll('#withdrawMethodPicker .wm-btn').forEach(function(b){var on=b.getAttribute('data-m')===method.name;b.setAttribute('aria-checked',on?'true':'false');b.setAttribute('data-selected',on?'true':'false');});
-                    var lg=document.getElementById('withdrawSelectedLogo');if(lg){var logo=wdLogoUrl(method);if(logo){lg.src=logo;lg.classList.remove('hidden');}else{lg.classList.add('hidden');}}
-                    var tx=document.getElementById('withdrawSelectedText');if(tx)tx.textContent='Selected: '+method.name;
+                    var tx=document.getElementById('withdrawSelectedText');
+                    if(tx){
+                        var logo=wdLogoUrl(method);
+                        tx.innerHTML='Selected: '+(logo?'<img src="'+wdEscape(logo)+'" alt="" width="24" height="24" class="inline-block w-6 h-6 rounded-md object-contain align-middle mx-1.5 bg-transparent">':'')+'<span class="align-middle">'+wdEscape(method.name)+'</span>';
+                    }
                 }
                                 document.addEventListener('DOMContentLoaded',renderWithdrawMethodPicker);
 function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textContent=t;setTimeout(function(){l.textContent='Copy'},1500);}if(!v){msg('Empty');return;}function fb(){try{var t=document.createElement('textarea');t.value=v;t.setAttribute('readonly','');t.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';document.body.appendChild(t);t.focus();t.select();t.setSelectionRange(0,t.value.length);var ok=document.execCommand('copy');document.body.removeChild(t);msg(ok?'Copied!':'Failed');}catch(e){msg('Failed');}}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(v).then(function(){msg('Copied!')},fb);}else fb();}
                 document.addEventListener('DOMContentLoaded',function(){pickWithdrawMethod('bKash');});
                 </script>
-                <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><img id="withdrawSelectedLogo" src="https://workzenbd.vercel.app/icons/pay/bkash.png" alt="" width="24" height="24" class="w-6 h-6 rounded-md object-contain bg-transparent"><span id="withdrawSelectedText">Selected: bKash</span></div>
+                <div id="withdrawSelected" class="flex items-center gap-2 text-xs font-bold text-amber-300"><span id="withdrawSelectedText">Selected: bKash</span></div>
                 <select id="withdrawMethod" class="hidden field w-full rounded-2xl px-3.5 py-2.5 text-xs"></select>
                 <div class="flex items-center gap-2.5 pt-1"><span class="wd-step">3</span><h3 class="text-sm font-bold text-white">Account number</h3></div>
                 <input type="text" id="withdrawNumber" placeholder="Account Number" class="field w-full rounded-2xl px-4 py-2.5 text-xs">
