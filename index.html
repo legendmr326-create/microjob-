@@ -1353,13 +1353,13 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                         <div id="proofReqList" class="space-y-2"></div>
                     </div>
                     <div>
+                        <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
+                        <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="e.g. 10" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
+                    </div>
+                    <div>
                         <label class="block text-[10px] text-violet-200/70 mb-1">Cost per Worker (৳)</label>
                         <input type="number" id="newJobReward" min="1" step="any" oninput="updateJobFeePreview()" aria-describedby="newJobRewardError" placeholder="e.g. 50" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                         <p id="newJobRewardError" class="hidden mt-1 text-[11px] font-semibold text-rose-300" role="alert">Minimum total job cost is ৳50 (reward x workers)</p>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-violet-200/70 mb-1">Workers Needed</label>
-                        <input type="number" id="newJobLimit" min="1" step="1" required oninput="updateJobFeePreview()" placeholder="e.g. 10" class="field w-full rounded-2xl px-3.5 py-2.5 text-xs">
                     </div>
                     <div class="bg-bgDark/70 border border-amber-300/20 rounded-xl p-3 text-[12px] text-violet-100 space-y-1">
                         <div class="font-semibold text-violet-100 mb-1">Cost Summary</div>
