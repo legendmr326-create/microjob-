@@ -3909,6 +3909,8 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const status = document.getElementById('pushNotificationStatus');
             if (!button) return;
             const enabled = ('Notification' in window) && Notification.permission === 'granted';
+            // Inline display is deliberate: it cannot be overridden by layout utility classes.
+            button.style.display = enabled ? 'none' : '';
             button.classList.toggle('hidden', enabled);
             if (enabled && status) {
                 status.textContent = 'নোটিফিকেশন এই ডিভাইসে চালু আছে।';
