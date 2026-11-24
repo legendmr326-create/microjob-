@@ -4054,34 +4054,57 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             badge.classList.add('flex');
         }
 
-        function syncPushNotificationButton() {
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const raw = atob(base64);
+            return Uint8Array.from(raw, character => character.charCodeAt(0));
+        }
+
+        async function syncPushNotificationButton() {
             const button = document.getElementById('enablePushNotificationsBtn');
             const status = document.getElementById('pushNotificationStatus');
             if (!button) return;
-            const enabled = ('Notification' in window) && Notification.permission === 'granted';
-            // Inline display is deliberate: it cannot be overridden by layout utility classes.
+            let enabled = false;
+            try {
+                if (('Notification' in window) && Notification.permission === 'granted' && 'serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    enabled = !!(registration.pushManager && await registration.pushManager.getSubscription());
+                }
+            } catch (error) {
+                console.warn('Could not check push subscription:', error);
+            }
             button.style.display = enabled ? 'none' : '';
             button.classList.toggle('hidden', enabled);
-            if (enabled && status) {
-                status.textContent = 'নোটিফিকেশন এই ডিভাইসে চালু আছে।';
+            if (status && enabled) {
+                status.textContent = 'এই ডিভাইসে স্বয়ংক্রিয় Push Notification চালু আছে।';
                 status.classList.remove('text-rose-300');
                 status.classList.add('text-emerald-300');
+            } else if (status && Notification.permission === 'granted') {
+                status.textContent = 'অনুমতি দেওয়া আছে। স্বয়ংক্রিয় নোটিফিকেশন চালু করতে নিচের বাটনে চাপ দিন।';
             }
         }
 
         async function enableAndTestPushNotifications() {
             const status = document.getElementById('pushNotificationStatus');
+            const button = document.getElementById('enablePushNotificationsBtn');
             const setStatus = (message, isError) => {
                 if (!status) return;
                 status.textContent = message;
                 status.classList.toggle('text-rose-300', !!isError);
                 status.classList.toggle('text-emerald-300', !isError);
             };
-            if (!('Notification' in window) || !('serviceWorker' in navigator)) {
-                setStatus('এই ব্রাউজারে মোবাইল নোটিফিকেশন সমর্থিত নয়। Chrome দিয়ে চেষ্টা করুন।', true);
+            if (!currentUser || !supabaseClient) {
+                setStatus('আগে আপনার WorkZen অ্যাকাউন্টে লগইন করুন।', true);
+                return;
+            }
+            if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+                setStatus('এই ব্রাউজারে Push Notification সমর্থিত নয়। Chrome দিয়ে চেষ্টা করুন।', true);
                 return;
             }
             try {
+                if (button) button.disabled = true;
+                setStatus('Push Notification চালু করা হচ্ছে...');
                 let permission = Notification.permission;
                 if (permission === 'default') permission = await Notification.requestPermission();
                 if (permission !== 'granted') {
@@ -4090,19 +4113,40 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                         : 'নোটিফিকেশন অনুমতি দেওয়া হয়নি।', true);
                     return;
                 }
-                syncPushNotificationButton();
+
                 const registration = await navigator.serviceWorker.ready;
-                await registration.showNotification('WorkZen নোটিফিকেশন', {
-                    body: 'সফল! আপনার মোবাইলে WorkZen নোটিফিকেশন দেখানোর অনুমতি চালু হয়েছে।',
-                    icon: '/android-app/workzen-logo.jpg',
-                    badge: '/android-app/workzen-logo.jpg',
-                    tag: 'workzen-permission-test',
-                    data: { url: '/' }
+                if (!registration.pushManager) throw new Error('এই ডিভাইসে Push Manager পাওয়া যায়নি।');
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) {
+                    const { data: keyData, error: keyError } = await supabaseClient.functions.invoke('workzen-push', {
+                        body: { action: 'public-key' }
+                    });
+                    if (keyError || !keyData?.publicKey) throw new Error(keyError?.message || keyData?.error || 'Push server key পাওয়া যায়নি।');
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+                    });
+                }
+
+                const { data: saveData, error: saveError } = await supabaseClient.functions.invoke('workzen-push', {
+                    body: { action: 'subscribe', subscription: subscription.toJSON() }
                 });
-                setStatus('অনুমতি চালু হয়েছে। এই ডিভাইসে নোটিফিকেশন দেখানো যাবে; সার্ভার থেকে স্বয়ংক্রিয় Push পাঠানোর সংযোগ এখনো আলাদা করে চালু করতে হবে।');
+                if (saveError || !saveData?.success) throw new Error(saveError?.message || saveData?.error || 'ডিভাইস নিবন্ধন করা যায়নি।');
+
+                const { data: testData, error: testError } = await supabaseClient.functions.invoke('workzen-push', {
+                    body: { action: 'test' }
+                });
+                if (testError || !testData?.success) throw new Error(testError?.message || testData?.error || 'টেস্ট Push পাঠানো যায়নি।');
+                await syncPushNotificationButton();
+                setStatus(testData.sent > 0
+                    ? 'সফল! এই ফোনে আসল Push Notification পাঠানো হয়েছে। অ্যাপ বন্ধ থাকলেও নতুন নোটিফিকেশন আসবে।'
+                    : 'ডিভাইস নিবন্ধন হয়েছে, তবে টেস্ট Push পৌঁছায়নি। Chrome-এর নোটিফিকেশন সেটিংস পরীক্ষা করুন।', testData.sent <= 0);
             } catch (error) {
-                console.error('Push notification permission/test failed:', error);
-                setStatus('নোটিফিকেশন দেখানো যায়নি। Chrome-এর Notification permission পরীক্ষা করুন।', true);
+                console.error('Real Push setup failed:', error);
+                setStatus('Push চালু করা যায়নি: ' + (error?.message || 'অজানা সমস্যা'), true);
+            } finally {
+                if (button) button.disabled = false;
+                await syncPushNotificationButton();
             }
         }
 
