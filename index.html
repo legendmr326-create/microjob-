@@ -833,11 +833,11 @@ Check your Browserslist config to be sure that your targets are set up correctly
                     <div class="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center text-blue-300 shrink-0"><i class="fa-solid fa-bell text-lg"></i></div>
                     <div class="min-w-0 flex-1">
                         <p class="font-bold text-white text-sm">মোবাইল নোটিফিকেশন</p>
-                        <p class="text-xs text-violet-200/70 mt-1">অ্যাপ বন্ধ থাকলেও নোটিফিকেশন পাওয়ার অনুমতি চালু করুন এবং একটি টেস্ট নোটিফিকেশন দেখুন।</p>
+                        <p class="text-xs text-violet-200/70 mt-1">অ্যাপ বন্ধ থাকলেও নোটিফিকেশন পাওয়ার জন্য অনুমতি চালু করুন।</p>
                     </div>
                 </div>
-                <button type="button" onclick="enableAndTestPushNotifications()" class="w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm py-3 px-4">নোটিফিকেশন Allow করুন ও টেস্ট করুন</button>
-                <p id="pushNotificationStatus" class="text-xs text-violet-200/70" aria-live="polite">এখনো পরীক্ষা করা হয়নি।</p>
+                <button type="button" onclick="enableAndTestPushNotifications()" class="w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm py-3 px-4">নোটিফিকেশন চালু করুন</button>
+                <p id="pushNotificationStatus" class="text-xs text-violet-200/70" aria-live="polite">নোটিফিকেশন চালু করতে বাটনে চাপ দিন।</p>
             </div>
             <div id="notificationsList" class="space-y-2.5"></div>
         </div>
@@ -3926,17 +3926,17 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                     return;
                 }
                 const registration = await navigator.serviceWorker.ready;
-                await registration.showNotification('WorkZen টেস্ট নোটিফিকেশন', {
+                await registration.showNotification('WorkZen নোটিফিকেশন', {
                     body: 'সফল! আপনার মোবাইলে WorkZen নোটিফিকেশন দেখানোর অনুমতি চালু হয়েছে।',
                     icon: '/android-app/workzen-logo.jpg',
                     badge: '/android-app/workzen-logo.jpg',
                     tag: 'workzen-permission-test',
                     data: { url: '/' }
                 });
-                setStatus('অনুমতি চালু হয়েছে এবং টেস্ট নোটিফিকেশন পাঠানো হয়েছে। এটি এখনো সার্ভার থেকে আসা আসল Push নয়।');
+                setStatus('অনুমতি চালু হয়েছে। এই ডিভাইসে নোটিফিকেশন দেখানো যাবে; সার্ভার থেকে স্বয়ংক্রিয় Push পাঠানোর সংযোগ এখনো আলাদা করে চালু করতে হবে।');
             } catch (error) {
                 console.error('Push notification permission/test failed:', error);
-                setStatus('টেস্ট নোটিফিকেশন দেখানো যায়নি। Chrome-এর Notification permission পরীক্ষা করুন।', true);
+                setStatus('নোটিফিকেশন দেখানো যায়নি। Chrome-এর Notification permission পরীক্ষা করুন।', true);
             }
         }
 
