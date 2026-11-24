@@ -1556,6 +1556,131 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         function setLocalList(key, value) {
             localStorage.setItem(key, JSON.stringify(value));
         }
+
+        // Live database updates: refresh only the panels affected by a committed change.
+        let workZenRealtimeChannel = null;
+        let workZenRealtimeEmail = '';
+        let workZenRealtimeRefreshTimer = null;
+
+        function stopWorkZenRealtime() {
+            const oldChannel = workZenRealtimeChannel;
+            workZenRealtimeChannel = null;
+            workZenRealtimeEmail = '';
+            if (oldChannel && supabaseClient) {
+                supabaseClient.removeChannel(oldChannel).catch(error => console.warn('Realtime channel cleanup failed:', error));
+            }
+        }
+
+        async function syncRemoteApplications() {
+            if (!currentUser || !currentUser.email || !supabaseClient) return;
+            const email = String(currentUser.email).trim().toLowerCase();
+            const { data, error } = await supabaseClient.from('job_applications')
+                .select('job_id,status,created_at').eq('user_email', email);
+            if (error) { console.warn('Could not sync submitted jobs:', error); return; }
+            const merged = getLocalList('workzen_applications');
+            (data || []).forEach(row => {
+                const index = merged.findIndex(item =>
+                    String(item.email || '').toLowerCase() === email &&
+                    Number(item.job_id) === Number(row.job_id)
+                );
+                const remoteItem = {
+                    email,
+                    job_id: row.job_id,
+                    status: row.status || 'Pending',
+                    date: row.created_at || new Date().toISOString()
+                };
+                if (index >= 0) merged[index] = { ...merged[index], ...remoteItem };
+                else merged.push(remoteItem);
+            });
+            setLocalList('workzen_applications', merged);
+            applyJobFilters();
+        }
+
+        async function refreshRealtimePanels(source) {
+            if (!currentUser || !currentUser.email || !supabaseClient) return;
+            const tasks = [];
+            const add = fn => { try { tasks.push(Promise.resolve(fn())); } catch (error) { tasks.push(Promise.reject(error)); } };
+
+            if (source === 'resume' || source === 'notifications') add(loadNotifications);
+            if (source === 'resume' || ['deposits', 'withdrawals', 'micro_jobs', 'job_applications'].includes(source)) add(fetchUserBalance);
+            if (source === 'resume' || source === 'micro_jobs') add(fetchJobsFromDatabase);
+
+            if (source === 'resume' || source === 'job_applications') {
+                add(syncRemoteApplications);
+                add(renderMyApplications);
+                add(renderEarnings);
+                if (currentTabId === 'history' || source === 'resume') {
+                    add(renderEarningsSummary);
+                    add(renderApprovedJobs);
+                }
+                if (currentTabId === 'newjob' || source === 'resume') add(loadMyPostedJobs);
+            }
+            if ((source === 'resume' || source === 'micro_jobs') && (currentTabId === 'newjob' || source === 'resume')) {
+                add(loadMyPostedJobs);
+            }
+            if (source === 'resume' || source === 'kyc_verifications') add(loadMyKyc);
+
+            const results = await Promise.allSettled(tasks);
+            results.forEach(result => {
+                if (result.status === 'rejected') console.warn('Realtime panel refresh failed:', result.reason);
+            });
+        }
+
+        function queueRealtimeRefresh(source) {
+            if (!currentUser || !currentUser.email) return;
+            clearTimeout(workZenRealtimeRefreshTimer);
+            workZenRealtimeRefreshTimer = setTimeout(() => refreshRealtimePanels(source), 220);
+        }
+
+        function startWorkZenRealtime() {
+            if (!supabaseClient || !currentUser || !currentUser.email) return;
+            const email = String(currentUser.email).trim().toLowerCase();
+            if (workZenRealtimeChannel && workZenRealtimeEmail === email) {
+                syncRemoteApplications();
+                return;
+            }
+            stopWorkZenRealtime();
+
+            const channel = supabaseClient.channel('workzen-live-' + email);
+            const listen = (table, source, filter) => {
+                const config = { event: '*', schema: 'public', table };
+                if (filter) config.filter = filter;
+                channel.on('postgres_changes', config, () => queueRealtimeRefresh(source));
+            };
+
+            listen('notifications', 'notifications', 'user_email=eq.' + email);
+            listen('deposits', 'deposits', 'user_email=eq.' + email);
+            listen('withdrawals', 'withdrawals', 'user_email=eq.' + email);
+            listen('micro_jobs', 'micro_jobs');
+            listen('job_applications', 'job_applications');
+            listen('kyc_verifications', 'kyc_verifications', 'user_email=eq.' + email);
+
+            workZenRealtimeChannel = channel;
+            workZenRealtimeEmail = email;
+            channel.subscribe((status, error) => {
+                if (status === 'SUBSCRIBED') console.info('WorkZen live updates connected.');
+                else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    console.warn('WorkZen live updates connection issue:', status, error || '');
+                }
+            });
+            syncRemoteApplications();
+        }
+
+        window.addEventListener('online', () => {
+            if (currentUser) {
+                startWorkZenRealtime();
+                queueRealtimeRefresh('resume');
+            }
+        });
+        window.addEventListener('focus', () => {
+            if (currentUser) queueRealtimeRefresh('resume');
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && currentUser) {
+                startWorkZenRealtime();
+                queueRealtimeRefresh('resume');
+            }
+        });
         function refCode(email) {
             let h = 0;
             for (const ch of String(email || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -1600,6 +1725,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const header = document.getElementById('appHeader');
             const main = document.getElementById('appMain');
             const showLoggedOut = () => {
+                stopWorkZenRealtime();
                 currentUser = null;
                 if (authOverlay) authOverlay.classList.remove('hidden');
                 if (header) header.classList.add('hidden');
@@ -1632,6 +1758,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 } catch (profileError) { console.warn('Could not load saved avatar.', profileError); }
                 if (!currentUser.avatarUrl && authUser.user_metadata && authUser.user_metadata.avatar_url) currentUser.avatarUrl = authUser.user_metadata.avatar_url;
                 localStorage.setItem('workzen_user', JSON.stringify(currentUser));
+                startWorkZenRealtime();
                 // Prepare the saved page before revealing the app, preventing a dashboard flash.
                 updateUserDataUI();
                 let savedTab = 'dashboard';
@@ -1886,6 +2013,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             if (!pendingSignup) return;
             const { email, phone, referralCode } = pendingSignup;
             currentUser = { id: authUser && authUser.id, name: email.split('@')[0], email, phone };
+            startWorkZenRealtime();
             toggleAdminMenuItem();
             localStorage.setItem('workzen_user', JSON.stringify(currentUser));
             try { await ensureReferralCode(currentUser); } catch (e) { console.warn('Profile creation delayed:', e); }
@@ -2021,6 +2149,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 };
                 toggleAdminMenuItem();
                 localStorage.setItem('workzen_user', JSON.stringify(currentUser));
+                startWorkZenRealtime();
                 document.getElementById('authOverlay').classList.add('hidden');
                 const header = document.getElementById('appHeader'); if (header) header.classList.remove('hidden');
                 const main = document.getElementById('appMain'); if (main) main.classList.remove('hidden');
@@ -2327,6 +2456,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         }
 
         async function handleLogout() {
+            stopWorkZenRealtime();
             const client = await waitForSupabase();
             if (client) {
                 try {
