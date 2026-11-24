@@ -4080,7 +4080,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 status.textContent = 'এই ডিভাইসে স্বয়ংক্রিয় Push Notification চালু আছে।';
                 status.classList.remove('text-rose-300');
                 status.classList.add('text-emerald-300');
-            } else if (status && Notification.permission === 'granted') {
+            } else if (status && ('Notification' in window) && Notification.permission === 'granted') {
                 status.textContent = 'অনুমতি দেওয়া আছে। স্বয়ংক্রিয় নোটিফিকেশন চালু করতে নিচের বাটনে চাপ দিন।';
             }
         }
