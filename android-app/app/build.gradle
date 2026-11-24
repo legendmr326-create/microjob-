@@ -1,11 +1,11 @@
 plugins { id 'com.android.application' }
 
 android {
-    namespace 'bd.taskflex.app'
+    namespace 'com.workzenbd.app'
     compileSdk 35
 
     defaultConfig {
-        applicationId 'bd.taskflex.app'
+        applicationId 'com.workzenbd.app'
         minSdk 24
         targetSdk 35
         versionCode 11
