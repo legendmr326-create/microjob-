@@ -2284,6 +2284,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         }
         function retryLoadReferralSection() { loadReferralSection(); }
         async function claimDailyBonus() {
+            if (!(await requireApprovedKyc())) return;
             if (!currentUser || !supabaseClient) { niceAlert('Log in and wait for the server connection first.'); return; }
             const email = String(currentUser.email).trim().toLowerCase();
             const today = todayKey();
@@ -2458,12 +2459,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             switchTab(t);
         }
         async function switchTab(tabId) {
-            // Until admin approves KYC, only Home and Profile/KYC remain accessible.
-            const kycExemptTabs = ['dashboard', 'profile'];
-            if (!kycExemptTabs.includes(tabId) && !(await isKycApproved())) {
-                niceAlert('KYC Verification Admin দ্বারা Approved না হওয়া পর্যন্ত এই অপশন ব্যবহার করা যাবে না। আগে Profile থেকে KYC সম্পন্ন করুন।');
-                tabId = 'profile';
-            }
+            // All sections remain viewable before KYC approval; action handlers enforce KYC.
             if (tabId !== currentTabId) { prevTabId = currentTabId; currentTabId = tabId; }
             // Remember the last open page separately for each signed-in account.
             try {
@@ -2541,6 +2537,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             niceConfirm('Request deletion of this job? An admin must approve it first. The job stays as it is until then.', function(){ doDeletePostedJob(jobId); });
         }
         async function doDeletePostedJob(jobId) {
+            if (!(await requireApprovedKyc())) return;
             if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
             const { data: cur, error: curErr } = await supabaseClient.from('micro_jobs').select('id,status,client_email').eq('id', jobId).limit(1);
             if (curErr || !cur || !cur.length) { niceAlert('Could not load the job: ' + (curErr ? curErr.message : 'not found')); return; }
@@ -2758,6 +2755,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         // Approve: moves the application to Approved and credits the worker once (Approved deposit, gateway 'Job Payment', trx 'JOB-<job id>').
         // Reject: moves it to Rejected. Decided applications are locked.
         async function reviewApplication(appId, newStatus) {
+            if (!(await requireApprovedKyc())) return;
             if (!supabaseClient) { niceAlert('Not connected to server.'); return; }
             const { data: cur, error: curErr } = await supabaseClient.from('job_applications').select('id,job_id,user_email,status').eq('id', appId).limit(1);
             if (curErr || !cur || !cur.length) { niceAlert('Could not load application: ' + (curErr ? curErr.message : 'not found')); return; }
@@ -3058,7 +3056,6 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
         }
 
         async function openJobDetail(id) {
-            if (!(await requireApprovedKyc())) return;
             const job = allJobs.find(j => Number(j.id) === Number(id));
             if (!job) return;
             currentJobId = job.id;
@@ -4059,6 +4056,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         // back every approval. Dedupe on trx = JOB-<job_id> prevents doubles.
         let claimingJobCredit = false;
         async function claimApprovedJobCredit() {
+            if (!(await requireApprovedKyc())) return;
             if (!currentUser || !supabaseClient || claimingJobCredit) return;
             claimingJobCredit = true;
             try {
