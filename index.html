@@ -836,7 +836,7 @@ Check your Browserslist config to be sure that your targets are set up correctly
                         <p class="text-xs text-violet-200/70 mt-1">অ্যাপ বন্ধ থাকলেও নোটিফিকেশন পাওয়ার জন্য অনুমতি চালু করুন।</p>
                     </div>
                 </div>
-                <button type="button" onclick="enableAndTestPushNotifications()" class="w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm py-3 px-4">নোটিফিকেশন চালু করুন</button>
+                <button id="enablePushNotificationsBtn" type="button" onclick="enableAndTestPushNotifications()" class="w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm py-3 px-4">নোটিফিকেশন চালু করুন</button>
                 <p id="pushNotificationStatus" class="text-xs text-violet-200/70" aria-live="polite">নোটিফিকেশন চালু করতে বাটনে চাপ দিন।</p>
             </div>
             <div id="notificationsList" class="space-y-2.5"></div>
@@ -3904,6 +3904,19 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             badge.classList.add('flex');
         }
 
+        function syncPushNotificationButton() {
+            const button = document.getElementById('enablePushNotificationsBtn');
+            const status = document.getElementById('pushNotificationStatus');
+            if (!button) return;
+            const enabled = ('Notification' in window) && Notification.permission === 'granted';
+            button.classList.toggle('hidden', enabled);
+            if (enabled && status) {
+                status.textContent = 'নোটিফিকেশন এই ডিভাইসে চালু আছে।';
+                status.classList.remove('text-rose-300');
+                status.classList.add('text-emerald-300');
+            }
+        }
+
         async function enableAndTestPushNotifications() {
             const status = document.getElementById('pushNotificationStatus');
             const setStatus = (message, isError) => {
@@ -3925,6 +3938,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                         : 'নোটিফিকেশন অনুমতি দেওয়া হয়নি।', true);
                     return;
                 }
+                syncPushNotificationButton();
                 const registration = await navigator.serviceWorker.ready;
                 await registration.showNotification('WorkZen নোটিফিকেশন', {
                     body: 'সফল! আপনার মোবাইলে WorkZen নোটিফিকেশন দেখানোর অনুমতি চালু হয়েছে।',
@@ -3941,6 +3955,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         }
 
         async function loadNotifications() {
+            syncPushNotificationButton();
             const container = document.getElementById('notificationsList');
             const clearBtn = document.getElementById('deleteAllNotificationsBtn');
             if (!container) return;
