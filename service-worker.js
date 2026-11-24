@@ -1,4 +1,4 @@
-const CACHE_NAME = 'workzen-shell-v43';
+const CACHE_NAME = 'workzen-shell-v44';
 const SHELL = ['/', '/manifest.webmanifest', '/android-app/workzen-logo.jpg'];
 const NAVIGATION_TIMEOUT_MS = 8000;
 const PRECACHE_TIMEOUT_MS = 12000;
@@ -32,7 +32,7 @@ self.addEventListener('activate', (event) => {
     const cache = await caches.open(CACHE_NAME);
     const keys = await caches.keys();
     // Preserve the existing offline home page when upgrading the cache version.
-    for (const key of keys.filter((name) => (name.startsWith('taskflex-shell-') || name.startsWith('workzone-shell-')) && name !== CACHE_NAME)) {
+    for (const key of keys.filter((name) => (name.startsWith('taskflex-shell-') || name.startsWith('workzone-shell-') || name.startsWith('workzen-shell-')) && name !== CACHE_NAME)) {
       try {
         const oldCache = await caches.open(key);
         for (const request of await oldCache.keys()) {
@@ -44,7 +44,7 @@ self.addEventListener('activate', (event) => {
       } catch (_) {}
     }
     await Promise.all(keys
-      .filter((key) => (key.startsWith('taskflex-shell-') || key.startsWith('workzone-shell-')) && key !== CACHE_NAME)
+      .filter((key) => (key.startsWith('taskflex-shell-') || key.startsWith('workzone-shell-') || key.startsWith('workzen-shell-')) && key !== CACHE_NAME)
       .map((key) => caches.delete(key)));
     await self.clients.claim();
   })());
@@ -96,7 +96,7 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       });
-      const cachedPage = caches.match(request).then((cached) => cached || caches.match('/'));
+      const cachedPage = caches.open(CACHE_NAME).then(async (cache) => (await cache.match(request)) || (await cache.match('/')));
       const timeoutFallback = new Promise((resolve) => {
         setTimeout(async () => {
           const cached = await cachedPage;
