@@ -4077,6 +4077,25 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             }
         }
 
+        // Register native Android Firebase tokens after the signed-in session is ready.
+        window.workZenRegisterNativeFcmToken = async function(token) {
+            if (!token || !currentUser || !currentUser.email || !supabaseClient) return false;
+            try {
+                const { data, error } = await supabaseClient.functions.invoke('workzen-push', {
+                    body: { action: 'register-fcm', token: String(token) }
+                });
+                if (error || !data || !data.success) {
+                    console.warn('WorkZen native FCM registration failed:', error || data);
+                    return false;
+                }
+                console.info('WorkZen native FCM token registered.');
+                return true;
+            } catch (error) {
+                console.warn('WorkZen native FCM registration error:', error);
+                return false;
+            }
+        };
+
         // Silently register this device for Web Push only when the browser has already granted notification permission.
         // Never request permission automatically and never show an in-app enable button.
         async function autoRegisterPushIfAllowed() {
