@@ -10,6 +10,8 @@ import android.provider.MediaStore;
 import android.webkit.ValueCallback;
 import android.webkit.PermissionRequest;
 import android.os.Bundle;
+import android.os.Build;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.Gravity;
@@ -34,6 +36,7 @@ public class MainActivity extends Activity {
     private FrameLayout splash;
     private LinearLayout errorPanel;
     private static final int CAMERA_PERMISSION_REQUEST = 701;
+    private static final int NOTIFICATION_PERMISSION_REQUEST = 703;
     private PermissionRequest pendingWebPermissionRequest;
     private ValueCallback<Uri[]> pendingFileChooserCallback;
     private Uri pendingCameraImageUri;
@@ -136,7 +139,26 @@ public class MainActivity extends Activity {
         ));
 
         setContentView(root);
+        requestNotificationPermissionOnFirstLaunch();
         webView.loadUrl(HOME_URL);
+    }
+
+
+    private void requestNotificationPermissionOnFirstLaunch() {
+        // Android 13+ requires a runtime notification permission.
+        // Older Android versions grant notification posting by default.
+        if (Build.VERSION.SDK_INT < 33) return;
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return;
+
+        SharedPreferences preferences = getSharedPreferences("workzen_permissions", MODE_PRIVATE);
+        if (preferences.getBoolean("notification_permission_requested", false)) return;
+
+        // Mark before showing the dialog so a denial does not cause repeated prompts.
+        preferences.edit().putBoolean("notification_permission_requested", true).apply();
+        requestPermissions(
+            new String[]{Manifest.permission.POST_NOTIFICATIONS},
+            NOTIFICATION_PERMISSION_REQUEST
+        );
     }
 
     @Override
