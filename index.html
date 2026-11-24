@@ -29,6 +29,12 @@
             document.documentElement.classList.toggle('dark', effective === 'dark');
         })();
     </script>
+    <style>
+        /* Do not paint the app until the saved theme has been applied. */
+        html:not([data-theme-ready="true"]) body { visibility: hidden !important; }
+        #appBootScreen { background: #f7f8fc; color: #172033; }
+        html[data-theme-effective="dark"] #appBootScreen { background: #0b1020; color: #f8fafc; }
+    </style>
     <title>WorkZen: Micro Job Platform in Bangladesh</title>
     <meta name="description" content="WorkZen is a micro job platform in Bangladesh where people can find and complete online tasks.">
     <!-- Tailwind CSS -->
@@ -537,10 +543,15 @@ Check your Browserslist config to be sure that your targets are set up correctly
 </head>
 <body class="flex justify-center min-h-screen">
 
+    <div id="appBootScreen" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+        <div style="width:30px;height:30px;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:workzenBootSpin .8s linear infinite;"></div>
+        <span style="font-size:13px;font-weight:700;">লোড হচ্ছে...</span>
+    </div>
+    <style>@keyframes workzenBootSpin { to { transform:rotate(360deg); } }</style>
     <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-cardBorder">
 
         <!-- AUTH OVERLAY (Login / Register) -->
-        <div id="authOverlay" class="fixed inset-0 z-50 bg-bgDark flex flex-col items-center justify-center px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
+        <div id="authOverlay" class="hidden fixed inset-0 z-50 bg-bgDark flex flex-col items-center justify-center px-4 py-4 overflow-y-auto custom-scrollbar w-full max-w-md mx-auto">
             <div id="landingHero" class="landing-hero text-left mb-7 w-full">
                 <div class="landing-topbar relative z-10 flex w-full flex-shrink-0 items-center justify-between">
                     <div class="flex min-w-0 items-center gap-2.5">
@@ -1578,6 +1589,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 if (authOverlay) authOverlay.classList.remove('hidden');
                 if (header) header.classList.add('hidden');
                 if (main) main.classList.add('hidden');
+                const boot = document.getElementById('appBootScreen');
+                if (boot) boot.style.display = 'none';
             };
             try {
                 const client = await waitForSupabase();
@@ -1615,6 +1628,8 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 if (authOverlay) authOverlay.classList.add('hidden');
                 if (header) header.classList.remove('hidden');
                 if (main) main.classList.remove('hidden');
+                const boot = document.getElementById('appBootScreen');
+                if (boot) boot.style.display = 'none';
             } catch (error) {
                 console.error('Auth status check failed:', error);
                 showLoggedOut();
@@ -4940,6 +4955,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             document.documentElement.dataset.themeEffective = effective;
             document.documentElement.classList.toggle('dark', effective === 'dark');
             if (document.body) document.body.classList.toggle('theme-light', effective === 'light');
+            document.documentElement.dataset.themeReady = 'true';
             document.querySelectorAll('[data-theme-choice]').forEach(button => {
                 const selected = button.dataset.themeChoice === choice;
                 button.setAttribute('aria-pressed', selected ? 'true' : 'false');
