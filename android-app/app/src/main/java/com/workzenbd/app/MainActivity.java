@@ -22,6 +22,9 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.JavascriptInterface;
+import com.google.firebase.messaging.FirebaseMessaging;
+import org.json.JSONObject;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -32,6 +35,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
     private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=10";
     private WebView webView;
+    private volatile boolean trustedWorkZenPageLoaded = false;
     private FrameLayout root;
     private FrameLayout splash;
     private LinearLayout errorPanel;
@@ -66,6 +70,7 @@ public class MainActivity extends Activity {
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(webView, true);
+        webView.addJavascriptInterface(new NativePushBridge(), "WorkZenNative");
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(PermissionRequest request) {
@@ -99,8 +104,17 @@ public class MainActivity extends Activity {
         });
         webView.setWebViewClient(new WebViewClient() {
             @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                Uri parsed = Uri.parse(url);
+                trustedWorkZenPageLoaded = "https".equalsIgnoreCase(parsed.getScheme())
+                        && "workzenbd.vercel.app".equalsIgnoreCase(parsed.getHost());
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                if (trustedWorkZenPageLoaded) installNativePushBridge();
                 hideSplash();
                 hideError();
             }
@@ -143,6 +157,53 @@ public class MainActivity extends Activity {
         webView.loadUrl(HOME_URL);
     }
 
+
+    private void installNativePushBridge() {
+        String script = "(function(){"
+                + "if(window.__workZenNativePushBridgeInstalled)return;"
+                + "window.__workZenNativePushBridgeInstalled=true;"
+                + "window.workZenReceiveFcmToken=function(token){"
+                + "if(!token)return;"
+                + "if(window.__workZenFcmRegisterTimer)clearInterval(window.__workZenFcmRegisterTimer);"
+                + "var tries=0;"
+                + "window.__workZenFcmRegisterTimer=setInterval(async function(){"
+                + "tries++;"
+                + "try{"
+                + "if(typeof currentUser!=='undefined'&&currentUser&&currentUser.email&&typeof supabaseClient!=='undefined'&&supabaseClient){"
+                + "clearInterval(window.__workZenFcmRegisterTimer);window.__workZenFcmRegisterTimer=null;"
+                + "var result=await supabaseClient.functions.invoke('workzen-push',{body:{action:'register-fcm',token:String(token)}});"
+                + "if(result.error||!result.data||!result.data.success)console.warn('WorkZen Firebase token registration failed:',result.error||result.data);"
+                + "else console.info('WorkZen Firebase device token registered.');"
+                + "}"
+                + "}catch(error){console.warn('WorkZen Firebase token registration pending:',error);}"
+                + "if(tries>=600){clearInterval(window.__workZenFcmRegisterTimer);window.__workZenFcmRegisterTimer=null;}"
+                + "},1000);"
+                + "};"
+                + "if(window.WorkZenNative&&window.WorkZenNative.getFcmToken)window.WorkZenNative.getFcmToken();"
+                + "})();";
+        webView.evaluateJavascript(script, null);
+    }
+
+    private final class NativePushBridge {
+        @JavascriptInterface
+        public void getFcmToken() {
+            if (!trustedWorkZenPageLoaded) return;
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                if (!task.isSuccessful() || task.getResult() == null) return;
+                String token = task.getResult();
+                getSharedPreferences("workzen_push", MODE_PRIVATE)
+                        .edit().putString("fcm_token", token).apply();
+                runOnUiThread(() -> {
+                    if (webView == null || !trustedWorkZenPageLoaded) return;
+                    webView.evaluateJavascript(
+                            "if(window.workZenReceiveFcmToken)window.workZenReceiveFcmToken("
+                                    + JSONObject.quote(token) + ");",
+                            null
+                    );
+                });
+            });
+        }
+    }
 
     private void requestNotificationPermissionOnFirstLaunch() {
         // Android 13+ requires a runtime notification permission.
