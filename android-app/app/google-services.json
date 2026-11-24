@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1073076809381",
+    "project_id": "workzen-notifications",
+    "storage_bucket": "workzen-notifications.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1073076809381:android:60424f6d2d7e11b7a3674c",
+        "android_client_info": {
+          "package_name": "com.workzenbd.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBU_Eu4BtTkevSCRfgQwBTuhRXoVbR2His"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
