@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn" class="dark">
+<html lang="bn">
 <head>
     <meta name="google-site-verification" content="rWSyhcnN_up8vsSX8Yl4F-d1xNYT7MDSSbkGfjzJgQk" />
     <meta charset="UTF-8">
@@ -1604,10 +1604,17 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 } catch (profileError) { console.warn('Could not load saved avatar.', profileError); }
                 if (!currentUser.avatarUrl && authUser.user_metadata && authUser.user_metadata.avatar_url) currentUser.avatarUrl = authUser.user_metadata.avatar_url;
                 localStorage.setItem('workzen_user', JSON.stringify(currentUser));
+                // Prepare the saved page before revealing the app, preventing a dashboard flash.
+                updateUserDataUI();
+                let savedTab = 'dashboard';
+                try {
+                    const candidate = localStorage.getItem('workzen_last_tab_' + email);
+                    if (candidate && Array.isArray(ALL_TABS) && ALL_TABS.includes(candidate)) savedTab = candidate;
+                } catch (_) {}
+                await switchTab(savedTab);
                 if (authOverlay) authOverlay.classList.add('hidden');
                 if (header) header.classList.remove('hidden');
                 if (main) main.classList.remove('hidden');
-                updateUserDataUI();
             } catch (error) {
                 console.error('Auth status check failed:', error);
                 showLoggedOut();
@@ -2428,6 +2435,12 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 tabId = 'profile';
             }
             if (tabId !== currentTabId) { prevTabId = currentTabId; currentTabId = tabId; }
+            // Remember the last open page separately for each signed-in account.
+            try {
+                if (currentUser && currentUser.email) {
+                    localStorage.setItem('workzen_last_tab_' + String(currentUser.email).toLowerCase(), tabId);
+                }
+            } catch (_) {}
             ALL_TABS.forEach(id => {
                 const tabElem = document.getElementById('tab-' + id);
                 if (tabElem) tabElem.classList.add('hidden');
