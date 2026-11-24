@@ -1,4 +1,5 @@
 name: Build WorkZen APK
+# Rebuild requested after first-launch Android notification permission update.
 
 on:
   workflow_dispatch:
