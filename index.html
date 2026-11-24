@@ -1756,6 +1756,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                     if (candidate && Array.isArray(ALL_TABS) && ALL_TABS.includes(candidate)) savedTab = candidate;
                 } catch (_) {}
                 await switchTab(savedTab);
+                void autoRegisterPushIfAllowed();
                 if (authOverlay) authOverlay.classList.add('hidden');
                 if (header) header.classList.remove('hidden');
                 if (main) main.classList.remove('hidden');
@@ -2015,6 +2016,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             document.getElementById('appMain').classList.remove('hidden');
             switchTab('dashboard');
             updateUserDataUI();
+            void autoRegisterPushIfAllowed();
         }
 
         async function copyOtpFromField(inputId, statusId) {
@@ -2139,6 +2141,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 toggleAdminMenuItem();
                 localStorage.setItem('workzen_user', JSON.stringify(currentUser));
                 startWorkZenRealtime();
+                void autoRegisterPushIfAllowed();
                 document.getElementById('authOverlay').classList.add('hidden');
                 const header = document.getElementById('appHeader'); if (header) header.classList.remove('hidden');
                 const main = document.getElementById('appMain'); if (main) main.classList.remove('hidden');
@@ -4071,6 +4074,37 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 status.classList.add('text-emerald-300');
             } else if (status && ('Notification' in window) && Notification.permission === 'granted') {
                 status.textContent = 'অনুমতি দেওয়া আছে। স্বয়ংক্রিয় নোটিফিকেশন চালু করতে নিচের বাটনে চাপ দিন।';
+            }
+        }
+
+        // Silently register this device for Web Push only when the browser has already granted notification permission.
+        // Never request permission automatically and never show an in-app enable button.
+        async function autoRegisterPushIfAllowed() {
+            if (!currentUser || !currentUser.email || !supabaseClient) return;
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                if (!registration.pushManager) return;
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) {
+                    const { data: keyData, error: keyError } = await supabaseClient.functions.invoke('workzen-push', {
+                        body: { action: 'public-key' }
+                    });
+                    if (keyError || !keyData?.publicKey) throw new Error(keyError?.message || keyData?.error || 'Push server key unavailable');
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+                    });
+                }
+                const { data, error } = await supabaseClient.functions.invoke('workzen-push', {
+                    body: { action: 'subscribe', subscription: subscription.toJSON() }
+                });
+                if (error || !data?.success) throw new Error(error?.message || data?.error || 'Device registration failed');
+                console.info('WorkZen automatic push registration completed.');
+            } catch (error) {
+                // Push setup must never interrupt sign-in or normal app use.
+                console.warn('WorkZen automatic push registration skipped:', error?.message || error);
             }
         }
 
