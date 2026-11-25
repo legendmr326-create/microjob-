@@ -4203,8 +4203,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 updateNotifBadge(0);
                 return;
             }
-            const { data, error } = await supabaseClient.from('notifications').select('id,title,body,created_at,is_read')
-                .ilike('user_email', currentUser.email).order('created_at', { ascending: false }).limit(100);
+            const { data, error } = await supabaseClient.rpc('workzen_get_my_notifications');
             if (error) {
                 console.error('Notification load failed:', error);
                 container.innerHTML = '<div class="text-center py-8 text-violet-200/60 text-xs">নোটিফিকেশন লোড করা যায়নি।</div>';
@@ -4212,8 +4211,7 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 return;
             }
             const rows = data || [];
-            const cnt = await supabaseClient.from('notifications').select('id', { count: 'exact', head: true }).ilike('user_email', currentUser.email);
-            updateNotifBadge(!cnt.error && typeof cnt.count === 'number' ? cnt.count : rows.length);
+            updateNotifBadge(rows.length);
             if (clearBtn) clearBtn.classList.toggle('hidden', rows.length === 0);
             if (!rows.length) {
                 container.innerHTML = '<div class="text-center py-8 text-violet-200/60 text-xs">এখনো কোনো নোটিফিকেশন নেই।</div>';
