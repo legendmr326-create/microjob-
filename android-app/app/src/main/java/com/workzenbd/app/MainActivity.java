@@ -50,10 +50,10 @@ public class MainActivity extends Activity {
         getWindow().setNavigationBarColor(Color.rgb(11, 15, 23));
 
         root = new FrameLayout(this);
-        root.setBackgroundColor(Color.rgb(11, 15, 23));
+        root.setBackgroundColor(Color.rgb(220, 227, 227));
 
         webView = new WebView(this);
-        webView.setBackgroundColor(Color.rgb(11, 15, 23));
+        webView.setBackgroundColor(Color.rgb(220, 227, 227));
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
