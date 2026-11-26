@@ -5421,8 +5421,21 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
             card.classList.remove('hidden');
             const title = card.querySelector('h3');
             if (title) title.textContent = 'Welcome Back';
-            const oldBrand = document.getElementById('workzen-app-login-brand');
-            if (oldBrand) oldBrand.remove();
+            let brand = document.getElementById('workzen-app-login-brand');
+            if (!brand && overlay) {
+                brand = document.createElement('div');
+                brand.id = 'workzen-app-login-brand';
+                const logo = document.createElement('img');
+                logo.src = '/android-app/workzen-logo.jpg';
+                logo.alt = 'WorkZen J logo';
+                logo.width = 92;
+                logo.height = 92;
+                logo.className = 'shadow-lg';
+                brand.appendChild(logo);
+                overlay.insertBefore(brand, card);
+            } else if (brand && brand.parentElement !== overlay) {
+                overlay.insertBefore(brand, card);
+            }
             let heading = document.getElementById('workzen-app-login-heading');
             if (!heading && overlay) {
                 heading = document.createElement('div');
