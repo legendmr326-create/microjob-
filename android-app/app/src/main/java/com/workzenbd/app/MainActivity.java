@@ -27,9 +27,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.json.JSONObject;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -133,21 +131,6 @@ public class MainActivity extends Activity {
         });
 
         root.addView(webView, new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        ));
-
-        splash = new FrameLayout(this);
-        splash.setBackgroundColor(Color.rgb(11, 15, 23));
-        ImageView logo = new ImageView(this);
-        logo.setImageResource(R.drawable.workzen_logo);
-        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        splash.addView(logo, new FrameLayout.LayoutParams(dp(176), dp(176), Gravity.CENTER));
-        ProgressBar progress = new ProgressBar(this);
-        FrameLayout.LayoutParams progressParams = new FrameLayout.LayoutParams(dp(34), dp(34), Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
-        progressParams.bottomMargin = dp(64);
-        splash.addView(progress, progressParams);
-        root.addView(splash, new FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.MATCH_PARENT
         ));
@@ -292,7 +275,6 @@ public class MainActivity extends Activity {
         retry.setText("আবার চেষ্টা করুন");
         retry.setOnClickListener(v -> {
             hideError();
-            if (splash == null) showSplash();
             webView.loadUrl(HOME_URL);
         });
         LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
@@ -307,23 +289,8 @@ public class MainActivity extends Activity {
     }
 
     private void showSplash() {
-        if (splash != null) return;
-        splash = new FrameLayout(this);
-        splash.setBackgroundColor(Color.rgb(11, 15, 23));
-        ImageView logo = new ImageView(this);
-        logo.setImageResource(R.drawable.workzen_logo);
-        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        splash.addView(logo, new FrameLayout.LayoutParams(dp(176), dp(176), Gravity.CENTER));
-        ProgressBar progress = new ProgressBar(this);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(dp(34), dp(34), Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
-        params.bottomMargin = dp(64);
-        splash.addView(progress, params);
-        root.addView(splash, new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        ));
+        // Intentionally no branded loading overlay; show the app screen directly.
     }
-
     private void hideSplash() {
         if (splash != null) {
             root.removeView(splash);
