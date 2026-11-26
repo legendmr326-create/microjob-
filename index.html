@@ -5427,11 +5427,15 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
                 brand.id = 'workzen-app-login-brand';
                 const logo = document.createElement('img');
                 logo.src = '/android-app/workzen-logo.jpg';
-                logo.alt = 'WorkZen J logo';
+                logo.alt = 'WorkZen logo';
                 logo.width = 92;
                 logo.height = 92;
                 logo.className = 'shadow-lg';
+                const brandName = document.createElement('span');
+                brandName.className = 'workzen-app-brand-name';
+                brandName.textContent = 'WorkZen';
                 brand.appendChild(logo);
+                brand.appendChild(brandName);
                 overlay.insertBefore(brand, card);
             } else if (brand && brand.parentElement !== overlay) {
                 overlay.insertBefore(brand, card);
