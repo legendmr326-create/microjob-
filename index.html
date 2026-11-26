@@ -543,8 +543,9 @@ Check your Browserslist config to be sure that your targets are set up correctly
 </head>
 <body class="flex justify-center min-h-screen">
 
-    <div id="appBootScreen" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:#0b1020;color:#f8fafc;">
-        <span style="font-size:13px;font-weight:600;opacity:.75;">লোড হচ্ছে...</span>
+    <div id="appBootScreen" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
+        <div style="width:30px;height:30px;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:workzenBootSpin .8s linear infinite;"></div>
+        <span style="font-size:13px;font-weight:700;">লোড হচ্ছে...</span>
     </div>
     <style>@keyframes workzenBootSpin { to { transform:rotate(360deg); } }</style>
     <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-cardBorder">
@@ -1715,9 +1716,6 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const showLoggedOut = () => {
                 stopWorkZenRealtime();
                 currentUser = null;
-                if (document.documentElement.classList.contains('workzen-app-mode') && typeof window.toggleAuthForm === 'function') {
-                    window.toggleAuthForm('login');
-                }
                 if (authOverlay) authOverlay.classList.remove('hidden');
                 if (header) header.classList.add('hidden');
                 if (main) main.classList.add('hidden');
@@ -5428,8 +5426,8 @@ html[data-theme-effective="light"] nav.nav-glass .nav-btn:not(.text-amber-300){c
                 const logo = document.createElement('img');
                 logo.src = '/android-app/workzen-logo.jpg';
                 logo.alt = 'WorkZen logo';
-                logo.width = 92;
-                logo.height = 92;
+                logo.width = 104;
+                logo.height = 104;
                 logo.className = 'shadow-lg';
                 const brandName = document.createElement('span');
                 brandName.className = 'workzen-app-brand-name';
