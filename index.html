@@ -543,9 +543,10 @@ Check your Browserslist config to be sure that your targets are set up correctly
 </head>
 <body class="flex justify-center min-h-screen">
 
-    <div id="appBootScreen" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
-        <div style="width:30px;height:30px;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:workzenBootSpin .8s linear infinite;"></div>
-        <span style="font-size:13px;font-weight:700;">লোড হচ্ছে...</span>
+    <div id="appBootScreen" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#0b1020;color:#f8fafc;">
+        <img src="/android-app/workzen-logo.jpg" alt="WorkZen J logo" width="104" height="104" style="width:104px;height:104px;object-fit:contain;border-radius:26px;box-shadow:0 12px 36px rgba(37,99,235,.28);">
+        <strong style="font-size:21px;letter-spacing:.2px;">WorkZen</strong>
+        <span style="font-size:13px;font-weight:600;opacity:.75;">লোড হচ্ছে...</span>
     </div>
     <style>@keyframes workzenBootSpin { to { transform:rotate(360deg); } }</style>
     <div class="w-full max-w-md min-h-screen flex flex-col relative pb-28 shadow-2xl border-x border-cardBorder">
@@ -1716,6 +1717,9 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const showLoggedOut = () => {
                 stopWorkZenRealtime();
                 currentUser = null;
+                if (document.documentElement.classList.contains('workzen-app-mode') && typeof window.toggleAuthForm === 'function') {
+                    window.toggleAuthForm('login');
+                }
                 if (authOverlay) authOverlay.classList.remove('hidden');
                 if (header) header.classList.add('hidden');
                 if (main) main.classList.add('hidden');
