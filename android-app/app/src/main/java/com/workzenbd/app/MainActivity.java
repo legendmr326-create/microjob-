@@ -219,8 +219,13 @@ public class MainActivity extends Activity {
             pendingWebPermissionRequest = null;
             if (request == null) return;
             boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-            if (request != null) { if (granted) request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE}); else request.deny(); }
-            if (pendingFileChooserCallback != null) { if (granted) launchCameraCapture(); else finishCameraCapture(null); }
+            if (granted) {
+                request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+            } else {
+                request.deny();
+            }
+            // Camera permission for an in-page video request must never launch
+            // the camera as a side effect of the separate gallery/file picker.
         }
     }
 
