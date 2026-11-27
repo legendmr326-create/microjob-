@@ -29,11 +29,19 @@
             document.documentElement.classList.toggle('dark', effective === 'dark');
         })();
     </script>
+    <script>
+        // Mark the Android WebView early so app-only startup rules apply before first paint.
+        if (new URLSearchParams(window.location.search).get('app') === '1') {
+            document.documentElement.classList.add('workzen-app-mode');
+        }
+    </script>
     <style>
-        /* Do not paint the app until the saved theme has been applied. */
-        html:not([data-theme-ready="true"]) body { visibility: hidden !important; }
+        /* Keep the website boot screen, but skip it inside the Android app. */
+        html:not([data-theme-ready="true"]):not(.workzen-app-mode) body { visibility: hidden !important; }
         #appBootScreen { background: #f7f8fc; color: #172033; }
         html[data-theme-effective="dark"] #appBootScreen { background: #0b1020; color: #f8fafc; }
+        html.workzen-app-mode body { visibility: visible !important; }
+        html.workzen-app-mode #appBootScreen { display: none !important; }
     </style>
     <title>WorkZen: Micro Job Platform in Bangladesh</title>
     <meta name="description" content="WorkZen is a micro job platform in Bangladesh where people can find and complete online tasks.">
