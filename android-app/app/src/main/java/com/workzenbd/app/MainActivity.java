@@ -31,7 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=10";
+    private static final String HOME_URL = "https://workzenbd.vercel.app/?app=1&appbuild=11";
     private WebView webView;
     private volatile boolean trustedWorkZenPageLoaded = false;
     private FrameLayout root;
