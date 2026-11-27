@@ -10,6 +10,5 @@
         <item name="android:windowSplashScreenBackground">#DCE3E3</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent_splash_icon</item>
         <item name="android:windowSplashScreenAnimationDuration">0</item>
-        <item name="android:postSplashScreenTheme">@style/AppTheme</item>
     </style>
 </resources>
