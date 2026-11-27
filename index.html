@@ -3950,7 +3950,23 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             try { const u = new URL(s); if (u.protocol !== 'https:' && u.protocol !== 'http:') return null; return u.href; } catch (e) { return null; }
         }
 
+        let jobWorkSubmitting = false;
         async function submitJobWork() {
+            const submitBtn = document.getElementById('submitWorkBtn');
+            if (jobWorkSubmitting) return;
+            jobWorkSubmitting = true;
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
+            try {
+                await submitJobWorkInternal();
+            } catch (err) {
+                setProofError('Submit failed: ' + (err && err.message ? err.message : 'Please try again.') );
+            } finally {
+                jobWorkSubmitting = false;
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
+            }
+        }
+
+        async function submitJobWorkInternal() {
             if (!(await requireApprovedKyc())) return;
             if (!currentUser) { niceAlert('Please log in first.'); return; }
             if (!(await isKycApproved())) { niceAlert('Please complete KYC verification first'); openKycProfile(); return; }
@@ -3993,8 +4009,6 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             const proofImage = images.length === 0 ? '' : images.length === 1 ? images[0] : JSON.stringify(images);
             const proofText = lines.join('\n');
 
-            const btn = document.getElementById('submitWorkBtn');
-            btn.disabled = true; btn.textContent = 'Submitting...';
             let savedOnServer = false;
             let serverErr = null;
             if (supabaseClient) {
@@ -4005,7 +4019,6 @@ alter table public.kyc_verifications add column if not exists personal_details_j
                 savedOnServer = !error;
                 serverErr = error;
             }
-            btn.disabled = false; btn.textContent = 'Submit';
             if (!savedOnServer) {
                 setProofError('Submit failed: ' + (serverErr ? serverErr.message : 'no server connection') + '. Your work was not saved.');
                 return;
