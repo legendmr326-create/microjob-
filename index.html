@@ -2149,9 +2149,11 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 updateUserDataUI();
             } catch (error) {
                 console.warn('Login failed:', error);
-                const message = error && /invalid login credentials|invalid email or password|incorrect email or password/i.test(error.message || '')
-                    ? 'Incorrect email or password.'
-                    : (error.message || 'Login failed. Please try again.');
+                const appMode = new URLSearchParams(window.location.search).get('app') === '1';
+                const authMessage = String((error && error.message) || 'Login failed. Please try again.');
+                const message = appMode
+                    ? (authMessage + (error && error.code ? ' (' + error.code + ')' : ''))
+                    : (/invalid login credentials|invalid email or password|incorrect email or password/i.test(authMessage) ? 'Incorrect email or password.' : authMessage);
                 niceAlert(message);
             } finally {
                 if (button) { button.disabled = false; button.textContent = 'Login'; }
