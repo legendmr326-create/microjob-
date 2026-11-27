@@ -3081,7 +3081,35 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             return !belowMinimum;
         }
 
+        let depositSubmitInProgress = false;
+        let withdrawSubmitInProgress = false;
+
+        function getSubmissionRequestKey(kind, payload) {
+            const storageKey = 'workzen_' + kind + '_request_key';
+            const signature = JSON.stringify(payload);
+            try {
+                const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+                if (saved && saved.signature === signature && saved.key) return saved.key;
+                const key = (window.crypto && typeof window.crypto.randomUUID === 'function')
+                    ? window.crypto.randomUUID()
+                    : (Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + '-' + Math.random().toString(36).slice(2));
+                localStorage.setItem(storageKey, JSON.stringify({ signature: signature, key: key }));
+                return key;
+            } catch (e) {
+                return (Date.now().toString(36) + '-' + Math.random().toString(36).slice(2) + '-' + kind);
+            }
+        }
+
+        function clearSubmissionRequestKey(kind) {
+            try { localStorage.removeItem('workzen_' + kind + '_request_key'); } catch (e) {}
+        }
+
         async function submitDeposit() {
+            const submitButton = document.querySelector('#tab-deposit button[onclick="submitDeposit()"]');
+            if (depositSubmitInProgress) return;
+            depositSubmitInProgress = true;
+            if (submitButton) { submitButton.disabled = true; submitButton.setAttribute('aria-busy', 'true'); submitButton.textContent = 'Submitting...'; }
+            try {
             if (!(await requireApprovedKyc())) return;
             const amt = document.getElementById('depositAmount').value;
             if (!validateMinimumAmount('depositAmount', 'depositAmountError', 'Minimum deposit amount is ৳50')) return;
@@ -3104,18 +3132,23 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
             const net = Math.round((parseFloat(amt) || 0) * 100) / 100;
             const gross = net;
             const fee = 0;
-            const { error } = await insertSafe('deposits', {
-                user_email: currentUser.email, gateway: selectedGateway, amount: gross, fee: fee, net_amount: net, sender: sender, trx: trx, status: 'Pending'
-            });
+            const depositPayload = { user_email: currentUser.email, gateway: selectedGateway, amount: gross, fee: fee, net_amount: net, sender: sender, trx: trx, status: 'Pending' };
+            const requestKey = getSubmissionRequestKey('deposit', { email: currentUser.email, gateway: selectedGateway, amount: gross, sender: sender.trim(), trx: trx.trim().toUpperCase() });
+            const { error } = await supabaseClient.from('deposits').upsert([{ ...depositPayload, request_key: requestKey }], { onConflict: 'request_key', ignoreDuplicates: true });
             if (error) { niceAlert('Error: ' + error.message); return; }
+            clearSubmissionRequestKey('deposit');
             niceAlert('Deposit submitted!\nSend: ৳' + gross.toFixed(2) + ' | You receive: ৳' + net.toFixed(2));
             document.getElementById('depositAmount').value = '';
             document.getElementById('depositSender').value = '';
             document.getElementById('depositTrx').value = '';
             cancelGatewaySelection();
             fetchUserBalance();
+        
+            } finally {
+                depositSubmitInProgress = false;
+                if (submitButton) { submitButton.disabled = false; submitButton.removeAttribute('aria-busy'); submitButton.textContent = 'Submit Deposit'; }
+            }
         }
-
         let jobApprovedCounts = {};
         async function fetchJobsFromDatabase() {
             const container = document.getElementById('availableJobsList');
@@ -4420,6 +4453,11 @@ alter table public.kyc_verifications add column if not exists personal_details_j
         function renderMyTakenJobs() {}
 
         async function submitWithdraw() {
+            const submitButton = document.querySelector('#tab-withdraw button[onclick="submitWithdraw()"]');
+            if (withdrawSubmitInProgress) return;
+            withdrawSubmitInProgress = true;
+            if (submitButton) { submitButton.disabled = true; submitButton.setAttribute('aria-busy', 'true'); submitButton.textContent = 'Submitting...'; }
+            try {
             if (!(await requireApprovedKyc())) return;
             if (!currentUser) { niceAlert('Please log in first.'); return; }
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
@@ -4433,8 +4471,10 @@ alter table public.kyc_verifications add column if not exists personal_details_j
 
             let savedOnServer = false;
             if (supabaseClient) {
-                const { error } = await insertSafe('withdrawals', { user_email: currentUser.email, amount: amount, fee: wFee, net_amount: wNet, method: method, account_number: number, status: 'Pending' });
+                const requestKey = getSubmissionRequestKey('withdraw', { email: currentUser.email, amount: amount, method: method, account_number: number });
+                const { error } = await supabaseClient.from('withdrawals').upsert([{ user_email: currentUser.email, amount: amount, fee: wFee, net_amount: wNet, method: method, account_number: number, status: 'Pending', request_key: requestKey }], { onConflict: 'request_key', ignoreDuplicates: true });
                 savedOnServer = !error;
+                if (savedOnServer) clearSubmissionRequestKey('withdraw');
             }
             if (!savedOnServer) {
                 const list = getLocalList('workzen_withdrawals');
@@ -4448,8 +4488,12 @@ alter table public.kyc_verifications add column if not exists personal_details_j
             renderEarnings();
             renderDepositHistory();
             renderWithdrawHistory();
+        
+            } finally {
+                withdrawSubmitInProgress = false;
+                if (submitButton) { submitButton.disabled = false; submitButton.removeAttribute('aria-busy'); submitButton.textContent = 'Send Withdraw Request'; }
+            }
         }
-
         function renderRecentActivity() {
             const container = document.getElementById('recentActivityList');
             if (!container) return;
