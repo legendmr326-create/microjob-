@@ -91,8 +91,16 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (pendingFileChooserCallback != null) pendingFileChooserCallback.onReceiveValue(null);
                 pendingFileChooserCallback = callback;
-                if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) launchCameraCapture();
-                else requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_REQUEST);
+                try {
+                    // Respect the web page's file input: open Android's picker instead of
+                    // forcing the camera for every image upload.
+                    Intent intent = params != null ? params.createIntent() : new Intent(Intent.ACTION_GET_CONTENT);
+                    if (intent.getType() == null) intent.setType("*/*");
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    startActivityForResult(Intent.createChooser(intent, "Select file"), FILE_CHOOSER_REQUEST);
+                } catch (Exception e) {
+                    finishCameraCapture(null);
+                }
                 return true;
             }
             @Override
@@ -217,6 +225,7 @@ public class MainActivity extends Activity {
     }
 
     private static final int CAMERA_CAPTURE_REQUEST = 702;
+    private static final int FILE_CHOOSER_REQUEST = 704;
     private void launchCameraCapture() {
         if (pendingFileChooserCallback == null) return;
         try {
@@ -242,6 +251,18 @@ public class MainActivity extends Activity {
         if (requestCode == CAMERA_CAPTURE_REQUEST) {
             if (resultCode == RESULT_OK && pendingCameraImageUri != null) finishCameraCapture(new Uri[]{pendingCameraImageUri});
             else finishCameraCapture(null);
+        } else if (requestCode == FILE_CHOOSER_REQUEST) {
+            Uri[] results = null;
+            if (resultCode == RESULT_OK && data != null) {
+                if (data.getClipData() != null) {
+                    int count = data.getClipData().getItemCount();
+                    results = new Uri[count];
+                    for (int i = 0; i < count; i++) results[i] = data.getClipData().getItemAt(i).getUri();
+                } else if (data.getData() != null) {
+                    results = new Uri[]{data.getData()};
+                }
+            }
+            finishCameraCapture(results);
         }
     }
     private void showError() {
