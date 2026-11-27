@@ -1945,7 +1945,7 @@ function copyText(v,btn){var l=btn.querySelector('span');function msg(t){l.textC
                 }
                 const title = heading.querySelector('h2');
                 const subtitle = heading.querySelector('p');
-                if (title) title.textContent = form === 'forgot' ? 'Forgot Password' : ((form === 'register' || form === 'verify') ? 'Create Account' : 'Welcome Back');
+                if (title) title.textContent = form === 'forgot' ? 'Forgot Password' : ((form === 'register' || form === 'verify') ? 'Create Account' : 'Welcome');
                 if (subtitle) subtitle.textContent = form === 'forgot'
                     ? 'Please enter your email address to receive a verification code'
                     : (form === 'verify' ? 'Verify your email' : (form === 'register' ? 'Please fill in the details to register' : 'Please sign up to continue'));
